@@ -7,6 +7,7 @@ import { SearchPage } from '@/pages/SearchPage';
 import { SettingsPage } from '@/components/settings/SettingsPage';
 import { searchRepositories, searchCode, searchIssues } from '@/lib/github';
 import { generateSearchSummary } from '@/lib/ai';
+import { saveSearchHistory, getSearchHistory, getSetting, isTauri } from '@/lib/tauri-bridge';
 import type { SearchResult } from '@/types';
 import './index.css';
 
@@ -25,6 +26,17 @@ function App() {
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
   }, [theme]);
+
+  // DB에서 검색 히스토리 로드
+  useEffect(() => {
+    if (isTauri()) {
+      getSearchHistory(50).then((history) => {
+        if (history.length > 0) {
+          useAppStore.setState({ searchHistory: history });
+        }
+      });
+    }
+  }, []);
 
   // 키보드 단축키
   useEffect(() => {
@@ -59,8 +71,14 @@ function App() {
         const issue_results =
           issueRes.status === 'fulfilled' ? issueRes.value.items : [];
 
-        // AI 요약 생성
-        const apiKey = localStorage.getItem('openai_api_key') || '';
+        // AI 요약 생성 (DB 우선, localStorage fallback)
+        let apiKey = '';
+        if (isTauri()) {
+          apiKey = (await getSetting('openai_api_key')) || '';
+        }
+        if (!apiKey) {
+          apiKey = localStorage.getItem('openai_api_key') || '';
+        }
         const ai_summary = await generateSearchSummary(query, repositories, apiKey);
 
         const result: SearchResult = {
@@ -73,14 +91,18 @@ function App() {
 
         setSearchResult(result);
 
-        // 검색 기록 저장
-        addSearchHistory({
+        // 검색 기록 저장 (메모리 + DB)
+        const historyEntry = {
           id: crypto.randomUUID(),
           query,
           result_count: result.total_count,
           filters: null,
           searched_at: new Date().toISOString(),
-        });
+        };
+        addSearchHistory(historyEntry);
+        if (isTauri()) {
+          saveSearchHistory(historyEntry);
+        }
       } catch (error) {
         console.error('Search error:', error);
         setSearchResult({

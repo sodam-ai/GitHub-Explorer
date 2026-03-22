@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Check, Eye, EyeOff } from 'lucide-react';
 import { useAppStore } from '@/stores/app-store';
+import { saveSetting, getSetting, isTauri } from '@/lib/tauri-bridge';
 
 export function SettingsPage() {
   const { setCurrentPage } = useAppStore();
@@ -11,15 +12,33 @@ export function SettingsPage() {
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    setOpenaiKey(localStorage.getItem('openai_api_key') || '');
-    setAnthropicKey(localStorage.getItem('anthropic_api_key') || '');
+    async function loadKeys() {
+      if (isTauri()) {
+        const oai = await getSetting('openai_api_key');
+        const ant = await getSetting('anthropic_api_key');
+        if (oai) setOpenaiKey(oai);
+        if (ant) setAnthropicKey(ant);
+      } else {
+        setOpenaiKey(localStorage.getItem('openai_api_key') || '');
+        setAnthropicKey(localStorage.getItem('anthropic_api_key') || '');
+      }
+    }
+    loadKeys();
   }, []);
 
-  function handleSave() {
+  async function handleSave() {
+    // localStorage (항상)
     if (openaiKey) localStorage.setItem('openai_api_key', openaiKey);
     else localStorage.removeItem('openai_api_key');
     if (anthropicKey) localStorage.setItem('anthropic_api_key', anthropicKey);
     else localStorage.removeItem('anthropic_api_key');
+
+    // SQLite DB (Tauri 환경)
+    if (isTauri()) {
+      if (openaiKey) await saveSetting('openai_api_key', openaiKey);
+      if (anthropicKey) await saveSetting('anthropic_api_key', anthropicKey);
+    }
+
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   }
