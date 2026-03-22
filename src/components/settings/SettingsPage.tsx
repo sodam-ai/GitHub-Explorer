@@ -5,20 +5,26 @@ import { saveSetting, getSetting, isTauri } from '@/lib/tauri-bridge';
 
 export function SettingsPage() {
   const { setCurrentPage } = useAppStore();
+  const [githubToken, setGithubToken] = useState('');
   const [openaiKey, setOpenaiKey] = useState('');
   const [anthropicKey, setAnthropicKey] = useState('');
+  const [showGithub, setShowGithub] = useState(false);
   const [showOpenai, setShowOpenai] = useState(false);
   const [showAnthropic, setShowAnthropic] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [githubUser, setGithubUser] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadKeys() {
       if (isTauri()) {
+        const gh = await getSetting('github_token');
         const oai = await getSetting('openai_api_key');
         const ant = await getSetting('anthropic_api_key');
+        if (gh) setGithubToken(gh);
         if (oai) setOpenaiKey(oai);
         if (ant) setAnthropicKey(ant);
       } else {
+        setGithubToken(localStorage.getItem('github_token') || '');
         setOpenaiKey(localStorage.getItem('openai_api_key') || '');
         setAnthropicKey(localStorage.getItem('anthropic_api_key') || '');
       }
@@ -26,8 +32,24 @@ export function SettingsPage() {
     loadKeys();
   }, []);
 
+  // GitHub 토큰 검증
+  useEffect(() => {
+    if (!githubToken) {
+      setGithubUser(null);
+      return;
+    }
+    fetch('https://api.github.com/user', {
+      headers: { Authorization: `Bearer ${githubToken}` },
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => setGithubUser(data?.login || null))
+      .catch(() => setGithubUser(null));
+  }, [githubToken]);
+
   async function handleSave() {
     // localStorage (항상)
+    if (githubToken) localStorage.setItem('github_token', githubToken);
+    else localStorage.removeItem('github_token');
     if (openaiKey) localStorage.setItem('openai_api_key', openaiKey);
     else localStorage.removeItem('openai_api_key');
     if (anthropicKey) localStorage.setItem('anthropic_api_key', anthropicKey);
@@ -35,6 +57,7 @@ export function SettingsPage() {
 
     // SQLite DB (Tauri 환경)
     if (isTauri()) {
+      if (githubToken) await saveSetting('github_token', githubToken);
       if (openaiKey) await saveSetting('openai_api_key', openaiKey);
       if (anthropicKey) await saveSetting('anthropic_api_key', anthropicKey);
     }
@@ -54,6 +77,44 @@ export function SettingsPage() {
       </button>
 
       <h1 className="text-2xl font-bold mb-6">설정</h1>
+
+      {/* GitHub 계정 */}
+      <section className="mb-8">
+        <h2 className="text-lg font-semibold mb-4">GitHub 계정</h2>
+        <div className="p-4 border border-[var(--border)] rounded-xl">
+          <label className="block text-sm font-medium mb-2">
+            GitHub Personal Access Token
+          </label>
+          {githubUser && (
+            <div className="mb-2 flex items-center gap-2 text-sm text-green-500">
+              <Check size={14} />
+              연결됨: @{githubUser}
+            </div>
+          )}
+          <div className="relative">
+            <input
+              type={showGithub ? 'text' : 'password'}
+              value={githubToken}
+              onChange={(e) => setGithubToken(e.target.value)}
+              placeholder="ghp_..."
+              className="w-full px-3 py-2 pr-10 bg-[var(--bg-secondary)] border border-[var(--border)] rounded-lg text-sm outline-none focus:border-[var(--accent)]"
+            />
+            <button
+              type="button"
+              onClick={() => setShowGithub(!showGithub)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]"
+            >
+              {showGithub ? <EyeOff size={14} /> : <Eye size={14} />}
+            </button>
+          </div>
+          <p className="mt-1 text-xs text-[var(--text-secondary)]">
+            github.com/settings/tokens → "Generate new token (classic)" → repo 권한 선택
+          </p>
+          <p className="mt-1 text-xs text-[var(--text-secondary)]">
+            토큰이 있으면 API 호출 한도가 시간당 60회 → 5,000회로 증가합니다
+          </p>
+        </div>
+      </section>
 
       {/* AI 제공자 */}
       <section className="mb-8">

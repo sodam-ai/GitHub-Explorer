@@ -58,10 +58,19 @@ function App() {
       setSearchResult(null);
 
       try {
+        // GitHub 토큰 가져오기 (DB 우선, localStorage fallback)
+        let ghToken: string | undefined;
+        if (isTauri()) {
+          ghToken = (await getSetting('github_token')) || undefined;
+        }
+        if (!ghToken) {
+          ghToken = localStorage.getItem('github_token') || undefined;
+        }
+
         const [repoRes, codeRes, issueRes] = await Promise.allSettled([
-          searchRepositories(query),
-          searchCode(query),
-          searchIssues(query),
+          searchRepositories(query, ghToken),
+          searchCode(query, ghToken),
+          searchIssues(query, ghToken),
         ]);
 
         const repositories =
