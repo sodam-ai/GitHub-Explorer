@@ -3,6 +3,8 @@ mod db;
 
 use db::Database;
 use tauri::Manager;
+use tauri::menu::{MenuBuilder, MenuItemBuilder};
+use tauri::tray::TrayIconBuilder;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -24,6 +26,44 @@ pub fn run() {
             let database =
                 Database::new(app_data_dir).expect("failed to initialize database");
             app.manage(database);
+
+            // 시스템 트레이
+            let show = MenuItemBuilder::with_id("show", "열기").build(app)?;
+            let quit = MenuItemBuilder::with_id("quit", "종료").build(app)?;
+            let menu = MenuBuilder::new(app)
+                .item(&show)
+                .separator()
+                .item(&quit)
+                .build()?;
+
+            let _tray = TrayIconBuilder::new()
+                .icon(app.default_window_icon().unwrap().clone())
+                .tooltip("GitHub AI Explorer")
+                .menu(&menu)
+                .on_menu_event(move |app, event| {
+                    match event.id().as_ref() {
+                        "show" => {
+                            if let Some(window) = app.get_webview_window("main") {
+                                let _ = window.show();
+                                let _ = window.set_focus();
+                            }
+                        }
+                        "quit" => {
+                            app.exit(0);
+                        }
+                        _ => {}
+                    }
+                })
+                .on_tray_icon_event(|tray, event| {
+                    if let tauri::tray::TrayIconEvent::DoubleClick { .. } = event {
+                        let app = tray.app_handle();
+                        if let Some(window) = app.get_webview_window("main") {
+                            let _ = window.show();
+                            let _ = window.set_focus();
+                        }
+                    }
+                })
+                .build(app)?;
 
             Ok(())
         })
