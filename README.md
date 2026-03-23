@@ -24,7 +24,7 @@ The AI understands what you mean and finds the best results.
 | AI Search | Type in plain language, get smart results from repositories, code, and issues |
 | AI Summary | Every search comes with an AI-generated summary at the top |
 | Tabs | Results are organized into Repositories / Code / Issues tabs |
-| Bookmarks | Save your favorite repositories (coming in Phase 2) |
+| Bookmarks | Save your favorite repositories to collections |
 | Command Palette | Press `Ctrl+K` to quickly search from anywhere in the app |
 | Dark/Light Mode | Switch between dark and light themes |
 | Local Database | Your search history and settings are saved on your computer |
@@ -106,7 +106,8 @@ Type anything in the search bar and press Enter. For example:
 | Styling | Tailwind CSS 4 |
 | State Management | Zustand |
 | Local Database | SQLite (via rusqlite) |
-| AI | OpenAI API (gpt-4o-mini) |
+| AI | OpenAI API + Ollama (local) |
+| Syntax Highlighting | Prism.js |
 | Build Tool | Vite 8 |
 | Icons | Lucide React |
 
@@ -136,8 +137,8 @@ github-ai-explorer/
 | Phase | Features | Status |
 |-------|----------|--------|
 | Phase 1 (MVP) | AI search, AI summary, tabs, history, shortcuts, dark mode, settings, SQLite, GitHub auth | **Complete** (11/11) |
-| Phase 2 | Code Q&A, bookmarks, collections, health score, comparison, smart folders | Planned |
-| Phase 3 | Local AI (Ollama), smart recommendations, trending dashboard, auto-update | Planned |
+| Phase 2 | Code Q&A, bookmarks, collections, health score, comparison, smart folders, code viewer, filters | **Complete** (9/9) |
+| Phase 3 | Local AI (Ollama), offline mode, trending dashboard, export, auto-update, cache strategy | **Complete** (8/8) |
 
 ---
 
