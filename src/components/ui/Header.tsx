@@ -1,99 +1,93 @@
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Settings, Sun, Moon, FolderOpen, TrendingUp } from 'lucide-react';
 import { useAppStore } from '@/stores/app-store';
-import { Tooltip } from './Tooltip';
 
 export function Header() {
   const { theme, toggleTheme, setCommandPaletteOpen, setCurrentPage, currentPage } = useAppStore();
 
-  function NavButton({
-    page,
-    icon,
-    label,
-  }: {
-    page: string;
-    icon: React.ReactNode;
-    label: string;
-  }) {
-    const isActive = currentPage === page;
-    return (
-      <Tooltip content={label}>
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => setCurrentPage(page as typeof currentPage)}
-          className={`relative p-2 rounded-lg transition-colors ${
-            isActive
-              ? 'text-[var(--accent)] bg-[var(--accent)]/10'
-              : 'text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] hover:text-[var(--text-primary)]'
-          }`}
-        >
-          {icon}
-          {isActive && (
-            <motion.div
-              layoutId="nav-indicator"
-              className="absolute -bottom-[13px] left-1/2 -translate-x-1/2 w-6 h-0.5 bg-[var(--accent)] rounded-full"
-            />
-          )}
-        </motion.button>
-      </Tooltip>
-    );
-  }
+  const navItems = [
+    { page: 'collections' as const, icon: FolderOpen, label: '컬렉션' },
+    { page: 'trending' as const, icon: TrendingUp, label: '트렌딩' },
+  ];
 
   return (
-    <header className="flex items-center justify-between px-6 py-3 border-b border-[var(--border)] bg-[var(--bg-secondary)]">
-      <motion.button
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
+    <header className="flex items-center justify-between px-5 h-12 border-b border-[var(--border)] bg-[var(--bg-card)]">
+      {/* Logo */}
+      <button
         onClick={() => setCurrentPage('home')}
-        className="flex items-center gap-2.5 text-lg font-semibold"
+        className="flex items-center gap-2 font-semibold text-[14px] hover:opacity-70 transition-opacity"
       >
-        <div className="p-1.5 bg-gradient-to-br from-[var(--accent)] to-blue-600 rounded-lg">
-          <Search size={16} className="text-white" />
+        <div className="w-6 h-6 bg-[var(--accent)] rounded-md flex items-center justify-center">
+          <Search size={13} className="text-white" />
         </div>
-        <span className="hidden sm:inline">GitHub AI Explorer</span>
-      </motion.button>
+        <span className="hidden sm:inline tracking-tight">GitHub AI Explorer</span>
+      </button>
 
-      <div className="flex items-center gap-1.5">
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={() => setCommandPaletteOpen(true)}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[var(--border)] text-sm text-[var(--text-secondary)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
-        >
-          <Search size={14} />
-          <span className="hidden sm:inline">검색</span>
-          <kbd className="ml-1 px-1.5 py-0.5 text-[10px] rounded bg-[var(--bg-primary)] border border-[var(--border)] font-mono">
-            Ctrl+K
-          </kbd>
-        </motion.button>
-
-        <div className="w-px h-5 bg-[var(--border)] mx-1" />
-
-        <NavButton page="collections" icon={<FolderOpen size={18} />} label="컬렉션 (Ctrl+B)" />
-        <NavButton page="trending" icon={<TrendingUp size={18} />} label="트렌딩" />
-
-        <div className="w-px h-5 bg-[var(--border)] mx-1" />
-
-        <Tooltip content={theme === 'dark' ? '라이트 모드' : '다크 모드'}>
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={toggleTheme}
-            className="p-2 rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] hover:text-[var(--text-primary)] transition-colors"
+      {/* Center nav */}
+      <div className="flex items-center gap-0.5 bg-[var(--bg-secondary)] rounded-lg p-0.5">
+        {navItems.map(({ page, icon: Icon, label }) => (
+          <button
+            key={page}
+            onClick={() => setCurrentPage(page)}
+            className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] font-medium transition-all ${
+              currentPage === page
+                ? 'text-[var(--text-primary)]'
+                : 'text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'
+            }`}
           >
+            {currentPage === page && (
+              <motion.div
+                layoutId="nav-bg"
+                className="absolute inset-0 bg-[var(--bg-card)] rounded-md shadow-sm"
+                transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+              />
+            )}
+            <span className="relative z-10 flex items-center gap-1.5">
+              <Icon size={13} />
+              {label}
+            </span>
+          </button>
+        ))}
+      </div>
+
+      {/* Right actions */}
+      <div className="flex items-center gap-1">
+        <button
+          onClick={() => setCommandPaletteOpen(true)}
+          className="flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-[var(--border)] text-[12px] text-[var(--text-tertiary)] hover:border-[var(--text-tertiary)] transition-colors"
+        >
+          <Search size={12} />
+          <span className="hidden sm:inline">검색...</span>
+          <kbd className="ml-1 px-1 py-px text-[10px] rounded bg-[var(--bg-secondary)] border border-[var(--border)] font-mono leading-none">
+            ⌘K
+          </kbd>
+        </button>
+
+        <div className="divider" />
+
+        <button
+          onClick={toggleTheme}
+          className="btn btn-ghost p-1.5"
+        >
+          <AnimatePresence mode="wait">
             <motion.div
               key={theme}
-              initial={{ rotate: -90, opacity: 0 }}
-              animate={{ rotate: 0, opacity: 1 }}
-              transition={{ duration: 0.2 }}
+              initial={{ scale: 0.5, opacity: 0, rotate: -60 }}
+              animate={{ scale: 1, opacity: 1, rotate: 0 }}
+              exit={{ scale: 0.5, opacity: 0, rotate: 60 }}
+              transition={{ duration: 0.15 }}
             >
-              {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+              {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
             </motion.div>
-          </motion.button>
-        </Tooltip>
+          </AnimatePresence>
+        </button>
 
-        <NavButton page="settings" icon={<Settings size={18} />} label="설정 (Ctrl+,)" />
+        <button
+          onClick={() => setCurrentPage('settings')}
+          className={`btn btn-ghost p-1.5 ${currentPage === 'settings' ? 'text-[var(--accent)]' : ''}`}
+        >
+          <Settings size={15} />
+        </button>
       </div>
     </header>
   );

@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Search, Loader2 } from 'lucide-react';
+import { Search, Loader2, ArrowRight } from 'lucide-react';
 import { useAppStore } from '@/stores/app-store';
 
 interface SearchBarProps {
@@ -10,6 +10,7 @@ interface SearchBarProps {
 export function SearchBar({ onSearch, large = false }: SearchBarProps) {
   const { searchQuery, setSearchQuery, isSearching } = useAppStore();
   const [localQuery, setLocalQuery] = useState(searchQuery);
+  const [focused, setFocused] = useState(false);
 
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
@@ -23,33 +24,41 @@ export function SearchBar({ onSearch, large = false }: SearchBarProps) {
   );
 
   return (
-    <form onSubmit={handleSubmit} className={`w-full ${large ? 'max-w-2xl' : 'max-w-xl'}`}>
-      <div className="relative flex items-center">
-        <div className="absolute left-4 text-[var(--text-secondary)]">
+    <form onSubmit={handleSubmit} className={`w-full ${large ? 'max-w-xl' : 'max-w-md'}`}>
+      <div
+        className={`relative flex items-center rounded-xl border transition-all ${
+          focused
+            ? 'border-[var(--accent)] shadow-[0_0_0_3px_var(--accent-muted)]'
+            : 'border-[var(--border)] shadow-[var(--shadow-sm)]'
+        } bg-[var(--bg-card)]`}
+      >
+        <div className="absolute left-3.5 text-[var(--text-tertiary)]">
           {isSearching ? (
-            <Loader2 size={large ? 22 : 18} className="animate-spin" />
+            <Loader2 size={large ? 18 : 15} className="animate-spin text-[var(--accent)]" />
           ) : (
-            <Search size={large ? 22 : 18} />
+            <Search size={large ? 18 : 15} />
           )}
         </div>
         <input
           type="text"
           value={localQuery}
           onChange={(e) => setLocalQuery(e.target.value)}
-          placeholder="자연어로 검색하세요... (예: React 드래그앤드롭 라이브러리)"
-          className={`w-full bg-[var(--bg-card)] border border-[var(--border)] rounded-xl outline-none transition-all focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20 text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] ${
-            large ? 'pl-12 pr-24 py-4 text-lg' : 'pl-10 pr-20 py-2.5 text-sm'
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          placeholder={large ? '무엇을 찾고 계세요?' : '검색...'}
+          className={`w-full bg-transparent outline-none text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] ${
+            large ? 'pl-11 pr-12 py-3.5 text-[15px]' : 'pl-9 pr-10 py-2 text-[13px]'
           }`}
           disabled={isSearching}
         />
         <button
           type="submit"
           disabled={isSearching || !localQuery.trim()}
-          className={`absolute right-2 bg-[var(--accent)] text-white rounded-lg hover:bg-[var(--accent-hover)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${
-            large ? 'px-5 py-2 text-base' : 'px-3 py-1.5 text-sm'
+          className={`absolute right-2 flex items-center justify-center rounded-lg bg-[var(--accent)] text-white disabled:opacity-30 transition-all hover:bg-[var(--accent-hover)] ${
+            large ? 'w-8 h-8' : 'w-6 h-6'
           }`}
         >
-          검색
+          <ArrowRight size={large ? 16 : 13} />
         </button>
       </div>
     </form>
