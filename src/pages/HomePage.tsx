@@ -79,11 +79,11 @@ export function HomePage({ onSearch }: HomePageProps) {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          style={{ marginTop: 80, width: '100%', maxWidth: 520 }}
+          style={{ marginTop: 48, width: '100%', maxWidth: 480 }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
-            <Clock size={14} style={{ color: 'var(--text-tertiary)' }} />
-            <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+            <Clock size={12} style={{ color: 'var(--text-tertiary)' }} />
+            <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               최근 검색
             </span>
           </div>
@@ -104,30 +104,21 @@ export function HomePage({ onSearch }: HomePageProps) {
                 className="hover:bg-[var(--accent-muted)]"
                 style={{
                   width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  padding: '20px 24px', textAlign: 'left', cursor: 'pointer',
+                  padding: '12px 18px', textAlign: 'left', cursor: 'pointer',
                   background: 'transparent', border: 'none', color: 'inherit',
                   transition: 'all 0.15s',
                   borderTop: i > 0 ? '1px solid var(--border)' : 'none',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 16, minWidth: 0 }}>
-                  <div style={{
-                    width: 36, height: 36, borderRadius: 10,
-                    background: 'var(--bg-secondary)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    flexShrink: 0,
-                  }}>
-                    <Search size={15} style={{ color: 'var(--text-tertiary)' }} />
-                  </div>
-                  <span style={{ fontSize: 15, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+                  <Search size={13} style={{ color: 'var(--text-tertiary)', flexShrink: 0 }} />
+                  <span style={{ fontSize: 13, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {h.query}
                   </span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
                   <span style={{
-                    fontSize: 12, color: 'var(--text-tertiary)',
-                    background: 'var(--bg-secondary)',
-                    padding: '4px 10px', borderRadius: 999,
+                    fontSize: 11, color: 'var(--text-tertiary)',
                   }}>
                     {h.result_count}건
                   </span>
