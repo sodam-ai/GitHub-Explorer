@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Check, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, Check, Eye, EyeOff, Download, Upload, Wifi, WifiOff } from 'lucide-react';
 import { useAppStore } from '@/stores/app-store';
 import { saveSetting, getSetting, isTauri } from '@/lib/tauri-bridge';
+import { checkOllamaStatus, getOllamaModels, type OllamaModel } from '@/lib/ollama';
+import { exportCollections, downloadJson } from '@/lib/export-import';
 
 export function SettingsPage() {
   const { setCurrentPage } = useAppStore();
@@ -13,6 +15,8 @@ export function SettingsPage() {
   const [showAnthropic, setShowAnthropic] = useState(false);
   const [saved, setSaved] = useState(false);
   const [githubUser, setGithubUser] = useState<string | null>(null);
+  const [ollamaOnline, setOllamaOnline] = useState(false);
+  const [ollamaModels, setOllamaModels] = useState<OllamaModel[]>([]);
 
   useEffect(() => {
     async function loadKeys() {
@@ -30,6 +34,14 @@ export function SettingsPage() {
       }
     }
     loadKeys();
+  }, []);
+
+  // Ollama 상태 확인
+  useEffect(() => {
+    checkOllamaStatus().then((ok) => {
+      setOllamaOnline(ok);
+      if (ok) getOllamaModels().then(setOllamaModels);
+    });
   }, []);
 
   // GitHub 토큰 검증
@@ -177,16 +189,76 @@ export function SettingsPage() {
         </button>
       </section>
 
+      {/* Ollama (로컬 AI) */}
+      <section className="mb-8">
+        <h2 className="text-lg font-semibold mb-4">로컬 AI (Ollama)</h2>
+        <div className="p-4 border border-[var(--border)] rounded-xl">
+          <div className="flex items-center gap-2 mb-3">
+            {ollamaOnline ? (
+              <>
+                <Wifi size={14} className="text-green-500" />
+                <span className="text-sm text-green-500">Ollama 연결됨 (localhost:11434)</span>
+              </>
+            ) : (
+              <>
+                <WifiOff size={14} className="text-[var(--text-secondary)]" />
+                <span className="text-sm text-[var(--text-secondary)]">Ollama 미감지</span>
+              </>
+            )}
+          </div>
+          {ollamaOnline && ollamaModels.length > 0 && (
+            <div className="space-y-1">
+              <p className="text-xs text-[var(--text-secondary)] mb-2">설치된 모델:</p>
+              {ollamaModels.map((m) => (
+                <div key={m.name} className="flex items-center justify-between px-3 py-1.5 bg-[var(--bg-secondary)] rounded-lg text-sm">
+                  <span className="font-mono">{m.name}</span>
+                  <span className="text-xs text-[var(--text-secondary)]">{m.size}</span>
+                </div>
+              ))}
+            </div>
+          )}
+          {!ollamaOnline && (
+            <p className="text-xs text-[var(--text-secondary)]">
+              ollama.com 에서 Ollama를 설치하고 실행하면 로컬 AI를 사용할 수 있습니다
+            </p>
+          )}
+        </div>
+      </section>
+
+      {/* 데이터 관리 */}
+      <section className="mb-8">
+        <h2 className="text-lg font-semibold mb-4">데이터 관리</h2>
+        <div className="flex gap-3">
+          <button
+            onClick={async () => {
+              const json = await exportCollections();
+              downloadJson(json, `github-ai-explorer-backup-${new Date().toISOString().split('T')[0]}.json`);
+            }}
+            className="flex items-center gap-2 px-4 py-2 border border-[var(--border)] rounded-lg text-sm hover:border-[var(--accent)] transition-colors"
+          >
+            <Download size={14} />
+            컬렉션 내보내기
+          </button>
+          <button
+            className="flex items-center gap-2 px-4 py-2 border border-[var(--border)] rounded-lg text-sm hover:border-[var(--accent)] transition-colors opacity-50 cursor-not-allowed"
+            title="Phase 3에서 구현 예정"
+          >
+            <Upload size={14} />
+            가져오기
+          </button>
+        </div>
+      </section>
+
       {/* 앱 정보 */}
       <section>
         <h2 className="text-lg font-semibold mb-4">앱 정보</h2>
         <div className="p-4 border border-[var(--border)] rounded-xl text-sm space-y-2">
           <p>
-            <span className="text-[var(--text-secondary)]">버전:</span> 0.1.0 (Phase 1 MVP)
+            <span className="text-[var(--text-secondary)]">버전:</span> 0.3.0 (Phase 3)
           </p>
           <p>
             <span className="text-[var(--text-secondary)]">기술 스택:</span> Tauri 2.0 + React +
-            TypeScript
+            TypeScript + SQLite + Ollama
           </p>
         </div>
       </section>

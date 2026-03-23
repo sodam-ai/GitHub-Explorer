@@ -1,4 +1,4 @@
-import { Search, Settings, Sun, Moon, FolderOpen } from 'lucide-react';
+import { Search, Settings, Sun, Moon, FolderOpen, TrendingUp } from 'lucide-react';
 import { useAppStore } from '@/stores/app-store';
 
 export function Header() {
@@ -32,6 +32,14 @@ export function Header() {
           title="컬렉션"
         >
           <FolderOpen size={18} />
+        </button>
+
+        <button
+          onClick={() => setCurrentPage('trending')}
+          className="p-2 rounded-lg hover:bg-[var(--bg-primary)] transition-colors"
+          title="트렌딩"
+        >
+          <TrendingUp size={18} />
         </button>
 
         <button
