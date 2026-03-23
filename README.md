@@ -26,10 +26,23 @@ The AI understands what you mean and finds the best results.
 | Tabs | Results are organized into Repositories / Code / Issues tabs |
 | Bookmarks | Save your favorite repositories to collections |
 | Command Palette | Press `Ctrl+K` to quickly search from anywhere in the app |
-| Dark/Light Mode | Switch between dark and light themes |
-| Local Database | Your search history and settings are saved on your computer |
-| GitHub Auth | Connect your GitHub account for higher API limits (60 → 5,000 requests/hour) |
-| Settings | Manage your GitHub token and AI API keys in one place |
+| Autocomplete | Search suggestions from history and popular topics as you type |
+| Keyboard Navigation | Navigate results with `j/k` keys, `Enter` to preview |
+| Repo Preview | Hover or press Enter to see README, stats, and topics |
+| Health Score | AI analyzes each repo's activity, community, and documentation |
+| Repo Compare | Compare 2-3 repos side by side with detailed stats |
+| Code Q&A | Ask questions about any repo's code — AI answers with file references |
+| Collections | Organize your favorite repos into folders with memos |
+| Trending | Daily/weekly trending repos with star growth |
+| Stats Dashboard | Your search patterns, top keywords, activity chart |
+| Dark/Light Mode | Switch themes + 6 custom accent colors |
+| Onboarding | 3-step guide for first-time users |
+| System Tray | Minimize to tray, double-click to restore |
+| Multi-language | Korean, English, Japanese UI |
+| Code Snippets | Save code from Q&A sessions to a persistent drawer |
+| Offline Mode | Search cached repos when offline |
+| Local AI | Connect Ollama for free, private AI on your machine |
+| Settings | Manage GitHub token, AI keys, theme, language in one place |
 
 ---
 
