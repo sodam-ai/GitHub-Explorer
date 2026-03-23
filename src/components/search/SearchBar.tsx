@@ -100,7 +100,7 @@ export function SearchBar({ onSearch, large = false }: SearchBarProps) {
               : 'border-[var(--border)] shadow-[var(--shadow-md)]'
           } bg-[var(--bg-card)]`}
         >
-          <div className={`absolute text-[var(--text-tertiary)] ${large ? 'left-5' : 'left-3.5'}`}>
+          <div className={`absolute text-[var(--text-tertiary)] ${large ? 'left-6' : 'left-4'}`}>
             {isSearching ? (
               <Loader2 size={large ? 20 : 15} className="animate-spin text-[var(--accent)]" />
             ) : (
@@ -115,15 +115,15 @@ export function SearchBar({ onSearch, large = false }: SearchBarProps) {
             onKeyDown={handleKeyDown}
             placeholder={large ? '무엇을 찾고 계세요?' : '검색...'}
             className={`w-full bg-transparent outline-none text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] ${
-              large ? 'pl-13 pr-14 py-4 text-[16px]' : 'pl-9 pr-10 py-2.5 text-[13px]'
+              large ? 'pl-14 pr-16 py-5 text-[16px]' : 'pl-10 pr-11 py-3 text-[14px]'
             }`}
             disabled={isSearching}
           />
           <button
             type="submit"
             disabled={isSearching || !localQuery.trim()}
-            className={`absolute right-3 flex items-center justify-center rounded-xl bg-[var(--accent)] text-white disabled:opacity-30 transition-all hover:bg-[var(--accent-hover)] ${
-              large ? 'w-10 h-10' : 'w-7 h-7'
+            className={`absolute right-3.5 flex items-center justify-center rounded-xl bg-[var(--accent)] text-white disabled:opacity-30 transition-all hover:bg-[var(--accent-hover)] ${
+              large ? 'w-11 h-11' : 'w-8 h-8'
             }`}
           >
             <ArrowRight size={large ? 18 : 13} />

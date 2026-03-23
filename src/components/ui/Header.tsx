@@ -14,7 +14,7 @@ export function Header() {
   ];
 
   return (
-    <header className="flex items-center justify-between px-6 h-14 border-b border-[var(--border)] bg-[var(--bg-card)]">
+    <header className="flex items-center justify-between px-8 h-16 border-b border-[var(--border)] bg-[var(--bg-card)]">
       {/* Logo */}
       <button
         onClick={() => setCurrentPage('home')}
