@@ -77,6 +77,15 @@ impl Database {
                 FOREIGN KEY (collection_id) REFERENCES collection(id) ON DELETE CASCADE
             );
 
+            CREATE TABLE IF NOT EXISTS smart_folder (
+                id TEXT PRIMARY KEY,
+                collection_id TEXT NOT NULL,
+                rules TEXT NOT NULL,
+                is_active INTEGER NOT NULL DEFAULT 1,
+                created_at TEXT NOT NULL,
+                FOREIGN KEY (collection_id) REFERENCES collection(id) ON DELETE CASCADE
+            );
+
             CREATE TABLE IF NOT EXISTS conversation (
                 id TEXT PRIMARY KEY,
                 title TEXT NOT NULL,
