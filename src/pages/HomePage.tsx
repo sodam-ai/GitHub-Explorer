@@ -18,7 +18,7 @@ export function HomePage({ onSearch }: HomePageProps) {
   const { searchHistory } = useAppStore();
 
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0 40px', paddingBottom: '80px' }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '60px 40px 80px 40px', minHeight: 0, overflow: 'auto' }}>
 
       {/* Title */}
       <motion.div
