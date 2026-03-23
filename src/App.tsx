@@ -5,6 +5,7 @@ import { CommandPalette } from '@/components/search/CommandPalette';
 import { HomePage } from '@/pages/HomePage';
 import { SearchPage } from '@/pages/SearchPage';
 import { SettingsPage } from '@/components/settings/SettingsPage';
+import { CollectionPage } from '@/components/collection/CollectionPage';
 import { searchRepositories, searchCode, searchIssues } from '@/lib/github';
 import { generateSearchSummary } from '@/lib/ai';
 import { saveSearchHistory, getSearchHistory, getSetting, isTauri } from '@/lib/tauri-bridge';
@@ -135,6 +136,7 @@ function App() {
 
       {currentPage === 'home' && <HomePage onSearch={handleSearch} />}
       {currentPage === 'search' && <SearchPage onSearch={handleSearch} />}
+      {currentPage === 'collections' && <CollectionPage />}
       {currentPage === 'settings' && <SettingsPage />}
     </>
   );

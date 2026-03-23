@@ -58,6 +58,41 @@ impl Database {
                 key TEXT PRIMARY KEY,
                 value TEXT NOT NULL
             );
+
+            CREATE TABLE IF NOT EXISTS collection (
+                id TEXT PRIMARY KEY,
+                name TEXT NOT NULL,
+                description TEXT,
+                color TEXT DEFAULT '#3b82f6',
+                icon TEXT DEFAULT 'folder',
+                created_at TEXT NOT NULL
+            );
+
+            CREATE TABLE IF NOT EXISTS collection_item (
+                id TEXT PRIMARY KEY,
+                collection_id TEXT NOT NULL,
+                repository_id TEXT NOT NULL,
+                memo TEXT,
+                added_at TEXT NOT NULL,
+                FOREIGN KEY (collection_id) REFERENCES collection(id) ON DELETE CASCADE
+            );
+
+            CREATE TABLE IF NOT EXISTS conversation (
+                id TEXT PRIMARY KEY,
+                title TEXT NOT NULL,
+                repository_id TEXT,
+                created_at TEXT NOT NULL
+            );
+
+            CREATE TABLE IF NOT EXISTS message (
+                id TEXT PRIMARY KEY,
+                conversation_id TEXT NOT NULL,
+                role TEXT NOT NULL CHECK(role IN ('user', 'assistant')),
+                content TEXT NOT NULL,
+                code_refs TEXT,
+                created_at TEXT NOT NULL,
+                FOREIGN KEY (conversation_id) REFERENCES conversation(id) ON DELETE CASCADE
+            );
             ",
         )?;
         Ok(())

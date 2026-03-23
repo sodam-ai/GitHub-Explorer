@@ -1,4 +1,4 @@
-import { Search, Settings, Sun, Moon } from 'lucide-react';
+import { Search, Settings, Sun, Moon, FolderOpen } from 'lucide-react';
 import { useAppStore } from '@/stores/app-store';
 
 export function Header() {
@@ -24,6 +24,14 @@ export function Header() {
           <kbd className="ml-2 px-1.5 py-0.5 text-xs rounded bg-[var(--bg-primary)] border border-[var(--border)]">
             Ctrl+K
           </kbd>
+        </button>
+
+        <button
+          onClick={() => setCurrentPage('collections')}
+          className="p-2 rounded-lg hover:bg-[var(--bg-primary)] transition-colors"
+          title="컬렉션"
+        >
+          <FolderOpen size={18} />
         </button>
 
         <button

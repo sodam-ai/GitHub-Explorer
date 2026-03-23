@@ -1,11 +1,15 @@
-import { Star, ExternalLink, Bookmark } from 'lucide-react';
+import { Star, ExternalLink, Bookmark, Activity } from 'lucide-react';
 import type { Repository } from '@/types';
+import { calculateHealthScore, getHealthColor } from '@/lib/health-score';
 
 interface RepoCardProps {
   repo: Repository;
+  onBookmark?: (repo: Repository) => void;
 }
 
-export function RepoCard({ repo }: RepoCardProps) {
+export function RepoCard({ repo, onBookmark }: RepoCardProps) {
+  const health = calculateHealthScore(repo);
+
   return (
     <div className="p-4 border border-[var(--border)] rounded-xl bg-[var(--bg-card)] hover:border-[var(--accent)]/50 transition-colors">
       <div className="flex items-start justify-between gap-3">
@@ -32,11 +36,21 @@ export function RepoCard({ repo }: RepoCardProps) {
           </div>
         </div>
 
-        <div className="flex items-center gap-1 shrink-0">
-          <Star size={14} className="text-yellow-500 fill-yellow-500" />
-          <span className="text-sm font-medium">
-            {repo.stars >= 1000 ? `${(repo.stars / 1000).toFixed(1)}k` : repo.stars}
-          </span>
+        <div className="flex items-center gap-3 shrink-0">
+          {/* 건강도 점수 */}
+          <div className="flex items-center gap-1" title={`건강도: ${health.total}/100 (${health.grade})`}>
+            <Activity size={13} style={{ color: getHealthColor(health.total) }} />
+            <span className="text-xs font-medium" style={{ color: getHealthColor(health.total) }}>
+              {health.total}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-1">
+            <Star size={14} className="text-yellow-500 fill-yellow-500" />
+            <span className="text-sm font-medium">
+              {repo.stars >= 1000 ? `${(repo.stars / 1000).toFixed(1)}k` : repo.stars}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -60,7 +74,10 @@ export function RepoCard({ repo }: RepoCardProps) {
       )}
 
       <div className="mt-3 flex items-center gap-3">
-        <button className="flex items-center gap-1 text-xs text-[var(--text-secondary)] hover:text-[var(--accent)] transition-colors">
+        <button
+          onClick={() => onBookmark?.(repo)}
+          className="flex items-center gap-1 text-xs text-[var(--text-secondary)] hover:text-[var(--accent)] transition-colors"
+        >
           <Bookmark size={13} />
           북마크
         </button>

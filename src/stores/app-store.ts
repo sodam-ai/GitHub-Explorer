@@ -30,8 +30,8 @@ interface AppState {
   setSettingsOpen: (open: boolean) => void;
 
   // Current Page
-  currentPage: 'home' | 'search' | 'settings';
-  setCurrentPage: (page: 'home' | 'search' | 'settings') => void;
+  currentPage: 'home' | 'search' | 'collections' | 'settings';
+  setCurrentPage: (page: 'home' | 'search' | 'collections' | 'settings') => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({

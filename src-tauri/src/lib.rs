@@ -35,6 +35,16 @@ pub fn run() {
             commands::save_setting,
             commands::get_setting,
             commands::get_all_settings,
+            commands::create_collection,
+            commands::get_collections,
+            commands::delete_collection,
+            commands::add_to_collection,
+            commands::remove_from_collection,
+            commands::get_collection_items,
+            commands::create_conversation,
+            commands::get_conversations,
+            commands::save_message,
+            commands::get_messages,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
