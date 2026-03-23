@@ -1,4 +1,5 @@
-import { useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import { useAppStore } from '@/stores/app-store';
 import { Header } from '@/components/ui/Header';
 import { CommandPalette } from '@/components/search/CommandPalette';
@@ -12,10 +13,15 @@ import { generateSearchSummary } from '@/lib/ai';
 import { saveSearchHistory, getSearchHistory, getSetting, isTauri } from '@/lib/tauri-bridge';
 import { isOnline, getCachedRepositories, cacheRepositories } from '@/lib/offline-cache';
 import { Toaster, toast } from 'sonner';
+import { Onboarding } from '@/components/ui/Onboarding';
 import type { SearchResult } from '@/types';
 import './index.css';
 
 function App() {
+  const [showOnboarding, setShowOnboarding] = useState(
+    () => !localStorage.getItem('onboarding_done')
+  );
+
   const {
     theme,
     currentPage,
@@ -162,6 +168,10 @@ function App() {
           },
         }}
       />
+      <AnimatePresence>
+        {showOnboarding && <Onboarding onComplete={() => setShowOnboarding(false)} />}
+      </AnimatePresence>
+
       <Header />
       <CommandPalette />
 

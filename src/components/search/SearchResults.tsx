@@ -1,10 +1,11 @@
-import { useState, useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useMemo, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, GitBranch, Code, MessageCircle, Scale } from 'lucide-react';
 import { useAppStore } from '@/stores/app-store';
 import { RepoCard } from './RepoCard';
 import { CodeViewer } from './CodeViewer';
 import { RepoCompare } from './RepoCompare';
+import { RepoPreview } from './RepoPreview';
 import { SearchFilters, type SearchFilterValues } from './SearchFilters';
 import { CodeQAPanel } from '@/components/chat/CodeQAPanel';
 import type { SearchTab, Repository } from '@/types';
@@ -21,6 +22,8 @@ export function SearchResults() {
   const [compareRepos, setCompareRepos] = useState<Repository[]>([]);
   const [showCompare, setShowCompare] = useState(false);
   const [qaRepo, setQaRepo] = useState<Repository | null>(null);
+  const [previewRepo, setPreviewRepo] = useState<Repository | null>(null);
+  const [activeRepoIndex, setActiveRepoIndex] = useState(-1);
 
   const filteredRepos = useMemo(() => {
     if (!searchResult) return [];
@@ -38,6 +41,37 @@ export function SearchResults() {
 
     return repos;
   }, [searchResult, filters]);
+
+  // 키보드 탐색
+  const handleKeyNav = useCallback(
+    (e: KeyboardEvent) => {
+      if (activeTab !== 'repositories' || !filteredRepos.length) return;
+      if (e.key === 'ArrowDown' || e.key === 'j') {
+        e.preventDefault();
+        setActiveRepoIndex((i) => Math.min(i + 1, filteredRepos.length - 1));
+      } else if (e.key === 'ArrowUp' || e.key === 'k') {
+        e.preventDefault();
+        setActiveRepoIndex((i) => Math.max(i - 1, -1));
+      } else if (e.key === 'Enter' && activeRepoIndex >= 0) {
+        e.preventDefault();
+        setPreviewRepo(filteredRepos[activeRepoIndex]);
+      } else if (e.key === 'b' && activeRepoIndex >= 0) {
+        // bookmark shortcut
+      } else if (e.key === 'Escape') {
+        setActiveRepoIndex(-1);
+      }
+    },
+    [activeTab, filteredRepos, activeRepoIndex]
+  );
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyNav);
+    return () => window.removeEventListener('keydown', handleKeyNav);
+  }, [handleKeyNav]);
+
+  useEffect(() => {
+    setActiveRepoIndex(-1);
+  }, [searchResult]);
 
   if (!searchResult) return null;
 
@@ -135,7 +169,13 @@ export function SearchResults() {
         {activeTab === 'repositories' &&
           filteredRepos.map((repo, i) => (
             <div key={repo.id} className="relative">
-              <RepoCard repo={repo} onCodeQA={(r) => setQaRepo(r)} index={i} />
+              <RepoCard
+                repo={repo}
+                onCodeQA={(r) => setQaRepo(r)}
+                onPreview={(r) => setPreviewRepo(r)}
+                index={i}
+                isActive={i === activeRepoIndex}
+              />
               <button
                 onClick={() => toggleCompare(repo)}
                 className={`absolute top-4 right-4 px-2 py-1 text-xs rounded-lg border transition-colors ${
@@ -200,6 +240,13 @@ export function SearchResults() {
       {showCompare && (
         <RepoCompare repos={compareRepos} onClose={() => setShowCompare(false)} />
       )}
+
+      {/* 미리보기 */}
+      <AnimatePresence>
+        {previewRepo && (
+          <RepoPreview repo={previewRepo} onClose={() => setPreviewRepo(null)} />
+        )}
+      </AnimatePresence>
 
       {/* 코드 Q&A */}
       {qaRepo && (

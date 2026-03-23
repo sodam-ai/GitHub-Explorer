@@ -1,4 +1,4 @@
-import { Star, ExternalLink, Bookmark, MessageCircle, Activity } from 'lucide-react';
+import { Star, ExternalLink, Bookmark, MessageCircle, Activity, Eye } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { Repository } from '@/types';
 import { calculateHealthScore, getHealthColor } from '@/lib/health-score';
@@ -7,10 +7,12 @@ interface RepoCardProps {
   repo: Repository;
   onBookmark?: (repo: Repository) => void;
   onCodeQA?: (repo: Repository) => void;
+  onPreview?: (repo: Repository) => void;
   index?: number;
+  isActive?: boolean;
 }
 
-export function RepoCard({ repo, onBookmark, onCodeQA, index = 0 }: RepoCardProps) {
+export function RepoCard({ repo, onBookmark, onCodeQA, onPreview, index = 0, isActive = false }: RepoCardProps) {
   const health = calculateHealthScore(repo);
 
   return (
@@ -18,7 +20,9 @@ export function RepoCard({ repo, onBookmark, onCodeQA, index = 0 }: RepoCardProp
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2, delay: index * 0.04 }}
-      className="group p-4 border border-[var(--border)] rounded-[var(--radius)] bg-[var(--bg-card)] card-hover"
+      className={`group p-4 border rounded-[var(--radius)] bg-[var(--bg-card)] card-hover ${
+        isActive ? 'border-[var(--accent)] shadow-[0_0_0_2px_var(--accent-muted)]' : 'border-[var(--border)]'
+      }`}
     >
       <div className="flex items-start gap-3">
         {repo.owner_avatar && (
@@ -88,17 +92,15 @@ export function RepoCard({ repo, onBookmark, onCodeQA, index = 0 }: RepoCardProp
 
       {/* Actions - 호버 시 표시 */}
       <div className="mt-3 pt-2.5 border-t border-[var(--border-subtle)] flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
-        <button
-          onClick={() => onCodeQA?.(repo)}
-          className="btn btn-ghost text-[12px]"
-        >
+        <button onClick={() => onPreview?.(repo)} className="btn btn-ghost text-[12px]">
+          <Eye size={12} />
+          미리보기
+        </button>
+        <button onClick={() => onCodeQA?.(repo)} className="btn btn-ghost text-[12px]">
           <MessageCircle size={12} />
           코드 질문
         </button>
-        <button
-          onClick={() => onBookmark?.(repo)}
-          className="btn btn-ghost text-[12px]"
-        >
+        <button onClick={() => onBookmark?.(repo)} className="btn btn-ghost text-[12px]">
           <Bookmark size={12} />
           저장
         </button>
