@@ -27,7 +27,7 @@ export function Header() {
       </button>
 
       {/* Center nav */}
-      <div className="flex items-center gap-1 bg-[var(--bg-secondary)] rounded-xl p-1">
+      <div className="flex items-center gap-1 bg-[var(--bg-elevated)] border border-[var(--border)] rounded-xl p-1">
         {navItems.map(({ page, icon: Icon, label }) => (
           <button
             key={page}

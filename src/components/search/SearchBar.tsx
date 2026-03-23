@@ -89,16 +89,16 @@ export function SearchBar({ onSearch, large = false }: SearchBarProps) {
   }
 
   return (
-    <div ref={wrapperRef} className={`relative w-full ${large ? 'max-w-lg' : 'max-w-md'}`}>
+    <div ref={wrapperRef} className={`relative w-full ${large ? 'max-w-xl' : 'max-w-md'}`}>
       <form onSubmit={handleSubmit}>
         <div
-          className={`relative flex items-center border transition-all ${
+          className={`relative flex items-center border-2 transition-all ${
             showSuggestions ? 'rounded-t-2xl rounded-b-none border-b-transparent' : 'rounded-2xl'
           } ${
             focused
               ? 'border-[var(--accent)] shadow-[0_0_0_4px_var(--accent-muted)]'
-              : 'border-[var(--border)] shadow-[var(--shadow-md)]'
-          } bg-[var(--bg-card)]`}
+              : 'border-[var(--border)] shadow-[var(--shadow-lg)]'
+          } bg-[var(--bg-elevated)]`}
         >
           <div className={`absolute text-[var(--text-tertiary)] ${large ? 'left-6' : 'left-4'}`}>
             {isSearching ? (
@@ -138,7 +138,7 @@ export function SearchBar({ onSearch, large = false }: SearchBarProps) {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="absolute z-40 w-full bg-[var(--bg-card)] border border-t-0 border-[var(--accent)] rounded-b-2xl shadow-[var(--shadow-md)] overflow-hidden"
+            className="absolute z-40 w-full bg-[var(--bg-elevated)] border-2 border-t-0 border-[var(--accent)] rounded-b-2xl shadow-[var(--shadow-lg)] overflow-hidden"
           >
             <div className="py-1">
               {suggestions.map((s, i) => (
