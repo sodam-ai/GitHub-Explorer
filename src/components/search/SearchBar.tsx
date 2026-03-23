@@ -89,22 +89,22 @@ export function SearchBar({ onSearch, large = false }: SearchBarProps) {
   }
 
   return (
-    <div ref={wrapperRef} className={`relative w-full ${large ? 'max-w-xl' : 'max-w-md'}`}>
+    <div ref={wrapperRef} className={`relative w-full ${large ? 'max-w-lg' : 'max-w-md'}`}>
       <form onSubmit={handleSubmit}>
         <div
           className={`relative flex items-center border transition-all ${
-            showSuggestions ? 'rounded-t-xl rounded-b-none border-b-transparent' : 'rounded-xl'
+            showSuggestions ? 'rounded-t-2xl rounded-b-none border-b-transparent' : 'rounded-2xl'
           } ${
             focused
-              ? 'border-[var(--accent)] shadow-[0_0_0_3px_var(--accent-muted)]'
-              : 'border-[var(--border)] shadow-[var(--shadow-sm)]'
+              ? 'border-[var(--accent)] shadow-[0_0_0_4px_var(--accent-muted)]'
+              : 'border-[var(--border)] shadow-[var(--shadow-md)]'
           } bg-[var(--bg-card)]`}
         >
-          <div className="absolute left-3.5 text-[var(--text-tertiary)]">
+          <div className={`absolute text-[var(--text-tertiary)] ${large ? 'left-5' : 'left-3.5'}`}>
             {isSearching ? (
-              <Loader2 size={large ? 18 : 15} className="animate-spin text-[var(--accent)]" />
+              <Loader2 size={large ? 20 : 15} className="animate-spin text-[var(--accent)]" />
             ) : (
-              <Search size={large ? 18 : 15} />
+              <Search size={large ? 20 : 15} />
             )}
           </div>
           <input
@@ -115,18 +115,18 @@ export function SearchBar({ onSearch, large = false }: SearchBarProps) {
             onKeyDown={handleKeyDown}
             placeholder={large ? '무엇을 찾고 계세요?' : '검색...'}
             className={`w-full bg-transparent outline-none text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] ${
-              large ? 'pl-11 pr-12 py-3.5 text-[15px]' : 'pl-9 pr-10 py-2 text-[13px]'
+              large ? 'pl-13 pr-14 py-4 text-[16px]' : 'pl-9 pr-10 py-2.5 text-[13px]'
             }`}
             disabled={isSearching}
           />
           <button
             type="submit"
             disabled={isSearching || !localQuery.trim()}
-            className={`absolute right-2 flex items-center justify-center rounded-lg bg-[var(--accent)] text-white disabled:opacity-30 transition-all hover:bg-[var(--accent-hover)] ${
-              large ? 'w-8 h-8' : 'w-6 h-6'
+            className={`absolute right-3 flex items-center justify-center rounded-xl bg-[var(--accent)] text-white disabled:opacity-30 transition-all hover:bg-[var(--accent-hover)] ${
+              large ? 'w-10 h-10' : 'w-7 h-7'
             }`}
           >
-            <ArrowRight size={large ? 16 : 13} />
+            <ArrowRight size={large ? 18 : 13} />
           </button>
         </div>
       </form>
@@ -138,7 +138,7 @@ export function SearchBar({ onSearch, large = false }: SearchBarProps) {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="absolute z-40 w-full bg-[var(--bg-card)] border border-t-0 border-[var(--accent)] rounded-b-xl shadow-[var(--shadow-md)] overflow-hidden"
+            className="absolute z-40 w-full bg-[var(--bg-card)] border border-t-0 border-[var(--accent)] rounded-b-2xl shadow-[var(--shadow-md)] overflow-hidden"
           >
             <div className="py-1">
               {suggestions.map((s, i) => (

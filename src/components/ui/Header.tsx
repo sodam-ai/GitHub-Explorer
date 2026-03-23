@@ -14,25 +14,25 @@ export function Header() {
   ];
 
   return (
-    <header className="flex items-center justify-between px-5 h-12 border-b border-[var(--border)] bg-[var(--bg-card)]">
+    <header className="flex items-center justify-between px-6 h-14 border-b border-[var(--border)] bg-[var(--bg-card)]">
       {/* Logo */}
       <button
         onClick={() => setCurrentPage('home')}
-        className="flex items-center gap-2 font-semibold text-[14px] hover:opacity-70 transition-opacity"
+        className="flex items-center gap-2.5 font-semibold text-[14px] hover:opacity-70 transition-opacity"
       >
-        <div className="w-6 h-6 bg-[var(--accent)] rounded-md flex items-center justify-center">
+        <div className="w-7 h-7 bg-[var(--accent)] rounded-lg flex items-center justify-center">
           <Search size={13} className="text-white" />
         </div>
         <span className="hidden sm:inline tracking-tight">GitHub AI Explorer</span>
       </button>
 
       {/* Center nav */}
-      <div className="flex items-center gap-0.5 bg-[var(--bg-secondary)] rounded-lg p-0.5">
+      <div className="flex items-center gap-1 bg-[var(--bg-secondary)] rounded-xl p-1">
         {navItems.map(({ page, icon: Icon, label }) => (
           <button
             key={page}
             onClick={() => setCurrentPage(page)}
-            className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] font-medium transition-all ${
+            className={`relative flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-medium transition-all ${
               currentPage === page
                 ? 'text-[var(--text-primary)]'
                 : 'text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'
@@ -41,12 +41,12 @@ export function Header() {
             {currentPage === page && (
               <motion.div
                 layoutId="nav-bg"
-                className="absolute inset-0 bg-[var(--bg-card)] rounded-md shadow-sm"
+                className="absolute inset-0 bg-[var(--bg-card)] rounded-lg shadow-sm"
                 transition={{ type: 'spring', stiffness: 400, damping: 30 }}
               />
             )}
-            <span className="relative z-10 flex items-center gap-1.5">
-              <Icon size={13} />
+            <span className="relative z-10 flex items-center gap-2">
+              <Icon size={14} />
               {label}
             </span>
           </button>
