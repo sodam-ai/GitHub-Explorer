@@ -1,10 +1,39 @@
 import { create } from 'zustand';
 import type { SearchResult, SearchHistory, SearchTab, Theme } from '@/types';
 
+type AccentColor = 'blue' | 'violet' | 'emerald' | 'rose' | 'amber' | 'cyan';
+
+const ACCENT_COLORS: Record<AccentColor, { main: string; hover: string; muted: string }> = {
+  blue:    { main: '#2563eb', hover: '#1d4ed8', muted: '#dbeafe' },
+  violet:  { main: '#7c3aed', hover: '#6d28d9', muted: '#ede9fe' },
+  emerald: { main: '#059669', hover: '#047857', muted: '#d1fae5' },
+  rose:    { main: '#e11d48', hover: '#be123c', muted: '#ffe4e6' },
+  amber:   { main: '#d97706', hover: '#b45309', muted: '#fef3c7' },
+  cyan:    { main: '#0891b2', hover: '#0e7490', muted: '#cffafe' },
+};
+
+const ACCENT_COLORS_DARK: Record<AccentColor, { main: string; hover: string; muted: string }> = {
+  blue:    { main: '#3b82f6', hover: '#60a5fa', muted: '#172554' },
+  violet:  { main: '#8b5cf6', hover: '#a78bfa', muted: '#2e1065' },
+  emerald: { main: '#10b981', hover: '#34d399', muted: '#064e3b' },
+  rose:    { main: '#fb7185', hover: '#fda4af', muted: '#4c0519' },
+  amber:   { main: '#f59e0b', hover: '#fbbf24', muted: '#451a03' },
+  cyan:    { main: '#22d3ee', hover: '#67e8f9', muted: '#083344' },
+};
+
+function applyAccentColor(color: AccentColor, isDark: boolean) {
+  const palette = isDark ? ACCENT_COLORS_DARK[color] : ACCENT_COLORS[color];
+  document.documentElement.style.setProperty('--accent', palette.main);
+  document.documentElement.style.setProperty('--accent-hover', palette.hover);
+  document.documentElement.style.setProperty('--accent-muted', palette.muted);
+}
+
 interface AppState {
   // Theme
   theme: Theme;
+  accentColor: AccentColor;
   toggleTheme: () => void;
+  setAccentColor: (color: AccentColor) => void;
 
   // Search
   searchQuery: string;
@@ -37,12 +66,20 @@ interface AppState {
 export const useAppStore = create<AppState>((set) => ({
   // Theme
   theme: (localStorage.getItem('theme') as Theme) || 'dark',
+  accentColor: (localStorage.getItem('accent_color') as AccentColor) || 'blue',
   toggleTheme: () =>
     set((state) => {
       const newTheme = state.theme === 'dark' ? 'light' : 'dark';
       localStorage.setItem('theme', newTheme);
       document.documentElement.classList.toggle('dark', newTheme === 'dark');
+      applyAccentColor(state.accentColor, newTheme === 'dark');
       return { theme: newTheme };
+    }),
+  setAccentColor: (color) =>
+    set((state) => {
+      localStorage.setItem('accent_color', color);
+      applyAccentColor(color, state.theme === 'dark');
+      return { accentColor: color };
     }),
 
   // Search

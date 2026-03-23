@@ -32,9 +32,11 @@ function App() {
     addSearchHistory,
   } = useAppStore();
 
-  // 테마 초기화
+  // 테마 + accent color 초기화
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
+    const { accentColor, setAccentColor } = useAppStore.getState();
+    setAccentColor(accentColor);
   }, [theme]);
 
   // DB에서 검색 히스토리 로드

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Check, Eye, EyeOff, Download, Upload, Wifi, WifiOff, ExternalLink, Shield, Cpu, Database, Info } from 'lucide-react';
+import { ArrowLeft, Check, Eye, EyeOff, Download, Upload, Wifi, WifiOff, ExternalLink, Shield, Cpu, Database, Info, Palette } from 'lucide-react';
 import { useAppStore } from '@/stores/app-store';
 import { saveSetting, getSetting, isTauri } from '@/lib/tauri-bridge';
 import { checkOllamaStatus, getOllamaModels, type OllamaModel } from '@/lib/ollama';
@@ -180,6 +180,34 @@ export function SettingsPage() {
             {saved ? <Check size={12} /> : null}
             {saved ? '저장됨' : '저장'}
           </button>
+        </section>
+
+        {/* Accent Color */}
+        <section className="mb-8">
+          <div className="flex items-center gap-2 mb-3">
+            <Palette size={14} className="text-[var(--text-tertiary)]" />
+            <h2 className="text-[13px] font-semibold">테마 색상</h2>
+          </div>
+          <div className="flex gap-2">
+            {(['blue', 'violet', 'emerald', 'rose', 'amber', 'cyan'] as const).map((color) => {
+              const colors: Record<string, string> = {
+                blue: '#3b82f6', violet: '#8b5cf6', emerald: '#10b981',
+                rose: '#fb7185', amber: '#f59e0b', cyan: '#22d3ee',
+              };
+              const isActive = useAppStore.getState().accentColor === color;
+              return (
+                <button
+                  key={color}
+                  onClick={() => useAppStore.getState().setAccentColor(color)}
+                  className={`w-8 h-8 rounded-lg border-2 transition-all ${
+                    isActive ? 'border-[var(--text-primary)] scale-110' : 'border-transparent hover:scale-105'
+                  }`}
+                  style={{ background: colors[color] }}
+                  title={color}
+                />
+              );
+            })}
+          </div>
         </section>
 
         {/* Ollama */}
