@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Check, Eye, EyeOff, Download, Upload, Wifi, WifiOff } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ArrowLeft, Check, Eye, EyeOff, Download, Upload, Wifi, WifiOff, ExternalLink, Shield, Cpu, Database, Info } from 'lucide-react';
 import { useAppStore } from '@/stores/app-store';
 import { saveSetting, getSetting, isTauri } from '@/lib/tauri-bridge';
 import { checkOllamaStatus, getOllamaModels, type OllamaModel } from '@/lib/ollama';
 import { exportCollections, downloadJson } from '@/lib/export-import';
+import { toast } from 'sonner';
 
 export function SettingsPage() {
   const { setCurrentPage } = useAppStore();
@@ -36,7 +38,6 @@ export function SettingsPage() {
     loadKeys();
   }, []);
 
-  // Ollama 상태 확인
   useEffect(() => {
     checkOllamaStatus().then((ok) => {
       setOllamaOnline(ok);
@@ -44,12 +45,8 @@ export function SettingsPage() {
     });
   }, []);
 
-  // GitHub 토큰 검증
   useEffect(() => {
-    if (!githubToken) {
-      setGithubUser(null);
-      return;
-    }
+    if (!githubToken) { setGithubUser(null); return; }
     fetch('https://api.github.com/user', {
       headers: { Authorization: `Bearer ${githubToken}` },
     })
@@ -59,7 +56,6 @@ export function SettingsPage() {
   }, [githubToken]);
 
   async function handleSave() {
-    // localStorage (항상)
     if (githubToken) localStorage.setItem('github_token', githubToken);
     else localStorage.removeItem('github_token');
     if (openaiKey) localStorage.setItem('openai_api_key', openaiKey);
@@ -67,7 +63,6 @@ export function SettingsPage() {
     if (anthropicKey) localStorage.setItem('anthropic_api_key', anthropicKey);
     else localStorage.removeItem('anthropic_api_key');
 
-    // SQLite DB (Tauri 환경)
     if (isTauri()) {
       if (githubToken) await saveSetting('github_token', githubToken);
       if (openaiKey) await saveSetting('openai_api_key', openaiKey);
@@ -75,193 +70,203 @@ export function SettingsPage() {
     }
 
     setSaved(true);
+    toast.success('설정이 저장되었습니다');
     setTimeout(() => setSaved(false), 2000);
   }
 
+  function SecretInput({ label, value, onChange, show, onToggleShow, placeholder, hint }: {
+    label: string; value: string; onChange: (v: string) => void;
+    show: boolean; onToggleShow: () => void; placeholder: string; hint: string;
+  }) {
+    return (
+      <div>
+        <label className="block text-[12px] font-medium text-[var(--text-secondary)] mb-1.5">{label}</label>
+        <div className="relative">
+          <input
+            type={show ? 'text' : 'password'}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder={placeholder}
+            className="input-base pr-9 text-[13px] font-mono"
+          />
+          <button
+            type="button"
+            onClick={onToggleShow}
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] transition-colors"
+          >
+            {show ? <EyeOff size={13} /> : <Eye size={13} />}
+          </button>
+        </div>
+        <p className="mt-1 text-[11px] text-[var(--text-tertiary)]">{hint}</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex-1 p-6 max-w-2xl mx-auto w-full">
-      <button
-        onClick={() => setCurrentPage('home')}
-        className="flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] mb-6 transition-colors"
-      >
-        <ArrowLeft size={16} />
-        뒤로
-      </button>
-
-      <h1 className="text-2xl font-bold mb-6">설정</h1>
-
-      {/* GitHub 계정 */}
-      <section className="mb-8">
-        <h2 className="text-lg font-semibold mb-4">GitHub 계정</h2>
-        <div className="p-4 border border-[var(--border)] rounded-xl">
-          <label className="block text-sm font-medium mb-2">
-            GitHub Personal Access Token
-          </label>
-          {githubUser && (
-            <div className="mb-2 flex items-center gap-2 text-sm text-green-500">
-              <Check size={14} />
-              연결됨: @{githubUser}
-            </div>
-          )}
-          <div className="relative">
-            <input
-              type={showGithub ? 'text' : 'password'}
-              value={githubToken}
-              onChange={(e) => setGithubToken(e.target.value)}
-              placeholder="ghp_..."
-              className="w-full px-3 py-2 pr-10 bg-[var(--bg-secondary)] border border-[var(--border)] rounded-lg text-sm outline-none focus:border-[var(--accent)]"
-            />
-            <button
-              type="button"
-              onClick={() => setShowGithub(!showGithub)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]"
-            >
-              {showGithub ? <EyeOff size={14} /> : <Eye size={14} />}
-            </button>
-          </div>
-          <p className="mt-1 text-xs text-[var(--text-secondary)]">
-            github.com/settings/tokens → "Generate new token (classic)" → repo 권한 선택
-          </p>
-          <p className="mt-1 text-xs text-[var(--text-secondary)]">
-            토큰이 있으면 API 호출 한도가 시간당 60회 → 5,000회로 증가합니다
-          </p>
-        </div>
-      </section>
-
-      {/* AI 제공자 */}
-      <section className="mb-8">
-        <h2 className="text-lg font-semibold mb-4">AI 제공자</h2>
-
-        <div className="space-y-4">
-          <div className="p-4 border border-[var(--border)] rounded-xl">
-            <label className="block text-sm font-medium mb-2">OpenAI API 키</label>
-            <div className="relative">
-              <input
-                type={showOpenai ? 'text' : 'password'}
-                value={openaiKey}
-                onChange={(e) => setOpenaiKey(e.target.value)}
-                placeholder="sk-..."
-                className="w-full px-3 py-2 pr-10 bg-[var(--bg-secondary)] border border-[var(--border)] rounded-lg text-sm outline-none focus:border-[var(--accent)]"
-              />
-              <button
-                type="button"
-                onClick={() => setShowOpenai(!showOpenai)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]"
-              >
-                {showOpenai ? <EyeOff size={14} /> : <Eye size={14} />}
-              </button>
-            </div>
-            <p className="mt-1 text-xs text-[var(--text-secondary)]">
-              platform.openai.com/api-keys 에서 발급
-            </p>
-          </div>
-
-          <div className="p-4 border border-[var(--border)] rounded-xl">
-            <label className="block text-sm font-medium mb-2">Anthropic API 키</label>
-            <div className="relative">
-              <input
-                type={showAnthropic ? 'text' : 'password'}
-                value={anthropicKey}
-                onChange={(e) => setAnthropicKey(e.target.value)}
-                placeholder="sk-ant-..."
-                className="w-full px-3 py-2 pr-10 bg-[var(--bg-secondary)] border border-[var(--border)] rounded-lg text-sm outline-none focus:border-[var(--accent)]"
-              />
-              <button
-                type="button"
-                onClick={() => setShowAnthropic(!showAnthropic)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]"
-              >
-                {showAnthropic ? <EyeOff size={14} /> : <Eye size={14} />}
-              </button>
-            </div>
-            <p className="mt-1 text-xs text-[var(--text-secondary)]">
-              console.anthropic.com 에서 발급
-            </p>
-          </div>
-        </div>
-
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="flex-1 overflow-y-auto"
+    >
+      <div className="max-w-xl mx-auto px-6 py-6">
         <button
-          onClick={handleSave}
-          className="mt-4 flex items-center gap-2 px-4 py-2 bg-[var(--accent)] text-white rounded-lg hover:bg-[var(--accent-hover)] transition-colors text-sm"
+          onClick={() => setCurrentPage('home')}
+          className="btn btn-ghost text-[12px] mb-5 -ml-2"
         >
-          {saved ? <Check size={14} /> : null}
-          {saved ? '저장됨!' : '저장'}
+          <ArrowLeft size={14} />
+          뒤로
         </button>
-      </section>
 
-      {/* Ollama (로컬 AI) */}
-      <section className="mb-8">
-        <h2 className="text-lg font-semibold mb-4">로컬 AI (Ollama)</h2>
-        <div className="p-4 border border-[var(--border)] rounded-xl">
+        <h1 className="text-[20px] font-bold tracking-tight mb-6">설정</h1>
+
+        {/* GitHub */}
+        <section className="mb-8">
           <div className="flex items-center gap-2 mb-3">
-            {ollamaOnline ? (
-              <>
-                <Wifi size={14} className="text-green-500" />
-                <span className="text-sm text-green-500">Ollama 연결됨 (localhost:11434)</span>
-              </>
-            ) : (
-              <>
-                <WifiOff size={14} className="text-[var(--text-secondary)]" />
-                <span className="text-sm text-[var(--text-secondary)]">Ollama 미감지</span>
-              </>
+            <Shield size={14} className="text-[var(--text-tertiary)]" />
+            <h2 className="text-[13px] font-semibold">GitHub 계정</h2>
+            {githubUser && (
+              <span className="badge bg-green-500/10 text-green-600 ml-auto">
+                <Check size={10} className="mr-1" />
+                @{githubUser}
+              </span>
             )}
           </div>
-          {ollamaOnline && ollamaModels.length > 0 && (
-            <div className="space-y-1">
-              <p className="text-xs text-[var(--text-secondary)] mb-2">설치된 모델:</p>
-              {ollamaModels.map((m) => (
-                <div key={m.name} className="flex items-center justify-between px-3 py-1.5 bg-[var(--bg-secondary)] rounded-lg text-sm">
-                  <span className="font-mono">{m.name}</span>
-                  <span className="text-xs text-[var(--text-secondary)]">{m.size}</span>
-                </div>
-              ))}
+          <div className="p-4 border border-[var(--border)] rounded-[var(--radius)] bg-[var(--bg-card)] space-y-3">
+            <SecretInput
+              label="Personal Access Token"
+              value={githubToken}
+              onChange={setGithubToken}
+              show={showGithub}
+              onToggleShow={() => setShowGithub(!showGithub)}
+              placeholder="ghp_..."
+              hint="github.com/settings/tokens → Generate new token (classic) → repo 권한"
+            />
+            <div className="flex items-center gap-1.5 text-[11px] text-[var(--text-tertiary)]">
+              <Info size={10} />
+              토큰이 있으면 API 한도가 시간당 60회 → 5,000회로 증가합니다
             </div>
-          )}
-          {!ollamaOnline && (
-            <p className="text-xs text-[var(--text-secondary)]">
-              ollama.com 에서 Ollama를 설치하고 실행하면 로컬 AI를 사용할 수 있습니다
-            </p>
-          )}
-        </div>
-      </section>
+          </div>
+        </section>
 
-      {/* 데이터 관리 */}
-      <section className="mb-8">
-        <h2 className="text-lg font-semibold mb-4">데이터 관리</h2>
-        <div className="flex gap-3">
-          <button
-            onClick={async () => {
-              const json = await exportCollections();
-              downloadJson(json, `github-ai-explorer-backup-${new Date().toISOString().split('T')[0]}.json`);
-            }}
-            className="flex items-center gap-2 px-4 py-2 border border-[var(--border)] rounded-lg text-sm hover:border-[var(--accent)] transition-colors"
-          >
-            <Download size={14} />
-            컬렉션 내보내기
-          </button>
-          <button
-            className="flex items-center gap-2 px-4 py-2 border border-[var(--border)] rounded-lg text-sm hover:border-[var(--accent)] transition-colors opacity-50 cursor-not-allowed"
-            title="Phase 3에서 구현 예정"
-          >
-            <Upload size={14} />
-            가져오기
-          </button>
-        </div>
-      </section>
+        {/* AI */}
+        <section className="mb-8">
+          <div className="flex items-center gap-2 mb-3">
+            <Cpu size={14} className="text-[var(--text-tertiary)]" />
+            <h2 className="text-[13px] font-semibold">AI 제공자</h2>
+          </div>
+          <div className="p-4 border border-[var(--border)] rounded-[var(--radius)] bg-[var(--bg-card)] space-y-4">
+            <SecretInput
+              label="OpenAI API 키"
+              value={openaiKey}
+              onChange={setOpenaiKey}
+              show={showOpenai}
+              onToggleShow={() => setShowOpenai(!showOpenai)}
+              placeholder="sk-..."
+              hint="platform.openai.com/api-keys"
+            />
+            <div className="border-t border-[var(--border-subtle)]" />
+            <SecretInput
+              label="Anthropic API 키"
+              value={anthropicKey}
+              onChange={setAnthropicKey}
+              show={showAnthropic}
+              onToggleShow={() => setShowAnthropic(!showAnthropic)}
+              placeholder="sk-ant-..."
+              hint="console.anthropic.com"
+            />
+          </div>
 
-      {/* 앱 정보 */}
-      <section>
-        <h2 className="text-lg font-semibold mb-4">앱 정보</h2>
-        <div className="p-4 border border-[var(--border)] rounded-xl text-sm space-y-2">
-          <p>
-            <span className="text-[var(--text-secondary)]">버전:</span> 0.3.0 (Phase 3)
-          </p>
-          <p>
-            <span className="text-[var(--text-secondary)]">기술 스택:</span> Tauri 2.0 + React +
-            TypeScript + SQLite + Ollama
-          </p>
-        </div>
-      </section>
-    </div>
+          <button onClick={handleSave} className="btn btn-primary mt-3 text-[12px]">
+            {saved ? <Check size={12} /> : null}
+            {saved ? '저장됨' : '저장'}
+          </button>
+        </section>
+
+        {/* Ollama */}
+        <section className="mb-8">
+          <div className="flex items-center gap-2 mb-3">
+            {ollamaOnline ? (
+              <Wifi size={14} className="text-green-500" />
+            ) : (
+              <WifiOff size={14} className="text-[var(--text-tertiary)]" />
+            )}
+            <h2 className="text-[13px] font-semibold">로컬 AI (Ollama)</h2>
+            <span className={`badge ml-auto ${ollamaOnline ? 'bg-green-500/10 text-green-600' : 'bg-[var(--bg-secondary)] text-[var(--text-tertiary)]'}`}>
+              {ollamaOnline ? '연결됨' : '미감지'}
+            </span>
+          </div>
+          <div className="p-4 border border-[var(--border)] rounded-[var(--radius)] bg-[var(--bg-card)]">
+            {ollamaOnline && ollamaModels.length > 0 ? (
+              <div className="space-y-1.5">
+                {ollamaModels.map((m) => (
+                  <div key={m.name} className="flex items-center justify-between px-3 py-2 bg-[var(--bg-secondary)] rounded-lg">
+                    <span className="text-[12px] font-mono">{m.name}</span>
+                    <span className="text-[11px] text-[var(--text-tertiary)]">{m.size}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-4">
+                <p className="text-[12px] text-[var(--text-tertiary)]">
+                  {ollamaOnline ? '설치된 모델이 없습니다' : 'Ollama가 실행되지 않고 있습니다'}
+                </p>
+                <a
+                  href="https://ollama.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 mt-2 text-[11px] text-[var(--accent)] hover:underline"
+                >
+                  ollama.com에서 설치하기
+                  <ExternalLink size={10} />
+                </a>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Data */}
+        <section className="mb-8">
+          <div className="flex items-center gap-2 mb-3">
+            <Database size={14} className="text-[var(--text-tertiary)]" />
+            <h2 className="text-[13px] font-semibold">데이터</h2>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={async () => {
+                const json = await exportCollections();
+                downloadJson(json, `github-ai-explorer-backup-${new Date().toISOString().split('T')[0]}.json`);
+                toast.success('컬렉션을 내보냈습니다');
+              }}
+              className="btn btn-outline text-[12px]"
+            >
+              <Download size={12} />
+              컬렉션 내보내기
+            </button>
+            <button className="btn btn-outline text-[12px] opacity-40 cursor-not-allowed" title="준비 중">
+              <Upload size={12} />
+              가져오기
+            </button>
+          </div>
+        </section>
+
+        {/* About */}
+        <section className="mb-8">
+          <div className="p-4 border border-[var(--border)] rounded-[var(--radius)] bg-[var(--bg-card)] text-[12px] text-[var(--text-secondary)] space-y-1.5">
+            <div className="flex justify-between">
+              <span>버전</span>
+              <span className="font-mono text-[var(--text-tertiary)]">0.3.0</span>
+            </div>
+            <div className="flex justify-between">
+              <span>엔진</span>
+              <span className="text-[var(--text-tertiary)]">Tauri 2.0 + React 19</span>
+            </div>
+            <div className="flex justify-between">
+              <span>데이터</span>
+              <span className="text-[var(--text-tertiary)]">SQLite (로컬 저장)</span>
+            </div>
+          </div>
+        </section>
+      </div>
+    </motion.div>
   );
 }
