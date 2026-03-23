@@ -12,7 +12,7 @@ export default defineConfig({
   },
   clearScreen: false,
   server: {
-    port: 8809,
+    port: 7719,
     strictPort: true,
     host: '127.0.0.1',
   },
