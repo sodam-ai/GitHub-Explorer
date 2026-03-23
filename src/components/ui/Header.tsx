@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Settings, Sun, Moon, FolderOpen, TrendingUp } from 'lucide-react';
+import { Search, Settings, Sun, Moon, FolderOpen, TrendingUp, BarChart3 } from 'lucide-react';
 import { useAppStore } from '@/stores/app-store';
 
 export function Header() {
@@ -8,6 +8,7 @@ export function Header() {
   const navItems = [
     { page: 'collections' as const, icon: FolderOpen, label: '컬렉션' },
     { page: 'trending' as const, icon: TrendingUp, label: '트렌딩' },
+    { page: 'stats' as const, icon: BarChart3, label: '통계' },
   ];
 
   return (

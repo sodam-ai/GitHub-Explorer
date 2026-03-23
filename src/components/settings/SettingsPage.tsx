@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Check, Eye, EyeOff, Download, Upload, Wifi, WifiOff, ExternalLink, Shield, Cpu, Database, Info, Palette } from 'lucide-react';
+import { ArrowLeft, Check, Eye, EyeOff, Download, Upload, Wifi, WifiOff, ExternalLink, Shield, Cpu, Database, Info, Palette, Languages } from 'lucide-react';
 import { useAppStore } from '@/stores/app-store';
 import { saveSetting, getSetting, isTauri } from '@/lib/tauri-bridge';
 import { checkOllamaStatus, getOllamaModels, type OllamaModel } from '@/lib/ollama';
 import { exportCollections, downloadJson } from '@/lib/export-import';
+import { LOCALES, getLocale, setLocale } from '@/lib/i18n';
 import { toast } from 'sonner';
 
 export function SettingsPage() {
@@ -207,6 +208,27 @@ export function SettingsPage() {
                 />
               );
             })}
+          </div>
+        </section>
+
+        {/* Language */}
+        <section className="mb-8">
+          <div className="flex items-center gap-2 mb-3">
+            <Languages size={14} className="text-[var(--text-tertiary)]" />
+            <h2 className="text-[13px] font-semibold">언어</h2>
+          </div>
+          <div className="flex gap-2">
+            {LOCALES.map((loc) => (
+              <button
+                key={loc.key}
+                onClick={() => { setLocale(loc.key); window.location.reload(); }}
+                className={`btn text-[12px] ${
+                  getLocale() === loc.key ? 'btn-primary' : 'btn-outline'
+                }`}
+              >
+                {loc.label}
+              </button>
+            ))}
           </div>
         </section>
 

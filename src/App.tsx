@@ -8,6 +8,7 @@ import { SearchPage } from '@/pages/SearchPage';
 import { SettingsPage } from '@/components/settings/SettingsPage';
 import { CollectionPage } from '@/components/collection/CollectionPage';
 import { TrendingPage } from '@/pages/TrendingPage';
+import { StatsPage } from '@/pages/StatsPage';
 import { searchRepositories, searchCode, searchIssues } from '@/lib/github';
 import { generateSearchSummary } from '@/lib/ai';
 import { saveSearchHistory, getSearchHistory, getSetting, isTauri } from '@/lib/tauri-bridge';
@@ -181,6 +182,7 @@ function App() {
       {currentPage === 'search' && <SearchPage onSearch={handleSearch} />}
       {currentPage === 'collections' && <CollectionPage />}
       {currentPage === 'trending' && <TrendingPage />}
+      {currentPage === 'stats' && <StatsPage />}
       {currentPage === 'settings' && <SettingsPage />}
     </>
   );
