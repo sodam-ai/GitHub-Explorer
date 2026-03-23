@@ -10,6 +10,7 @@ import { TrendingPage } from '@/pages/TrendingPage';
 import { searchRepositories, searchCode, searchIssues } from '@/lib/github';
 import { generateSearchSummary } from '@/lib/ai';
 import { saveSearchHistory, getSearchHistory, getSetting, isTauri } from '@/lib/tauri-bridge';
+import { isOnline, getCachedRepositories, cacheRepositories } from '@/lib/offline-cache';
 import type { SearchResult } from '@/types';
 import './index.css';
 
@@ -60,37 +61,52 @@ function App() {
       setSearchResult(null);
 
       try {
-        // GitHub 토큰 가져오기 (DB 우선, localStorage fallback)
-        let ghToken: string | undefined;
-        if (isTauri()) {
-          ghToken = (await getSetting('github_token')) || undefined;
-        }
-        if (!ghToken) {
-          ghToken = localStorage.getItem('github_token') || undefined;
-        }
+        const online = await isOnline();
 
-        const [repoRes, codeRes, issueRes] = await Promise.allSettled([
-          searchRepositories(query, ghToken),
-          searchCode(query, ghToken),
-          searchIssues(query, ghToken),
-        ]);
+        let repositories: SearchResult['repositories'] = [];
+        let code_results: SearchResult['code_results'] = [];
+        let issue_results: SearchResult['issue_results'] = [];
+        let ai_summary = '';
 
-        const repositories =
-          repoRes.status === 'fulfilled' ? repoRes.value.items : [];
-        const code_results =
-          codeRes.status === 'fulfilled' ? codeRes.value.items : [];
-        const issue_results =
-          issueRes.status === 'fulfilled' ? issueRes.value.items : [];
+        if (online) {
+          // 온라인: GitHub API 검색
+          let ghToken: string | undefined;
+          if (isTauri()) {
+            ghToken = (await getSetting('github_token')) || undefined;
+          }
+          if (!ghToken) {
+            ghToken = localStorage.getItem('github_token') || undefined;
+          }
 
-        // AI 요약 생성 (DB 우선, localStorage fallback)
-        let apiKey = '';
-        if (isTauri()) {
-          apiKey = (await getSetting('openai_api_key')) || '';
+          const [repoRes, codeRes, issueRes] = await Promise.allSettled([
+            searchRepositories(query, ghToken),
+            searchCode(query, ghToken),
+            searchIssues(query, ghToken),
+          ]);
+
+          repositories = repoRes.status === 'fulfilled' ? repoRes.value.items : [];
+          code_results = codeRes.status === 'fulfilled' ? codeRes.value.items : [];
+          issue_results = issueRes.status === 'fulfilled' ? issueRes.value.items : [];
+
+          // 검색 결과 캐시 저장
+          if (repositories.length > 0) {
+            cacheRepositories(repositories);
+          }
+
+          // AI 요약 생성
+          let apiKey = '';
+          if (isTauri()) {
+            apiKey = (await getSetting('openai_api_key')) || '';
+          }
+          if (!apiKey) {
+            apiKey = localStorage.getItem('openai_api_key') || '';
+          }
+          ai_summary = await generateSearchSummary(query, repositories, apiKey);
+        } else {
+          // 오프라인: 캐시 검색
+          repositories = await getCachedRepositories(query);
+          ai_summary = `오프라인 모드: 캐시된 저장소 ${repositories.length}개에서 검색했습니다. 인터넷 연결 시 더 많은 결과를 볼 수 있습니다.`;
         }
-        if (!apiKey) {
-          apiKey = localStorage.getItem('openai_api_key') || '';
-        }
-        const ai_summary = await generateSearchSummary(query, repositories, apiKey);
 
         const result: SearchResult = {
           repositories,

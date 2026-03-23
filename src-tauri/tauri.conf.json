@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "GitHub AI Explorer",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "identifier": "com.sodam-ai.github-ai-explorer",
   "build": {
     "frontendDist": "../dist",
@@ -33,5 +33,13 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ]
+  },
+  "plugins": {
+    "updater": {
+      "endpoints": [
+        "https://github.com/sodam-ai/github-ai-explorer/releases/latest/download/latest.json"
+      ],
+      "pubkey": ""
+    }
   }
 }
