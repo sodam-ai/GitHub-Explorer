@@ -1,9 +1,11 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Settings, Sun, Moon, FolderOpen, TrendingUp, BarChart3 } from 'lucide-react';
+import { Search, Settings, Sun, Moon, FolderOpen, TrendingUp, BarChart3, Code } from 'lucide-react';
 import { useAppStore } from '@/stores/app-store';
+import { useSnippetStore } from '@/stores/snippet-store';
 
 export function Header() {
   const { theme, toggleTheme, setCommandPaletteOpen, setCurrentPage, currentPage } = useAppStore();
+  const snippetStore = useSnippetStore();
 
   const navItems = [
     { page: 'collections' as const, icon: FolderOpen, label: '컬렉션' },
@@ -62,6 +64,19 @@ export function Header() {
           <kbd className="ml-1 px-1 py-px text-[10px] rounded bg-[var(--bg-secondary)] border border-[var(--border)] font-mono leading-none">
             ⌘K
           </kbd>
+        </button>
+
+        <button
+          onClick={() => snippetStore.setOpen(true)}
+          className="btn btn-ghost p-1.5 relative"
+          title="저장된 스니펫"
+        >
+          <Code size={14} />
+          {snippetStore.snippets.length > 0 && (
+            <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 text-[8px] font-bold bg-[var(--accent)] text-white rounded-full flex items-center justify-center">
+              {snippetStore.snippets.length}
+            </span>
+          )}
         </button>
 
         <div className="divider" />

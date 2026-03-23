@@ -15,6 +15,7 @@ import { saveSearchHistory, getSearchHistory, getSetting, isTauri } from '@/lib/
 import { isOnline, getCachedRepositories, cacheRepositories } from '@/lib/offline-cache';
 import { Toaster, toast } from 'sonner';
 import { Onboarding } from '@/components/ui/Onboarding';
+import { SnippetDrawer } from '@/components/ui/SnippetDrawer';
 import type { SearchResult } from '@/types';
 import './index.css';
 
@@ -184,6 +185,8 @@ function App() {
       {currentPage === 'trending' && <TrendingPage />}
       {currentPage === 'stats' && <StatsPage />}
       {currentPage === 'settings' && <SettingsPage />}
+
+      <SnippetDrawer />
     </>
   );
 }
