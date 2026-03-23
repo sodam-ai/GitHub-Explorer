@@ -107,18 +107,18 @@ export function SettingsPage() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="flex-1 overflow-y-auto"
+      style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center' }}
     >
-      <div className="max-w-xl mx-auto px-6 py-6">
+      <div style={{ width: '100%', maxWidth: 640, padding: '32px 32px 60px' }}>
         <button
           onClick={() => setCurrentPage('home')}
-          className="btn btn-ghost text-[12px] mb-5 -ml-2"
+          style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--text-tertiary)', background: 'none', border: 'none', cursor: 'pointer', marginBottom: 24 }}
         >
-          <ArrowLeft size={14} />
+          <ArrowLeft size={15} />
           뒤로
         </button>
 
-        <h1 className="text-[20px] font-bold tracking-tight mb-6">설정</h1>
+        <h1 style={{ fontSize: 24, fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 32 }}>설정</h1>
 
         {/* GitHub */}
         <section className="mb-8">
