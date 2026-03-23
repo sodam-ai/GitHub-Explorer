@@ -11,6 +11,7 @@ import { searchRepositories, searchCode, searchIssues } from '@/lib/github';
 import { generateSearchSummary } from '@/lib/ai';
 import { saveSearchHistory, getSearchHistory, getSetting, isTauri } from '@/lib/tauri-bridge';
 import { isOnline, getCachedRepositories, cacheRepositories } from '@/lib/offline-cache';
+import { Toaster, toast } from 'sonner';
 import type { SearchResult } from '@/types';
 import './index.css';
 
@@ -132,6 +133,9 @@ function App() {
         }
       } catch (error) {
         console.error('Search error:', error);
+        toast.error('검색 중 오류가 발생했습니다', {
+          description: error instanceof Error ? error.message : '알 수 없는 오류',
+        });
         setSearchResult({
           repositories: [],
           code_results: [],
@@ -148,6 +152,16 @@ function App() {
 
   return (
     <>
+      <Toaster
+        position="bottom-right"
+        toastOptions={{
+          style: {
+            background: 'var(--bg-card)',
+            color: 'var(--text-primary)',
+            border: '1px solid var(--border)',
+          },
+        }}
+      />
       <Header />
       <CommandPalette />
 

@@ -53,3 +53,52 @@ body {
   background: var(--border);
   border-radius: 3px;
 }
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-fade-in { animation: fadeIn 0.2s ease-out; }
+.animate-slide-up { animation: slideUp 0.3s ease-out; }
+.animate-slide-down { animation: slideDown 0.3s ease-out; }
+.animate-scale-in { animation: scaleIn 0.2s ease-out; }
+
+/* Focus ring */
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Selection */
+::selection {
+  background: var(--accent);
+  color: white;
+}
+
+/* Smooth transitions for theme */
+body, header, div, button, input, a, span, p {
+  transition: background-color 0.2s, border-color 0.2s, color 0.15s;
+}
