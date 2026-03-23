@@ -1,13 +1,14 @@
-import { Star, ExternalLink, Bookmark, Activity } from 'lucide-react';
+import { Star, ExternalLink, Bookmark, Activity, MessageCircle } from 'lucide-react';
 import type { Repository } from '@/types';
 import { calculateHealthScore, getHealthColor } from '@/lib/health-score';
 
 interface RepoCardProps {
   repo: Repository;
   onBookmark?: (repo: Repository) => void;
+  onCodeQA?: (repo: Repository) => void;
 }
 
-export function RepoCard({ repo, onBookmark }: RepoCardProps) {
+export function RepoCard({ repo, onBookmark, onCodeQA }: RepoCardProps) {
   const health = calculateHealthScore(repo);
 
   return (
@@ -74,6 +75,13 @@ export function RepoCard({ repo, onBookmark }: RepoCardProps) {
       )}
 
       <div className="mt-3 flex items-center gap-3">
+        <button
+          onClick={() => onCodeQA?.(repo)}
+          className="flex items-center gap-1 text-xs text-[var(--text-secondary)] hover:text-[var(--accent)] transition-colors"
+        >
+          <MessageCircle size={13} />
+          코드 질문
+        </button>
         <button
           onClick={() => onBookmark?.(repo)}
           className="flex items-center gap-1 text-xs text-[var(--text-secondary)] hover:text-[var(--accent)] transition-colors"

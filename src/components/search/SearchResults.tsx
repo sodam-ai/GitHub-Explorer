@@ -5,6 +5,7 @@ import { RepoCard } from './RepoCard';
 import { CodeViewer } from './CodeViewer';
 import { RepoCompare } from './RepoCompare';
 import { SearchFilters, type SearchFilterValues } from './SearchFilters';
+import { CodeQAPanel } from '@/components/chat/CodeQAPanel';
 import type { SearchTab, Repository } from '@/types';
 
 const TABS: { key: SearchTab; label: string; icon: React.ReactNode }[] = [
@@ -18,6 +19,7 @@ export function SearchResults() {
   const [filters, setFilters] = useState<SearchFilterValues>({ language: '', minStars: 0, sortBy: 'relevance' });
   const [compareRepos, setCompareRepos] = useState<Repository[]>([]);
   const [showCompare, setShowCompare] = useState(false);
+  const [qaRepo, setQaRepo] = useState<Repository | null>(null);
 
   const filteredRepos = useMemo(() => {
     if (!searchResult) return [];
@@ -111,7 +113,7 @@ export function SearchResults() {
         {activeTab === 'repositories' &&
           filteredRepos.map((repo) => (
             <div key={repo.id} className="relative">
-              <RepoCard repo={repo} />
+              <RepoCard repo={repo} onCodeQA={(r) => setQaRepo(r)} />
               <button
                 onClick={() => toggleCompare(repo)}
                 className={`absolute top-4 right-4 px-2 py-1 text-xs rounded-lg border transition-colors ${
@@ -175,6 +177,11 @@ export function SearchResults() {
       {/* 비교 모달 */}
       {showCompare && (
         <RepoCompare repos={compareRepos} onClose={() => setShowCompare(false)} />
+      )}
+
+      {/* 코드 Q&A */}
+      {qaRepo && (
+        <CodeQAPanel repo={qaRepo} onClose={() => setQaRepo(null)} />
       )}
     </div>
   );
