@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { motion } from 'framer-motion';
 import { Sparkles, GitBranch, Code, MessageCircle, Scale } from 'lucide-react';
 import { useAppStore } from '@/stores/app-store';
 import { RepoCard } from './RepoCard';
@@ -53,17 +54,26 @@ export function SearchResults() {
     <div className="flex flex-col gap-4">
       {/* AI 요약 */}
       {searchResult.ai_summary && (
-        <div className="p-4 rounded-xl bg-[var(--accent)]/5 border border-[var(--accent)]/20">
-          <div className="flex items-start gap-2">
-            <Sparkles size={16} className="text-[var(--accent)] mt-0.5 shrink-0" />
-            <p className="text-sm leading-relaxed">{searchResult.ai_summary}</p>
+        <motion.div
+          initial={{ opacity: 0, y: 4 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative p-3.5 rounded-[var(--radius)] bg-[var(--bg-card)] border border-[var(--border)] shadow-[var(--shadow-sm)]"
+        >
+          <div className="flex items-start gap-2.5">
+            <div className="mt-0.5 w-5 h-5 rounded-md bg-[var(--accent-muted)] flex items-center justify-center shrink-0">
+              <Sparkles size={11} className="text-[var(--accent)]" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[11px] font-medium text-[var(--text-tertiary)] mb-1">AI 분석</p>
+              <p className="text-[13px] leading-[1.6] text-[var(--text-secondary)]">{searchResult.ai_summary}</p>
+            </div>
           </div>
-        </div>
+        </motion.div>
       )}
 
       {/* 탭 + 필터 */}
-      <div className="flex items-center justify-between border-b border-[var(--border)]">
-        <div className="flex items-center gap-1">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-0.5 bg-[var(--bg-secondary)] rounded-lg p-0.5">
           {TABS.map((tab) => {
             const count =
               tab.key === 'repositories'
@@ -71,34 +81,46 @@ export function SearchResults() {
                 : tab.key === 'code'
                   ? searchResult.code_results.length
                   : searchResult.issue_results.length;
+            const isActive = activeTab === tab.key;
 
             return (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
-                  activeTab === tab.key
-                    ? 'border-[var(--accent)] text-[var(--accent)]'
-                    : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] font-medium transition-all ${
+                  isActive
+                    ? 'text-[var(--text-primary)]'
+                    : 'text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'
                 }`}
               >
-                {tab.icon}
-                {tab.label}
-                <span className="ml-1 px-1.5 py-0.5 text-xs rounded-full bg-[var(--bg-secondary)]">
-                  {count}
+                {isActive && (
+                  <motion.div
+                    layoutId="tab-bg"
+                    className="absolute inset-0 bg-[var(--bg-card)] rounded-md shadow-sm"
+                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                  />
+                )}
+                <span className="relative z-10 flex items-center gap-1.5">
+                  {tab.icon}
+                  {tab.label}
+                  <span className={`px-1.5 py-px text-[10px] rounded-full ${
+                    isActive ? 'bg-[var(--accent-muted)] text-[var(--accent)]' : 'bg-[var(--bg-primary)] text-[var(--text-tertiary)]'
+                  }`}>
+                    {count}
+                  </span>
                 </span>
               </button>
             );
           })}
         </div>
 
-        <div className="flex items-center gap-2 pb-2">
+        <div className="flex items-center gap-2">
           {activeTab === 'repositories' && compareRepos.length >= 2 && (
             <button
               onClick={() => setShowCompare(true)}
-              className="flex items-center gap-1 px-3 py-1.5 text-xs bg-[var(--accent)] text-white rounded-lg hover:bg-[var(--accent-hover)] transition-colors"
+              className="btn btn-primary text-[11px] py-1"
             >
-              <Scale size={12} />
+              <Scale size={11} />
               비교 ({compareRepos.length})
             </button>
           )}
@@ -111,9 +133,9 @@ export function SearchResults() {
       {/* 결과 목록 */}
       <div className="flex flex-col gap-3">
         {activeTab === 'repositories' &&
-          filteredRepos.map((repo) => (
+          filteredRepos.map((repo, i) => (
             <div key={repo.id} className="relative">
-              <RepoCard repo={repo} onCodeQA={(r) => setQaRepo(r)} />
+              <RepoCard repo={repo} onCodeQA={(r) => setQaRepo(r)} index={i} />
               <button
                 onClick={() => toggleCompare(repo)}
                 className={`absolute top-4 right-4 px-2 py-1 text-xs rounded-lg border transition-colors ${
