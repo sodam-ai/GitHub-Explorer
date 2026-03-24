@@ -49,38 +49,133 @@ function getSortParam(sortBy?: string): string {
   return 'stars';
 }
 
+// 단일 단어이고 특수문자 없으면 사용자명일 가능성 높음
+function looksLikeUsername(query: string): boolean {
+  return /^[a-zA-Z0-9_-]+$/.test(query.trim()) && !query.includes(' ');
+}
+
+// 사용자의 인기 저장소 가져오기
+async function getUserRepos(username: string, token?: string): Promise<Repository[]> {
+  try {
+    const res = await fetch(
+      `${GITHUB_API}/users/${username}/repos?sort=stars&direction=desc&per_page=10`,
+      { headers: getHeaders(token) }
+    );
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data as Array<Record<string, unknown>>).map((item) => ({
+      id: String(item.id),
+      full_name: item.full_name as string,
+      description: item.description as string | null,
+      stars: item.stargazers_count as number,
+      language: item.language as string | null,
+      topics: (item.topics as string[]) || [],
+      url: item.html_url as string,
+      readme_snippet: null,
+      owner_avatar: (item.owner as Record<string, string>)?.avatar_url || null,
+      last_synced: new Date().toISOString(),
+      created_at: new Date().toISOString(),
+    }));
+  } catch {
+    return [];
+  }
+}
+
 export async function searchRepositories(
   query: string,
   token?: string,
   page = 1,
-  perPage = 10,
+  perPage = 20,
   opts?: SearchOptions
 ): Promise<{ items: Repository[]; total_count: number }> {
-  const q = buildQuery(query, opts);
+  const trimmed = query.trim();
+
+  // 전략 1: 일반 검색
+  const q = buildQuery(trimmed, opts);
   const sort = getSortParam(opts?.sortBy);
-  const res = await fetch(
+  const searchPromise = fetch(
     `${GITHUB_API}/search/repositories?q=${encodeURIComponent(q)}&sort=${sort}&order=desc&page=${page}&per_page=${perPage}`,
     { headers: getHeaders(token) }
-  );
-  if (!res.ok) throw new Error(`GitHub API error: ${res.status}`);
-  const data = await res.json();
+  ).then(async (res) => {
+    if (!res.ok) return { items: [] as Repository[], total_count: 0 };
+    const data = await res.json();
+    return {
+      total_count: data.total_count as number,
+      items: (data.items as Array<Record<string, unknown>>).map(mapRepo),
+    };
+  });
+
+  // 전략 2: 사용자명처럼 보이면 해당 유저의 저장소도 검색
+  let userReposPromise: Promise<Repository[]> = Promise.resolve([]);
+  if (looksLikeUsername(trimmed) && page === 1) {
+    userReposPromise = getUserRepos(trimmed, token);
+  }
+
+  // 전략 3: user: 쿼리로도 검색 (공백 포함 검색어도 커버)
+  let userSearchPromise: Promise<Repository[]> = Promise.resolve([]);
+  if (page === 1 && !opts?.owner) {
+    const userQ = buildQuery(`user:${trimmed.split(' ')[0]}`, opts);
+    userSearchPromise = fetch(
+      `${GITHUB_API}/search/repositories?q=${encodeURIComponent(userQ)}&sort=stars&order=desc&per_page=5`,
+      { headers: getHeaders(token) }
+    ).then(async (res) => {
+      if (!res.ok) return [];
+      const data = await res.json();
+      return (data.items as Array<Record<string, unknown>>).map(mapRepo);
+    }).catch(() => []);
+  }
+
+  const [searchResult, userRepos, userSearchRepos] = await Promise.all([
+    searchPromise,
+    userReposPromise,
+    userSearchPromise,
+  ]);
+
+  // 결과 병합 (중복 제거, 유저 저장소 우선)
+  const seen = new Set<string>();
+  const merged: Repository[] = [];
+
+  // 유저 직접 저장소가 있으면 먼저
+  for (const repo of userRepos) {
+    if (!seen.has(repo.full_name)) {
+      seen.add(repo.full_name);
+      merged.push(repo);
+    }
+  }
+  // user: 검색 결과
+  for (const repo of userSearchRepos) {
+    if (!seen.has(repo.full_name)) {
+      seen.add(repo.full_name);
+      merged.push(repo);
+    }
+  }
+  // 일반 검색 결과
+  for (const repo of searchResult.items) {
+    if (!seen.has(repo.full_name)) {
+      seen.add(repo.full_name);
+      merged.push(repo);
+    }
+  }
+
   return {
-    total_count: data.total_count,
-    items: data.items.map(
-      (item: Record<string, unknown>): Repository => ({
-        id: String(item.id),
-        full_name: item.full_name as string,
-        description: item.description as string | null,
-        stars: item.stargazers_count as number,
-        language: item.language as string | null,
-        topics: (item.topics as string[]) || [],
-        url: item.html_url as string,
-        readme_snippet: null,
-        owner_avatar: (item.owner as Record<string, string>)?.avatar_url || null,
-        last_synced: new Date().toISOString(),
-        created_at: new Date().toISOString(),
-      })
-    ),
+    total_count: Math.max(searchResult.total_count, merged.length),
+    items: merged,
+  };
+}
+
+function mapRepo(item: Record<string, unknown>): Repository {
+  return {
+    id: String(item.id),
+    full_name: item.full_name as string,
+    description: item.description as string | null,
+    stars: item.stargazers_count as number,
+    language: item.language as string | null,
+    topics: (item.topics as string[]) || [],
+    url: item.html_url as string,
+    readme_snippet: null,
+    owner_avatar: (item.owner as Record<string, string>)?.avatar_url || null,
+    last_synced: new Date().toISOString(),
+    created_at: new Date().toISOString(),
   };
 }
 
