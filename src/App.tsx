@@ -89,8 +89,21 @@ function App() {
             ghToken = localStorage.getItem('github_token') || undefined;
           }
 
+          // 필터를 GitHub API에 전달
+          const currentFilters = useAppStore.getState().searchFilters;
+          const searchOpts = {
+            owner: currentFilters.owner || undefined,
+            language: currentFilters.language || undefined,
+            license: currentFilters.license || undefined,
+            minStars: currentFilters.minStars || undefined,
+            minForks: currentFilters.minForks || undefined,
+            updatedAfter: currentFilters.updatedAfter || undefined,
+            excludeArchived: currentFilters.excludeArchived || undefined,
+            sortBy: currentFilters.sortBy || undefined,
+          };
+
           const [repoRes, codeRes, issueRes] = await Promise.allSettled([
-            searchRepositories(query, ghToken),
+            searchRepositories(query, ghToken, 1, 20, searchOpts),
             searchCode(query, ghToken),
             searchIssues(query, ghToken),
           ]);

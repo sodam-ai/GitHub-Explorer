@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type { SearchResult, SearchHistory, SearchTab, Theme } from '@/types';
+import { DEFAULT_FILTERS, type SearchFilterValues } from '@/components/search/SearchFilters';
 
 type AccentColor = 'blue' | 'violet' | 'emerald' | 'rose' | 'amber' | 'cyan';
 
@@ -44,6 +45,8 @@ interface AppState {
   setIsSearching: (loading: boolean) => void;
   activeTab: SearchTab;
   setActiveTab: (tab: SearchTab) => void;
+  searchFilters: SearchFilterValues;
+  setSearchFilters: (filters: SearchFilterValues) => void;
 
   // Search History
   searchHistory: SearchHistory[];
@@ -91,6 +94,8 @@ export const useAppStore = create<AppState>((set) => ({
   setIsSearching: (loading) => set({ isSearching: loading }),
   activeTab: 'repositories',
   setActiveTab: (tab) => set({ activeTab: tab }),
+  searchFilters: DEFAULT_FILTERS,
+  setSearchFilters: (filters) => set({ searchFilters: filters }),
 
   // Search History
   searchHistory: [],

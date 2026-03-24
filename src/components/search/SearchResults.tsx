@@ -6,7 +6,7 @@ import { RepoCard } from './RepoCard';
 import { CodeViewer } from './CodeViewer';
 import { RepoCompare } from './RepoCompare';
 import { RepoPreview } from './RepoPreview';
-import { SearchFilters, DEFAULT_FILTERS, type SearchFilterValues } from './SearchFilters';
+import { SearchFilters, type SearchFilterValues } from './SearchFilters';
 import { CodeQAPanel } from '@/components/chat/CodeQAPanel';
 import type { SearchTab, Repository } from '@/types';
 
@@ -16,9 +16,18 @@ const TABS: { key: SearchTab; label: string; icon: React.ReactNode }[] = [
   { key: 'issues', label: '이슈', icon: <MessageCircle size={14} /> },
 ];
 
-export function SearchResults() {
-  const { searchResult, activeTab, setActiveTab } = useAppStore();
-  const [filters, setFilters] = useState<SearchFilterValues>(DEFAULT_FILTERS);
+interface SearchResultsProps {
+  onReSearch?: () => void;
+}
+
+export function SearchResults({ onReSearch }: SearchResultsProps = {}) {
+  const { searchResult, activeTab, setActiveTab, searchFilters, setSearchFilters } = useAppStore();
+  const filters = searchFilters;
+  const setFilters = (f: SearchFilterValues) => {
+    setSearchFilters(f);
+    // 필터 변경 시 재검색
+    setTimeout(() => onReSearch?.(), 100);
+  };
   const [compareRepos, setCompareRepos] = useState<Repository[]>([]);
   const [showCompare, setShowCompare] = useState(false);
   const [qaRepo, setQaRepo] = useState<Repository | null>(null);
