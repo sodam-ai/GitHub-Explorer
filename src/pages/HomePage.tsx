@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Clock, ArrowRight, Search, Sparkles } from 'lucide-react';
 import { useAppStore } from '@/stores/app-store';
 import { SearchBar } from '@/components/search/SearchBar';
 import { SearchFilters } from '@/components/search/SearchFilters';
+import { Filter } from 'lucide-react';
 
 interface HomePageProps {
   onSearch: (query: string) => void;
@@ -16,7 +18,13 @@ const SUGGESTIONS = [
 ];
 
 export function HomePage({ onSearch }: HomePageProps) {
-  const { searchHistory } = useAppStore();
+  const { searchHistory, searchFilters, setSearchFilters } = useAppStore();
+  const [showFilters, setShowFilters] = useState(false);
+  const activeFilterCount = [
+    searchFilters.language, searchFilters.minStars > 0, searchFilters.sortBy !== 'relevance',
+    searchFilters.owner, searchFilters.license, searchFilters.updatedAfter,
+    searchFilters.minForks > 0, searchFilters.excludeArchived,
+  ].filter(Boolean).length;
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '60px 40px 80px 40px', minHeight: 0, overflow: 'auto' }}>
@@ -40,18 +48,75 @@ export function HomePage({ onSearch }: HomePageProps) {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}
+        style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}
       >
-        <div style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', gap: 10 }}>
-          <SearchBar onSearch={onSearch} large />
-          <div style={{ paddingTop: 6 }}>
-            <SearchFilters
-              filters={useAppStore.getState().searchFilters}
-              onFiltersChange={(f) => useAppStore.getState().setSearchFilters(f)}
-            />
+        <div style={{ width: '100%', maxWidth: 560, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ flex: 1 }}>
+            <SearchBar onSearch={onSearch} large />
           </div>
+          <button
+            onClick={() => setShowFilters(true)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6, padding: '14px 18px',
+              borderRadius: 16, fontSize: 14, fontWeight: 500, cursor: 'pointer',
+              border: activeFilterCount > 0 ? '2px solid var(--accent)' : '2px solid var(--border)',
+              background: activeFilterCount > 0 ? 'var(--accent-muted)' : 'var(--bg-elevated)',
+              color: activeFilterCount > 0 ? 'var(--accent)' : 'var(--text-secondary)',
+              transition: 'all 0.12s', flexShrink: 0,
+            }}
+          >
+            <Filter size={16} />
+            {activeFilterCount > 0 && (
+              <span style={{
+                width: 20, height: 20, borderRadius: '50%', fontSize: 11, fontWeight: 700,
+                background: 'var(--accent)', color: 'white',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                {activeFilterCount}
+              </span>
+            )}
+          </button>
         </div>
       </motion.div>
+
+      {/* Filter Modal */}
+      {showFilters && (
+        <div
+          onClick={() => setShowFilters(false)}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 50,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(2px)',
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: '100%', maxWidth: 480, maxHeight: '80vh', overflow: 'auto',
+              margin: 16, borderRadius: 20, padding: 24,
+              background: 'var(--bg-card)', border: '1px solid var(--border)',
+              boxShadow: 'var(--shadow-lg)',
+            }}
+          >
+            <SearchFilters
+              filters={searchFilters}
+              onFiltersChange={(f) => { setSearchFilters(f); }}
+              inline
+            />
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
+              <button
+                onClick={() => setShowFilters(false)}
+                style={{
+                  padding: '10px 24px', fontSize: 13, fontWeight: 600, borderRadius: 10,
+                  background: 'var(--accent)', color: 'white', border: 'none', cursor: 'pointer',
+                }}
+              >
+                적용
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Suggestions */}
       <motion.div
