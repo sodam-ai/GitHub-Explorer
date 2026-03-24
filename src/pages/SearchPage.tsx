@@ -13,51 +13,36 @@ export function SearchPage({ onSearch }: SearchPageProps) {
   const { searchResult, isSearching, searchQuery } = useAppStore();
 
   return (
-    <div className="flex-1 p-6 max-w-4xl mx-auto w-full">
-      <motion.div
-        initial={{ opacity: 0, y: -5 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-6 flex justify-center"
-      >
-        <SearchBar onSearch={onSearch} />
-      </motion.div>
+    <div style={{ flex: 1, overflow: 'auto', display: 'flex', justifyContent: 'center' }}>
+      <div style={{ width: '100%', maxWidth: 780, padding: '28px 32px 60px' }}>
 
-      {isSearching && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.2 }}
-        >
-          <div className="text-center mb-4">
-            <p className="text-sm text-[var(--text-secondary)]">
-              "<span className="text-[var(--accent)]">{searchQuery}</span>" 검색 중...
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 28 }}>
+          <SearchBar onSearch={onSearch} />
+        </div>
+
+        {isSearching && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <p style={{ textAlign: 'center', fontSize: 13, color: 'var(--text-tertiary)', marginBottom: 20 }}>
+              "<span style={{ color: 'var(--accent)' }}>{searchQuery}</span>" 검색 중...
             </p>
+            <SkeletonList count={4} />
+          </motion.div>
+        )}
+
+        {!isSearching && searchResult && (
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
+            <SearchResults />
+          </motion.div>
+        )}
+
+        {!isSearching && !searchResult && (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '80px 0' }}>
+            <Search size={48} style={{ color: 'var(--border)', marginBottom: 16 }} />
+            <p style={{ fontSize: 15, color: 'var(--text-tertiary)' }}>검색어를 입력하세요</p>
+            <p style={{ fontSize: 12, color: 'var(--text-tertiary)', marginTop: 4 }}>자연어로 GitHub를 검색할 수 있습니다</p>
           </div>
-          <SkeletonList count={4} />
-        </motion.div>
-      )}
-
-      {!isSearching && searchResult && (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <SearchResults />
-        </motion.div>
-      )}
-
-      {!isSearching && !searchResult && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="flex flex-col items-center justify-center py-20"
-        >
-          <Search size={48} className="text-[var(--border)] mb-4" />
-          <p className="text-[var(--text-secondary)]">검색어를 입력하세요</p>
-          <p className="text-xs text-[var(--text-secondary)] mt-1">자연어로 GitHub를 검색할 수 있습니다</p>
-        </motion.div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
