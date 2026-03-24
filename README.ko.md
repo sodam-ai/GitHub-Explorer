@@ -74,12 +74,18 @@ cd github-ai-explorer
 npm install
 ```
 
-**3단계: 앱 실행**
+**3단계: 앱 실행 (개발 모드)**
 ```bash
 npm run tauri dev
 ```
 
 > 처음 실행 시 Rust 컴파일 때문에 5~10분 걸립니다. 두 번째부터는 몇 초면 됩니다.
+
+**또는 설치 파일 빌드:**
+```bash
+npm run tauri build
+# 설치 파일: src-tauri/target/release/bundle/msi/GitHub AI Explorer_0.3.0_x64_en-US.msi
+```
 
 **4단계: API 키 설정**
 

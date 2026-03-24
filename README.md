@@ -77,12 +77,18 @@ cd github-ai-explorer
 npm install
 ```
 
-**Step 3: Run the app**
+**Step 3: Run the app (development)**
 ```bash
 npm run tauri dev
 ```
 
 > The first run takes 5-10 minutes because Rust needs to compile. After that, it starts in seconds.
+
+**Or install the pre-built version:**
+```bash
+npm run tauri build
+# Installer: src-tauri/target/release/bundle/msi/GitHub AI Explorer_0.3.0_x64_en-US.msi
+```
 
 **Step 4: Set up your API keys**
 
