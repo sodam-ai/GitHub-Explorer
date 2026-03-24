@@ -23,10 +23,12 @@ interface SearchResultsProps {
 export function SearchResults({ onReSearch }: SearchResultsProps = {}) {
   const { searchResult, activeTab, setActiveTab, searchFilters, setSearchFilters } = useAppStore();
   const filters = searchFilters;
-  const setFilters = (f: SearchFilterValues) => {
+  const setFilters = (f: SearchFilterValues, immediate = false) => {
     setSearchFilters(f);
-    // 필터 변경 시 재검색
-    setTimeout(() => onReSearch?.(), 100);
+    // 텍스트 입력(owner) 변경 시에는 재검색 안 함 — 엔터 또는 패널 닫을 때만
+    if (immediate) {
+      setTimeout(() => onReSearch?.(), 100);
+    }
   };
   const [compareRepos, setCompareRepos] = useState<Repository[]>([]);
   const [showCompare, setShowCompare] = useState(false);
@@ -179,7 +181,7 @@ export function SearchResults({ onReSearch }: SearchResultsProps = {}) {
             </button>
           )}
           {activeTab === 'repositories' && (
-            <SearchFilters filters={filters} onFiltersChange={setFilters} />
+            <SearchFilters filters={filters} onFiltersChange={setFilters} onApply={() => onReSearch?.()} />
           )}
         </div>
       </div>

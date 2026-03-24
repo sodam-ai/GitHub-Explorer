@@ -20,6 +20,7 @@ export const DEFAULT_FILTERS: SearchFilterValues = {
 interface SearchFiltersProps {
   filters: SearchFilterValues;
   onFiltersChange: (filters: SearchFilterValues) => void;
+  onApply?: () => void;
   inline?: boolean;
 }
 
@@ -72,7 +73,7 @@ const PRESETS = [
   { label: '소규모 프로젝트', filters: { ...DEFAULT_FILTERS, minStars: 10, sortBy: 'updated' as const, updatedAfter: '30' } },
 ];
 
-export function SearchFilters({ filters, onFiltersChange, inline = false }: SearchFiltersProps) {
+export function SearchFilters({ filters, onFiltersChange, onApply, inline = false }: SearchFiltersProps) {
   const [isOpen, setIsOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
 
@@ -84,11 +85,14 @@ export function SearchFilters({ filters, onFiltersChange, inline = false }: Sear
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
-      if (panelRef.current && !panelRef.current.contains(e.target as Node)) setIsOpen(false);
+      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+        onApply?.();
+      }
     }
     if (isOpen) document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
-  }, [isOpen]);
+  }, [isOpen, onApply]);
 
   const selectStyle: React.CSSProperties = {
     width: '100%', padding: '8px 12px', fontSize: 12, borderRadius: 8,
