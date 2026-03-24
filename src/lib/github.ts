@@ -12,14 +12,54 @@ function getHeaders(token?: string): HeadersInit {
   return headers;
 }
 
+export interface SearchOptions {
+  owner?: string;
+  language?: string;
+  license?: string;
+  minStars?: number;
+  minForks?: number;
+  updatedAfter?: string;
+  excludeArchived?: boolean;
+  sortBy?: string;
+}
+
+function buildQuery(query: string, opts?: SearchOptions): string {
+  let q = query;
+  if (opts?.owner) q += ` user:${opts.owner} org:${opts.owner}`;
+  if (opts?.language) q += ` language:${opts.language}`;
+  if (opts?.license) q += ` license:${opts.license}`;
+  if (opts?.minStars && opts.minStars > 0) q += ` stars:>=${opts.minStars}`;
+  if (opts?.minForks && opts.minForks > 0) q += ` forks:>=${opts.minForks}`;
+  if (opts?.updatedAfter) {
+    const days = parseInt(opts.updatedAfter);
+    if (days > 0) {
+      const date = new Date();
+      date.setDate(date.getDate() - days);
+      q += ` pushed:>${date.toISOString().split('T')[0]}`;
+    }
+  }
+  if (opts?.excludeArchived) q += ` archived:false`;
+  return q;
+}
+
+function getSortParam(sortBy?: string): string {
+  if (sortBy === 'stars') return 'stars';
+  if (sortBy === 'updated') return 'updated';
+  if (sortBy === 'forks') return 'forks';
+  return 'stars';
+}
+
 export async function searchRepositories(
   query: string,
   token?: string,
   page = 1,
-  perPage = 10
+  perPage = 10,
+  opts?: SearchOptions
 ): Promise<{ items: Repository[]; total_count: number }> {
+  const q = buildQuery(query, opts);
+  const sort = getSortParam(opts?.sortBy);
   const res = await fetch(
-    `${GITHUB_API}/search/repositories?q=${encodeURIComponent(query)}&sort=stars&order=desc&page=${page}&per_page=${perPage}`,
+    `${GITHUB_API}/search/repositories?q=${encodeURIComponent(q)}&sort=${sort}&order=desc&page=${page}&per_page=${perPage}`,
     { headers: getHeaders(token) }
   );
   if (!res.ok) throw new Error(`GitHub API error: ${res.status}`);

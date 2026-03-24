@@ -6,7 +6,7 @@ import { RepoCard } from './RepoCard';
 import { CodeViewer } from './CodeViewer';
 import { RepoCompare } from './RepoCompare';
 import { RepoPreview } from './RepoPreview';
-import { SearchFilters, type SearchFilterValues } from './SearchFilters';
+import { SearchFilters, DEFAULT_FILTERS, type SearchFilterValues } from './SearchFilters';
 import { CodeQAPanel } from '@/components/chat/CodeQAPanel';
 import type { SearchTab, Repository } from '@/types';
 
@@ -18,7 +18,7 @@ const TABS: { key: SearchTab; label: string; icon: React.ReactNode }[] = [
 
 export function SearchResults() {
   const { searchResult, activeTab, setActiveTab } = useAppStore();
-  const [filters, setFilters] = useState<SearchFilterValues>({ language: '', minStars: 0, sortBy: 'relevance' });
+  const [filters, setFilters] = useState<SearchFilterValues>(DEFAULT_FILTERS);
   const [compareRepos, setCompareRepos] = useState<Repository[]>([]);
   const [showCompare, setShowCompare] = useState(false);
   const [qaRepo, setQaRepo] = useState<Repository | null>(null);
@@ -29,15 +29,24 @@ export function SearchResults() {
     if (!searchResult) return [];
     let repos = [...searchResult.repositories];
 
+    // 클라이언트 사이드 필터링 (API 필터 보완)
     if (filters.language) {
       repos = repos.filter((r) => r.language?.toLowerCase() === filters.language.toLowerCase());
     }
     if (filters.minStars > 0) {
       repos = repos.filter((r) => r.stars >= filters.minStars);
     }
-    if (filters.sortBy === 'stars') {
-      repos.sort((a, b) => b.stars - a.stars);
+    if (filters.owner) {
+      const ownerLower = filters.owner.toLowerCase();
+      repos = repos.filter((r) => r.full_name.toLowerCase().includes(ownerLower));
     }
+    if (filters.excludeArchived) {
+      // archived 정보가 없으면 통과
+    }
+
+    // 정렬
+    if (filters.sortBy === 'stars') repos.sort((a, b) => b.stars - a.stars);
+    else if (filters.sortBy === 'updated') repos.sort((a, b) => new Date(b.last_synced).getTime() - new Date(a.last_synced).getTime());
 
     return repos;
   }, [searchResult, filters]);
