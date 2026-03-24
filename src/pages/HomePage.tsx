@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { Clock, ArrowRight, Search, Sparkles } from 'lucide-react';
 import { useAppStore } from '@/stores/app-store';
 import { SearchBar } from '@/components/search/SearchBar';
+import { SearchFilters } from '@/components/search/SearchFilters';
 
 interface HomePageProps {
   onSearch: (query: string) => void;
@@ -39,9 +40,17 @@ export function HomePage({ onSearch }: HomePageProps) {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        style={{ width: '100%', display: 'flex', justifyContent: 'center' }}
+        style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}
       >
-        <SearchBar onSearch={onSearch} large />
+        <div style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', gap: 10 }}>
+          <SearchBar onSearch={onSearch} large />
+          <div style={{ paddingTop: 6 }}>
+            <SearchFilters
+              filters={useAppStore.getState().searchFilters}
+              onFiltersChange={(f) => useAppStore.getState().setSearchFilters(f)}
+            />
+          </div>
+        </div>
       </motion.div>
 
       {/* Suggestions */}
