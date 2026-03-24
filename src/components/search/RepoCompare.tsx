@@ -1,6 +1,8 @@
-import { X, Star, Activity, Code, GitFork, Scale } from 'lucide-react';
+import { X, Star, Activity, Code, GitFork, Scale, Save } from 'lucide-react';
 import type { Repository } from '@/types';
 import { calculateHealthScore, getHealthColor } from '@/lib/health-score';
+import { useCompareStore } from '@/stores/compare-store';
+import { toast } from 'sonner';
 
 interface RepoCompareProps {
   repos: Repository[];
@@ -8,6 +10,12 @@ interface RepoCompareProps {
 }
 
 export function RepoCompare({ repos, onClose }: RepoCompareProps) {
+  const { addRecord } = useCompareStore();
+
+  function handleSaveComparison() {
+    addRecord(repos);
+    toast.success('비교 기록이 저장되었습니다');
+  }
   if (repos.length < 2) return null;
 
   const healthScores = repos.map((r) => calculateHealthScore(r));
@@ -49,6 +57,17 @@ export function RepoCompare({ repos, onClose }: RepoCompareProps) {
       <div className="w-full max-w-3xl mx-4 bg-[var(--bg-card)] border border-[var(--border)] rounded-xl shadow-2xl overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border)]">
           <h2 className="text-lg font-semibold">저장소 비교</h2>
+          <button
+            onClick={handleSaveComparison}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px',
+              fontSize: 11, fontWeight: 500, borderRadius: 6,
+              border: '1px solid var(--border)', background: 'transparent',
+              color: 'var(--text-secondary)', cursor: 'pointer',
+            }}
+          >
+            <Save size={11} /> 기록 저장
+          </button>
           <button onClick={onClose} className="p-1 hover:bg-[var(--bg-secondary)] rounded-lg transition-colors">
             <X size={18} />
           </button>

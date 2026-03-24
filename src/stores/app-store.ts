@@ -47,6 +47,11 @@ interface AppState {
   setActiveTab: (tab: SearchTab) => void;
   searchFilters: SearchFilterValues;
   setSearchFilters: (filters: SearchFilterValues) => void;
+  searchPage: number;
+  setSearchPage: (page: number) => void;
+  isLoadingMore: boolean;
+  setIsLoadingMore: (loading: boolean) => void;
+  appendRepositories: (repos: import('@/types').Repository[]) => void;
 
   // Search History
   searchHistory: SearchHistory[];
@@ -96,6 +101,21 @@ export const useAppStore = create<AppState>((set) => ({
   setActiveTab: (tab) => set({ activeTab: tab }),
   searchFilters: DEFAULT_FILTERS,
   setSearchFilters: (filters) => set({ searchFilters: filters }),
+  searchPage: 1,
+  setSearchPage: (page) => set({ searchPage: page }),
+  isLoadingMore: false,
+  setIsLoadingMore: (loading) => set({ isLoadingMore: loading }),
+  appendRepositories: (repos) =>
+    set((state) => {
+      if (!state.searchResult) return state;
+      return {
+        searchResult: {
+          ...state.searchResult,
+          repositories: [...state.searchResult.repositories, ...repos],
+          total_count: state.searchResult.total_count,
+        },
+      };
+    }),
 
   // Search History
   searchHistory: [],

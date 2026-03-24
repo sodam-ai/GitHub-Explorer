@@ -32,6 +32,7 @@ function App() {
     setSearchResult,
     setSearchQuery,
     addSearchHistory,
+    searchQuery: currentSearchQuery,
   } = useAppStore();
 
   // 테마 + accent color 초기화
@@ -173,6 +174,42 @@ function App() {
     [setSearchQuery, setCurrentPage, setIsSearching, setSearchResult, addSearchHistory]
   );
 
+  const handleLoadMore = useCallback(async () => {
+    const store = useAppStore.getState();
+    if (store.isLoadingMore || !store.searchResult || !currentSearchQuery) return;
+
+    const nextPage = store.searchPage + 1;
+    store.setIsLoadingMore(true);
+
+    try {
+      let ghToken: string | undefined;
+      if (isTauri()) ghToken = (await getSetting('github_token')) || undefined;
+      if (!ghToken) ghToken = localStorage.getItem('github_token') || undefined;
+
+      const currentFilters = store.searchFilters;
+      const searchOpts = {
+        owner: currentFilters.owner || undefined,
+        language: currentFilters.language || undefined,
+        license: currentFilters.license || undefined,
+        minStars: currentFilters.minStars || undefined,
+        minForks: currentFilters.minForks || undefined,
+        updatedAfter: currentFilters.updatedAfter || undefined,
+        excludeArchived: currentFilters.excludeArchived || undefined,
+        sortBy: currentFilters.sortBy || undefined,
+      };
+
+      const repoRes = await searchRepositories(currentSearchQuery, ghToken, nextPage, 20, searchOpts);
+      if (repoRes.items.length > 0) {
+        store.appendRepositories(repoRes.items);
+        store.setSearchPage(nextPage);
+      }
+    } catch (e) {
+      console.error('Load more error:', e);
+    } finally {
+      store.setIsLoadingMore(false);
+    }
+  }, [currentSearchQuery]);
+
   return (
     <>
       <Toaster
@@ -193,7 +230,7 @@ function App() {
       <CommandPalette />
 
       {currentPage === 'home' && <HomePage onSearch={handleSearch} />}
-      {currentPage === 'search' && <SearchPage onSearch={handleSearch} />}
+      {currentPage === 'search' && <SearchPage onSearch={handleSearch} onLoadMore={handleLoadMore} />}
       {currentPage === 'collections' && <CollectionPage />}
       {currentPage === 'trending' && <TrendingPage />}
       {currentPage === 'stats' && <StatsPage />}
