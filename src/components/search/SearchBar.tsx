@@ -64,7 +64,12 @@ export function SearchBar({ onSearch, large = false }: SearchBarProps) {
       e.preventDefault();
       const text = activeIndex >= 0 ? suggestions[activeIndex]?.text : localQuery;
       const trimmed = (text || '').trim();
-      if (!trimmed) return;
+
+      // 빈 검색어라도 필터가 설정되어 있으면 허용
+      const hasFilters = useAppStore.getState().searchFilters;
+      const hasAnyFilter = hasFilters.owner || hasFilters.language || hasFilters.license || hasFilters.minStars > 0;
+      if (!trimmed && !hasAnyFilter) return;
+
       setLocalQuery(trimmed);
       setSearchQuery(trimmed);
       setFocused(false);

@@ -24,7 +24,8 @@ export interface SearchOptions {
 }
 
 function buildQuery(query: string, opts?: SearchOptions): string {
-  let q = query;
+  // 빈 쿼리일 때 필터로만 검색하려면 최소 조건 필요
+  let q = query || 'stars:>0';
   if (opts?.owner) q += ` user:${opts.owner} org:${opts.owner}`;
   if (opts?.language) q += ` language:${opts.language}`;
   if (opts?.license) q += ` license:${opts.license}`;

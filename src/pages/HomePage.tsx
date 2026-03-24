@@ -50,73 +50,78 @@ export function HomePage({ onSearch }: HomePageProps) {
         transition={{ delay: 0.1 }}
         style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}
       >
-        <div style={{ width: '100%', maxWidth: 560, display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ flex: 1 }}>
-            <SearchBar onSearch={onSearch} large />
+        <div style={{ width: '100%', maxWidth: 560 }}>
+          <SearchBar onSearch={onSearch} large />
+
+          {/* 필터 토글 버튼 */}
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px',
+                borderRadius: 99, fontSize: 12, fontWeight: 500, cursor: 'pointer',
+                border: activeFilterCount > 0 ? '1px solid var(--accent)' : '1px solid var(--border)',
+                background: activeFilterCount > 0 ? 'var(--accent-muted)' : 'transparent',
+                color: activeFilterCount > 0 ? 'var(--accent)' : 'var(--text-tertiary)',
+                transition: 'all 0.12s',
+              }}
+            >
+              <Filter size={12} />
+              {showFilters ? '필터 접기' : '필터 설정'}
+              {activeFilterCount > 0 && (
+                <span style={{
+                  width: 16, height: 16, borderRadius: '50%', fontSize: 9, fontWeight: 700,
+                  background: 'var(--accent)', color: 'white',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
           </div>
-          <button
-            onClick={() => setShowFilters(true)}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 6, padding: '14px 18px',
-              borderRadius: 16, fontSize: 14, fontWeight: 500, cursor: 'pointer',
-              border: activeFilterCount > 0 ? '2px solid var(--accent)' : '2px solid var(--border)',
-              background: activeFilterCount > 0 ? 'var(--accent-muted)' : 'var(--bg-elevated)',
-              color: activeFilterCount > 0 ? 'var(--accent)' : 'var(--text-secondary)',
-              transition: 'all 0.12s', flexShrink: 0,
-            }}
-          >
-            <Filter size={16} />
-            {activeFilterCount > 0 && (
-              <span style={{
-                width: 20, height: 20, borderRadius: '50%', fontSize: 11, fontWeight: 700,
-                background: 'var(--accent)', color: 'white',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                {activeFilterCount}
-              </span>
-            )}
-          </button>
+
+          {/* 필터 인라인 패널 */}
+          {showFilters && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              style={{
+                marginTop: 16, padding: 20, borderRadius: 16,
+                border: '1px solid var(--border)', background: 'var(--bg-card)',
+                boxShadow: 'var(--shadow-sm)', overflow: 'hidden',
+              }}
+            >
+              <SearchFilters
+                filters={searchFilters}
+                onFiltersChange={(f) => { setSearchFilters(f); }}
+                inline
+              />
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 14, gap: 8 }}>
+                <button
+                  onClick={() => setShowFilters(false)}
+                  style={{
+                    padding: '8px 16px', fontSize: 12, fontWeight: 500, borderRadius: 8,
+                    border: '1px solid var(--border)', background: 'transparent',
+                    color: 'var(--text-secondary)', cursor: 'pointer',
+                  }}
+                >
+                  접기
+                </button>
+                <button
+                  onClick={() => { setShowFilters(false); onSearch(''); }}
+                  style={{
+                    padding: '8px 20px', fontSize: 12, fontWeight: 600, borderRadius: 8,
+                    background: 'var(--accent)', color: 'white', border: 'none', cursor: 'pointer',
+                  }}
+                >
+                  필터로 검색
+                </button>
+              </div>
+            </motion.div>
+          )}
         </div>
       </motion.div>
-
-      {/* Filter Modal */}
-      {showFilters && (
-        <div
-          onClick={() => setShowFilters(false)}
-          style={{
-            position: 'fixed', inset: 0, zIndex: 50,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(2px)',
-          }}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              width: '100%', maxWidth: 480, maxHeight: '80vh', overflow: 'auto',
-              margin: 16, borderRadius: 20, padding: 24,
-              background: 'var(--bg-card)', border: '1px solid var(--border)',
-              boxShadow: 'var(--shadow-lg)',
-            }}
-          >
-            <SearchFilters
-              filters={searchFilters}
-              onFiltersChange={(f) => { setSearchFilters(f); }}
-              inline
-            />
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
-              <button
-                onClick={() => setShowFilters(false)}
-                style={{
-                  padding: '10px 24px', fontSize: 13, fontWeight: 600, borderRadius: 10,
-                  background: 'var(--accent)', color: 'white', border: 'none', cursor: 'pointer',
-                }}
-              >
-                적용
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Suggestions */}
       <motion.div
