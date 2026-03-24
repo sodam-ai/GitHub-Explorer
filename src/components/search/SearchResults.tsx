@@ -60,9 +60,13 @@ export function SearchResults({ onReSearch }: SearchResultsProps = {}) {
     return repos;
   }, [searchResult, filters]);
 
-  // 키보드 탐색
+  // 키보드 탐색 (입력 중일 때는 무시)
   const handleKeyNav = useCallback(
     (e: KeyboardEvent) => {
+      // input, textarea, select 등에 포커스 중이면 키보드 탐색 비활성화
+      const tag = (e.target as HTMLElement)?.tagName?.toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+
       if (activeTab !== 'repositories' || !filteredRepos.length) return;
       if (e.key === 'ArrowDown' || e.key === 'j') {
         e.preventDefault();
@@ -73,8 +77,6 @@ export function SearchResults({ onReSearch }: SearchResultsProps = {}) {
       } else if (e.key === 'Enter' && activeRepoIndex >= 0) {
         e.preventDefault();
         setPreviewRepo(filteredRepos[activeRepoIndex]);
-      } else if (e.key === 'b' && activeRepoIndex >= 0) {
-        // bookmark shortcut
       } else if (e.key === 'Escape') {
         setActiveRepoIndex(-1);
       }

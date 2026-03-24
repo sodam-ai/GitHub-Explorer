@@ -18,6 +18,11 @@ export function SearchBar({ onSearch, large = false }: SearchBarProps) {
   const { searchQuery, setSearchQuery, isSearching, searchHistory } = useAppStore();
   const [localQuery, setLocalQuery] = useState(searchQuery);
   const [focused, setFocused] = useState(false);
+
+  // 외부에서 searchQuery가 변경되면 localQuery 동기화
+  useEffect(() => {
+    setLocalQuery(searchQuery);
+  }, [searchQuery]);
   const [activeIndex, setActiveIndex] = useState(-1);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
