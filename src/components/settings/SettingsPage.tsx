@@ -8,6 +8,21 @@ import { exportCollections, downloadJson } from '@/lib/export-import';
 import { LOCALES, getLocale, setLocale } from '@/lib/i18n';
 import { toast } from 'sonner';
 
+const sectionStyle: React.CSSProperties = { marginBottom: 36 };
+const sectionHeaderStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 };
+const sectionTitleStyle: React.CSSProperties = { fontSize: 14, fontWeight: 600 };
+const cardStyle: React.CSSProperties = {
+  padding: '18px 20px', borderRadius: 14,
+  border: '1px solid var(--border)', background: 'var(--bg-card)',
+};
+const inputStyle: React.CSSProperties = {
+  width: '100%', padding: '10px 40px 10px 14px', fontSize: 13, fontFamily: 'monospace',
+  borderRadius: 10, border: '1px solid var(--border)', background: 'var(--bg-primary)',
+  color: 'var(--text-primary)', outline: 'none',
+};
+const hintStyle: React.CSSProperties = { fontSize: 11, color: 'var(--text-tertiary)', marginTop: 4 };
+const labelStyle: React.CSSProperties = { display: 'block', fontSize: 12, fontWeight: 500, color: 'var(--text-secondary)', marginBottom: 6 };
+
 export function SettingsPage() {
   const { setCurrentPage } = useAppStore();
   const [githubToken, setGithubToken] = useState('');
@@ -48,9 +63,7 @@ export function SettingsPage() {
 
   useEffect(() => {
     if (!githubToken) { setGithubUser(null); return; }
-    fetch('https://api.github.com/user', {
-      headers: { Authorization: `Bearer ${githubToken}` },
-    })
+    fetch('https://api.github.com/user', { headers: { Authorization: `Bearer ${githubToken}` } })
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => setGithubUser(data?.login || null))
       .catch(() => setGithubUser(null));
@@ -63,42 +76,40 @@ export function SettingsPage() {
     else localStorage.removeItem('openai_api_key');
     if (anthropicKey) localStorage.setItem('anthropic_api_key', anthropicKey);
     else localStorage.removeItem('anthropic_api_key');
-
     if (isTauri()) {
       if (githubToken) await saveSetting('github_token', githubToken);
       if (openaiKey) await saveSetting('openai_api_key', openaiKey);
       if (anthropicKey) await saveSetting('anthropic_api_key', anthropicKey);
     }
-
     setSaved(true);
     toast.success('설정이 저장되었습니다');
     setTimeout(() => setSaved(false), 2000);
   }
 
-  function SecretInput({ label, value, onChange, show, onToggleShow, placeholder, hint }: {
+  function SecretField({ label, value, onChange, show, onToggle, placeholder, hint }: {
     label: string; value: string; onChange: (v: string) => void;
-    show: boolean; onToggleShow: () => void; placeholder: string; hint: string;
+    show: boolean; onToggle: () => void; placeholder: string; hint: string;
   }) {
     return (
       <div>
-        <label className="block text-[12px] font-medium text-[var(--text-secondary)] mb-1.5">{label}</label>
-        <div className="relative">
+        <label style={labelStyle}>{label}</label>
+        <div style={{ position: 'relative' }}>
           <input
             type={show ? 'text' : 'password'}
             value={value}
             onChange={(e) => onChange(e.target.value)}
             placeholder={placeholder}
-            className="input-base pr-9 text-[13px] font-mono"
+            style={inputStyle}
           />
           <button
             type="button"
-            onClick={onToggleShow}
-            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] transition-colors"
+            onClick={onToggle}
+            style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-tertiary)' }}
           >
-            {show ? <EyeOff size={13} /> : <Eye size={13} />}
+            {show ? <EyeOff size={14} /> : <Eye size={14} />}
           </button>
         </div>
-        <p className="mt-1 text-[11px] text-[var(--text-tertiary)]">{hint}</p>
+        <p style={hintStyle}>{hint}</p>
       </div>
     );
   }
@@ -107,104 +118,77 @@ export function SettingsPage() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+      style={{ flex: 1, overflow: 'auto', display: 'flex', justifyContent: 'center' }}
     >
-      <div style={{ width: '100%', maxWidth: 640, padding: '32px 32px 60px' }}>
+      <div style={{ width: '100%', maxWidth: 640, padding: '32px 40px 80px' }}>
+
         <button
           onClick={() => setCurrentPage('home')}
-          style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--text-tertiary)', background: 'none', border: 'none', cursor: 'pointer', marginBottom: 24 }}
+          style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--text-tertiary)', background: 'none', border: 'none', cursor: 'pointer', marginBottom: 28 }}
         >
-          <ArrowLeft size={15} />
-          뒤로
+          <ArrowLeft size={15} /> 뒤로
         </button>
 
-        <h1 style={{ fontSize: 24, fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 32 }}>설정</h1>
+        <h1 style={{ fontSize: 26, fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 40 }}>설정</h1>
 
         {/* GitHub */}
-        <section className="mb-8">
-          <div className="flex items-center gap-2 mb-3">
-            <Shield size={14} className="text-[var(--text-tertiary)]" />
-            <h2 className="text-[13px] font-semibold">GitHub 계정</h2>
+        <section style={sectionStyle}>
+          <div style={sectionHeaderStyle}>
+            <Shield size={16} style={{ color: 'var(--text-tertiary)' }} />
+            <h2 style={sectionTitleStyle}>GitHub 계정</h2>
             {githubUser && (
-              <span className="badge bg-green-500/10 text-green-600 ml-auto">
-                <Check size={10} className="mr-1" />
-                @{githubUser}
+              <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 600, color: '#16a34a', background: 'rgba(22,163,74,0.1)', padding: '3px 10px', borderRadius: 99, display: 'flex', alignItems: 'center', gap: 4 }}>
+                <Check size={10} /> @{githubUser}
               </span>
             )}
           </div>
-          <div className="p-4 border border-[var(--border)] rounded-[var(--radius)] bg-[var(--bg-card)] space-y-3">
-            <SecretInput
-              label="Personal Access Token"
-              value={githubToken}
-              onChange={setGithubToken}
-              show={showGithub}
-              onToggleShow={() => setShowGithub(!showGithub)}
-              placeholder="ghp_..."
-              hint="github.com/settings/tokens → Generate new token (classic) → repo 권한"
-            />
-            <div className="flex items-center gap-1.5 text-[11px] text-[var(--text-tertiary)]">
-              <Info size={10} />
-              토큰이 있으면 API 한도가 시간당 60회 → 5,000회로 증가합니다
+          <div style={cardStyle}>
+            <SecretField label="Personal Access Token" value={githubToken} onChange={setGithubToken} show={showGithub} onToggle={() => setShowGithub(!showGithub)} placeholder="ghp_..." hint="github.com/settings/tokens → Generate new token (classic) → repo 권한" />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: 'var(--text-tertiary)', marginTop: 10 }}>
+              <Info size={11} /> 토큰이 있으면 API 한도가 시간당 60회 → 5,000회로 증가합니다
             </div>
           </div>
         </section>
 
         {/* AI */}
-        <section className="mb-8">
-          <div className="flex items-center gap-2 mb-3">
-            <Cpu size={14} className="text-[var(--text-tertiary)]" />
-            <h2 className="text-[13px] font-semibold">AI 제공자</h2>
+        <section style={sectionStyle}>
+          <div style={sectionHeaderStyle}>
+            <Cpu size={16} style={{ color: 'var(--text-tertiary)' }} />
+            <h2 style={sectionTitleStyle}>AI 제공자</h2>
           </div>
-          <div className="p-4 border border-[var(--border)] rounded-[var(--radius)] bg-[var(--bg-card)] space-y-4">
-            <SecretInput
-              label="OpenAI API 키"
-              value={openaiKey}
-              onChange={setOpenaiKey}
-              show={showOpenai}
-              onToggleShow={() => setShowOpenai(!showOpenai)}
-              placeholder="sk-..."
-              hint="platform.openai.com/api-keys"
-            />
-            <div className="border-t border-[var(--border-subtle)]" />
-            <SecretInput
-              label="Anthropic API 키"
-              value={anthropicKey}
-              onChange={setAnthropicKey}
-              show={showAnthropic}
-              onToggleShow={() => setShowAnthropic(!showAnthropic)}
-              placeholder="sk-ant-..."
-              hint="console.anthropic.com"
-            />
+          <div style={{ ...cardStyle, display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <SecretField label="OpenAI API 키" value={openaiKey} onChange={setOpenaiKey} show={showOpenai} onToggle={() => setShowOpenai(!showOpenai)} placeholder="sk-..." hint="platform.openai.com/api-keys" />
+            <div style={{ height: 1, background: 'var(--border)' }} />
+            <SecretField label="Anthropic API 키" value={anthropicKey} onChange={setAnthropicKey} show={showAnthropic} onToggle={() => setShowAnthropic(!showAnthropic)} placeholder="sk-ant-..." hint="console.anthropic.com" />
           </div>
-
-          <button onClick={handleSave} className="btn btn-primary mt-3 text-[12px]">
-            {saved ? <Check size={12} /> : null}
+          <button
+            onClick={handleSave}
+            style={{ marginTop: 14, display: 'flex', alignItems: 'center', gap: 6, padding: '10px 20px', fontSize: 13, fontWeight: 600, borderRadius: 10, background: 'var(--accent)', color: 'white', border: 'none', cursor: 'pointer' }}
+          >
+            {saved && <Check size={13} />}
             {saved ? '저장됨' : '저장'}
           </button>
         </section>
 
-        {/* Accent Color */}
-        <section className="mb-8">
-          <div className="flex items-center gap-2 mb-3">
-            <Palette size={14} className="text-[var(--text-tertiary)]" />
-            <h2 className="text-[13px] font-semibold">테마 색상</h2>
+        {/* Theme Color */}
+        <section style={sectionStyle}>
+          <div style={sectionHeaderStyle}>
+            <Palette size={16} style={{ color: 'var(--text-tertiary)' }} />
+            <h2 style={sectionTitleStyle}>테마 색상</h2>
           </div>
-          <div className="flex gap-2">
+          <div style={{ display: 'flex', gap: 10 }}>
             {(['blue', 'violet', 'emerald', 'rose', 'amber', 'cyan'] as const).map((color) => {
-              const colors: Record<string, string> = {
-                blue: '#3b82f6', violet: '#8b5cf6', emerald: '#10b981',
-                rose: '#fb7185', amber: '#f59e0b', cyan: '#22d3ee',
-              };
+              const c: Record<string, string> = { blue: '#3b82f6', violet: '#8b5cf6', emerald: '#10b981', rose: '#fb7185', amber: '#f59e0b', cyan: '#22d3ee' };
               const isActive = useAppStore.getState().accentColor === color;
               return (
                 <button
                   key={color}
                   onClick={() => useAppStore.getState().setAccentColor(color)}
-                  className={`w-8 h-8 rounded-lg border-2 transition-all ${
-                    isActive ? 'border-[var(--text-primary)] scale-110' : 'border-transparent hover:scale-105'
-                  }`}
-                  style={{ background: colors[color] }}
-                  title={color}
+                  style={{
+                    width: 36, height: 36, borderRadius: 10, background: c[color], border: 'none', cursor: 'pointer',
+                    outline: isActive ? '3px solid var(--text-primary)' : '3px solid transparent',
+                    outlineOffset: 2, transition: 'all 0.12s', transform: isActive ? 'scale(1.1)' : 'scale(1)',
+                  }}
                 />
               );
             })}
@@ -212,19 +196,22 @@ export function SettingsPage() {
         </section>
 
         {/* Language */}
-        <section className="mb-8">
-          <div className="flex items-center gap-2 mb-3">
-            <Languages size={14} className="text-[var(--text-tertiary)]" />
-            <h2 className="text-[13px] font-semibold">언어</h2>
+        <section style={sectionStyle}>
+          <div style={sectionHeaderStyle}>
+            <Languages size={16} style={{ color: 'var(--text-tertiary)' }} />
+            <h2 style={sectionTitleStyle}>언어</h2>
           </div>
-          <div className="flex gap-2">
+          <div style={{ display: 'flex', gap: 8 }}>
             {LOCALES.map((loc) => (
               <button
                 key={loc.key}
                 onClick={() => { setLocale(loc.key); window.location.reload(); }}
-                className={`btn text-[12px] ${
-                  getLocale() === loc.key ? 'btn-primary' : 'btn-outline'
-                }`}
+                style={{
+                  padding: '8px 18px', fontSize: 13, fontWeight: 500, borderRadius: 10, cursor: 'pointer',
+                  background: getLocale() === loc.key ? 'var(--accent)' : 'transparent',
+                  color: getLocale() === loc.key ? 'white' : 'var(--text-secondary)',
+                  border: getLocale() === loc.key ? 'none' : '1px solid var(--border)',
+                }}
               >
                 {loc.label}
               </button>
@@ -233,41 +220,35 @@ export function SettingsPage() {
         </section>
 
         {/* Ollama */}
-        <section className="mb-8">
-          <div className="flex items-center gap-2 mb-3">
-            {ollamaOnline ? (
-              <Wifi size={14} className="text-green-500" />
-            ) : (
-              <WifiOff size={14} className="text-[var(--text-tertiary)]" />
-            )}
-            <h2 className="text-[13px] font-semibold">로컬 AI (Ollama)</h2>
-            <span className={`badge ml-auto ${ollamaOnline ? 'bg-green-500/10 text-green-600' : 'bg-[var(--bg-secondary)] text-[var(--text-tertiary)]'}`}>
+        <section style={sectionStyle}>
+          <div style={sectionHeaderStyle}>
+            {ollamaOnline ? <Wifi size={16} style={{ color: '#16a34a' }} /> : <WifiOff size={16} style={{ color: 'var(--text-tertiary)' }} />}
+            <h2 style={sectionTitleStyle}>로컬 AI (Ollama)</h2>
+            <span style={{
+              marginLeft: 'auto', fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 99,
+              background: ollamaOnline ? 'rgba(22,163,74,0.1)' : 'var(--bg-secondary)',
+              color: ollamaOnline ? '#16a34a' : 'var(--text-tertiary)',
+            }}>
               {ollamaOnline ? '연결됨' : '미감지'}
             </span>
           </div>
-          <div className="p-4 border border-[var(--border)] rounded-[var(--radius)] bg-[var(--bg-card)]">
+          <div style={cardStyle}>
             {ollamaOnline && ollamaModels.length > 0 ? (
-              <div className="space-y-1.5">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {ollamaModels.map((m) => (
-                  <div key={m.name} className="flex items-center justify-between px-3 py-2 bg-[var(--bg-secondary)] rounded-lg">
-                    <span className="text-[12px] font-mono">{m.name}</span>
-                    <span className="text-[11px] text-[var(--text-tertiary)]">{m.size}</span>
+                  <div key={m.name} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 14px', borderRadius: 8, background: 'var(--bg-secondary)', fontSize: 12 }}>
+                    <span style={{ fontFamily: 'monospace' }}>{m.name}</span>
+                    <span style={{ color: 'var(--text-tertiary)' }}>{m.size}</span>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="text-center py-4">
-                <p className="text-[12px] text-[var(--text-tertiary)]">
+              <div style={{ textAlign: 'center', padding: '16px 0' }}>
+                <p style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>
                   {ollamaOnline ? '설치된 모델이 없습니다' : 'Ollama가 실행되지 않고 있습니다'}
                 </p>
-                <a
-                  href="https://ollama.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 mt-2 text-[11px] text-[var(--accent)] hover:underline"
-                >
-                  ollama.com에서 설치하기
-                  <ExternalLink size={10} />
+                <a href="https://ollama.com" target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 8, fontSize: 11, color: 'var(--accent)', textDecoration: 'none' }}>
+                  ollama.com에서 설치하기 <ExternalLink size={10} />
                 </a>
               </div>
             )}
@@ -275,47 +256,44 @@ export function SettingsPage() {
         </section>
 
         {/* Data */}
-        <section className="mb-8">
-          <div className="flex items-center gap-2 mb-3">
-            <Database size={14} className="text-[var(--text-tertiary)]" />
-            <h2 className="text-[13px] font-semibold">데이터</h2>
+        <section style={sectionStyle}>
+          <div style={sectionHeaderStyle}>
+            <Database size={16} style={{ color: 'var(--text-tertiary)' }} />
+            <h2 style={sectionTitleStyle}>데이터</h2>
           </div>
-          <div className="flex gap-2">
+          <div style={{ display: 'flex', gap: 10 }}>
             <button
               onClick={async () => {
                 const json = await exportCollections();
                 downloadJson(json, `github-ai-explorer-backup-${new Date().toISOString().split('T')[0]}.json`);
                 toast.success('컬렉션을 내보냈습니다');
               }}
-              className="btn btn-outline text-[12px]"
+              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 18px', fontSize: 13, fontWeight: 500, borderRadius: 10, border: '1px solid var(--border)', background: 'transparent', color: 'var(--text-secondary)', cursor: 'pointer' }}
             >
-              <Download size={12} />
-              컬렉션 내보내기
+              <Download size={14} /> 컬렉션 내보내기
             </button>
-            <button className="btn btn-outline text-[12px] opacity-40 cursor-not-allowed" title="준비 중">
-              <Upload size={12} />
-              가져오기
+            <button style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 18px', fontSize: 13, fontWeight: 500, borderRadius: 10, border: '1px solid var(--border)', background: 'transparent', color: 'var(--text-tertiary)', cursor: 'not-allowed', opacity: 0.4 }}>
+              <Upload size={14} /> 가져오기
             </button>
           </div>
         </section>
 
         {/* About */}
-        <section className="mb-8">
-          <div className="p-4 border border-[var(--border)] rounded-[var(--radius)] bg-[var(--bg-card)] text-[12px] text-[var(--text-secondary)] space-y-1.5">
-            <div className="flex justify-between">
-              <span>버전</span>
-              <span className="font-mono text-[var(--text-tertiary)]">0.3.0</span>
-            </div>
-            <div className="flex justify-between">
-              <span>엔진</span>
-              <span className="text-[var(--text-tertiary)]">Tauri 2.0 + React 19</span>
-            </div>
-            <div className="flex justify-between">
-              <span>데이터</span>
-              <span className="text-[var(--text-tertiary)]">SQLite (로컬 저장)</span>
-            </div>
+        <section>
+          <div style={{ ...cardStyle, fontSize: 13, color: 'var(--text-secondary)' }}>
+            {[
+              ['버전', '0.3.0'],
+              ['엔진', 'Tauri 2.0 + React 19'],
+              ['데이터', 'SQLite (로컬 저장)'],
+            ].map(([k, v]) => (
+              <div key={k} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0' }}>
+                <span>{k}</span>
+                <span style={{ color: 'var(--text-tertiary)' }}>{v}</span>
+              </div>
+            ))}
           </div>
         </section>
+
       </div>
     </motion.div>
   );
