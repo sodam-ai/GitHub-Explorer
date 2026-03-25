@@ -154,6 +154,8 @@ export function CommandPalette() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.12 }}
+          role="dialog"
+          aria-modal="true"
           className="fixed inset-0 z-50 flex items-start justify-center pt-[18vh] bg-black/40 backdrop-blur-[2px]"
           onClick={() => setCommandPaletteOpen(false)}
         >
@@ -175,6 +177,7 @@ export function CommandPalette() {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyNav}
                 placeholder="명령어 또는 검색어 입력..."
+                aria-label="명령어 입력"
                 className="flex-1 bg-transparent outline-none text-[13px] placeholder:text-[var(--text-tertiary)]"
               />
               <kbd className="px-1.5 py-0.5 text-[10px] rounded bg-[var(--bg-secondary)] border border-[var(--border)] text-[var(--text-tertiary)] font-mono">

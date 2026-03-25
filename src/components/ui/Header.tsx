@@ -14,7 +14,7 @@ export function Header() {
   ];
 
   return (
-    <header style={{
+    <header role="banner" style={{
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       padding: '0 28px', height: 64, borderBottom: '1px solid var(--border)',
       background: 'var(--bg-card)', flexShrink: 0,
@@ -38,7 +38,7 @@ export function Header() {
       </button>
 
       {/* Center nav */}
-      <div style={{
+      <div role="navigation" aria-label="주요 내비게이션" style={{
         display: 'flex', alignItems: 'center', gap: 4,
         background: 'var(--bg-elevated)', border: '1px solid var(--border)',
         borderRadius: 14, padding: 4,

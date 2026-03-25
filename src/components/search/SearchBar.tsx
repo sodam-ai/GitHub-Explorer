@@ -119,6 +119,7 @@ export function SearchBar({ onSearch, large = false }: SearchBarProps) {
           </div>
           <input
             type="text"
+            aria-label="검색어 입력"
             value={localQuery}
             onChange={(e) => setLocalQuery(e.target.value)}
             onFocus={() => setFocused(true)}
@@ -131,6 +132,7 @@ export function SearchBar({ onSearch, large = false }: SearchBarProps) {
           />
           <button
             type="submit"
+            aria-label="검색"
             disabled={isSearching || !localQuery.trim()}
             className={`absolute right-3.5 flex items-center justify-center rounded-xl bg-[var(--accent)] text-white disabled:opacity-30 transition-all hover:bg-[var(--accent-hover)] ${
               large ? 'w-11 h-11' : 'w-8 h-8'
