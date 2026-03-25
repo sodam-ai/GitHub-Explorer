@@ -26,7 +26,8 @@ export interface SearchOptions {
 function buildQuery(query: string, opts?: SearchOptions): string {
   // 빈 쿼리일 때 필터로만 검색하려면 최소 조건 필요
   let q = query || 'stars:>0';
-  if (opts?.owner) q += ` user:${opts.owner} org:${opts.owner}`;
+  // owner: user OR org 는 API에서 OR 지원 안 하므로 user만 사용
+  if (opts?.owner) q += ` user:${opts.owner}`;
   if (opts?.language) q += ` language:${opts.language}`;
   if (opts?.license) q += ` license:${opts.license}`;
   if (opts?.minStars && opts.minStars > 0) q += ` stars:>=${opts.minStars}`;
@@ -190,7 +191,7 @@ export async function searchCode(
     `${GITHUB_API}/search/code?q=${encodeURIComponent(query)}&page=${page}&per_page=${perPage}`,
     { headers: getHeaders(token) }
   );
-  if (!res.ok) throw new Error(`GitHub API error: ${res.status}`);
+  if (!res.ok) return { items: [], total_count: 0 };
   const data = await res.json();
   return {
     total_count: data.total_count,
@@ -216,7 +217,7 @@ export async function searchIssues(
     `${GITHUB_API}/search/issues?q=${encodeURIComponent(query)}&sort=created&order=desc&page=${page}&per_page=${perPage}`,
     { headers: getHeaders(token) }
   );
-  if (!res.ok) throw new Error(`GitHub API error: ${res.status}`);
+  if (!res.ok) return { items: [], total_count: 0 };
   const data = await res.json();
   return {
     total_count: data.total_count,

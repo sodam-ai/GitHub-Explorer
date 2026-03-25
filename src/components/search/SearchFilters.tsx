@@ -76,6 +76,7 @@ const PRESETS = [
 export function SearchFilters({ filters, onFiltersChange, onApply, inline = false }: SearchFiltersProps) {
   const [isOpen, setIsOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
+  const filtersOnOpenRef = useRef(JSON.stringify(filters));
 
   const activeCount = [
     filters.language, filters.minStars > 0, filters.sortBy !== 'relevance',
@@ -87,7 +88,10 @@ export function SearchFilters({ filters, onFiltersChange, onApply, inline = fals
     function handleClick(e: MouseEvent) {
       if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
         setIsOpen(false);
-        onApply?.();
+        // 필터가 실제로 변경된 경우에만 재검색
+        if (JSON.stringify(filters) !== filtersOnOpenRef.current) {
+          onApply?.();
+        }
       }
     }
     if (isOpen) document.addEventListener('mousedown', handleClick);
@@ -248,7 +252,7 @@ export function SearchFilters({ filters, onFiltersChange, onApply, inline = fals
   return (
     <div style={{ position: 'relative' }} ref={panelRef}>
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => { if (!isOpen) filtersOnOpenRef.current = JSON.stringify(filters); setIsOpen(!isOpen); }}
         style={{
           display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px',
           borderRadius: 10, fontSize: 13, fontWeight: 500, cursor: 'pointer',

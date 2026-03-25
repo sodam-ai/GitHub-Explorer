@@ -62,10 +62,6 @@ interface AppState {
   isCommandPaletteOpen: boolean;
   setCommandPaletteOpen: (open: boolean) => void;
 
-  // Settings
-  isSettingsOpen: boolean;
-  setSettingsOpen: (open: boolean) => void;
-
   // Current Page
   currentPage: 'home' | 'search' | 'collections' | 'trending' | 'stats' | 'settings';
   setCurrentPage: (page: 'home' | 'search' | 'collections' | 'trending' | 'stats' | 'settings') => void;
@@ -130,8 +126,6 @@ export const useAppStore = create<AppState>((set) => ({
   setCommandPaletteOpen: (open) => set({ isCommandPaletteOpen: open }),
 
   // Settings
-  isSettingsOpen: false,
-  setSettingsOpen: (open) => set({ isSettingsOpen: open }),
 
   // Current Page
   currentPage: 'home',

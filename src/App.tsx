@@ -38,8 +38,18 @@ function App() {
   // 테마 + accent color 초기화
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
-    const { accentColor, setAccentColor } = useAppStore.getState();
-    setAccentColor(accentColor);
+    // accent color CSS 변수만 다시 적용 (스토어 업데이트 X)
+    const { accentColor } = useAppStore.getState();
+    const root = document.documentElement;
+    const isDark = theme === 'dark';
+    const palette: Record<string, Record<string, { m: string; h: string; mu: string }>> = {
+      light: { blue: { m: '#2563eb', h: '#1d4ed8', mu: '#dbeafe' }, violet: { m: '#7c3aed', h: '#6d28d9', mu: '#ede9fe' }, emerald: { m: '#059669', h: '#047857', mu: '#d1fae5' }, rose: { m: '#e11d48', h: '#be123c', mu: '#ffe4e6' }, amber: { m: '#d97706', h: '#b45309', mu: '#fef3c7' }, cyan: { m: '#0891b2', h: '#0e7490', mu: '#cffafe' } },
+      dark: { blue: { m: '#3b82f6', h: '#60a5fa', mu: '#172554' }, violet: { m: '#8b5cf6', h: '#a78bfa', mu: '#2e1065' }, emerald: { m: '#10b981', h: '#34d399', mu: '#064e3b' }, rose: { m: '#fb7185', h: '#fda4af', mu: '#4c0519' }, amber: { m: '#f59e0b', h: '#fbbf24', mu: '#451a03' }, cyan: { m: '#22d3ee', h: '#67e8f9', mu: '#083344' } },
+    };
+    const p = palette[isDark ? 'dark' : 'light'][accentColor] || palette[isDark ? 'dark' : 'light'].blue;
+    root.style.setProperty('--accent', p.m);
+    root.style.setProperty('--accent-hover', p.h);
+    root.style.setProperty('--accent-muted', p.mu);
   }, [theme]);
 
   // DB에서 검색 히스토리 로드

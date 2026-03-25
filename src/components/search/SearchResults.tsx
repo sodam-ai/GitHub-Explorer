@@ -51,9 +51,7 @@ export function SearchResults({ onReSearch }: SearchResultsProps = {}) {
       const ownerLower = filters.owner.toLowerCase();
       repos = repos.filter((r) => r.full_name.toLowerCase().includes(ownerLower));
     }
-    if (filters.excludeArchived) {
-      // archived 정보가 없으면 통과
-    }
+    // excludeArchived는 GitHub API에서 처리됨 (archived:false 쿼리)
 
     // 정렬
     if (filters.sortBy === 'stars') repos.sort((a, b) => b.stars - a.stars);
