@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Check, Eye, EyeOff, Download, Upload, Wifi, WifiOff, ExternalLink, Shield, Cpu, Database, Info, Palette, Languages } from 'lucide-react';
+import { ArrowLeft, Check, Eye, EyeOff, Download, Upload, Wifi, WifiOff, ExternalLink, Shield, Cpu, Database, Info, Palette } from 'lucide-react';
 import { useAppStore } from '@/stores/app-store';
 import { saveSetting, getSetting, isTauri } from '@/lib/tauri-bridge';
 import { checkOllamaStatus, getOllamaModels, type OllamaModel } from '@/lib/ollama';
 import { exportCollections, downloadJson } from '@/lib/export-import';
-import { LOCALES, getLocale, setLocale } from '@/lib/i18n';
 import { toast } from 'sonner';
 
 const sectionStyle: React.CSSProperties = { marginBottom: 36 };
@@ -28,9 +27,13 @@ export function SettingsPage() {
   const [githubToken, setGithubToken] = useState('');
   const [openaiKey, setOpenaiKey] = useState('');
   const [anthropicKey, setAnthropicKey] = useState('');
+  const [geminiKey, setGeminiKey] = useState('');
+  const [groqKey, setGroqKey] = useState('');
   const [showGithub, setShowGithub] = useState(false);
   const [showOpenai, setShowOpenai] = useState(false);
   const [showAnthropic, setShowAnthropic] = useState(false);
+  const [showGemini, setShowGemini] = useState(false);
+  const [showGroq, setShowGroq] = useState(false);
   const [saved, setSaved] = useState(false);
   const [githubUser, setGithubUser] = useState<string | null>(null);
   const [ollamaOnline, setOllamaOnline] = useState(false);
@@ -42,13 +45,19 @@ export function SettingsPage() {
         const gh = await getSetting('github_token');
         const oai = await getSetting('openai_api_key');
         const ant = await getSetting('anthropic_api_key');
+        const gem = await getSetting('gemini_api_key');
+        const grq = await getSetting('groq_api_key');
         if (gh) setGithubToken(gh);
         if (oai) setOpenaiKey(oai);
         if (ant) setAnthropicKey(ant);
+        if (gem) setGeminiKey(gem);
+        if (grq) setGroqKey(grq);
       } else {
         setGithubToken(localStorage.getItem('github_token') || '');
         setOpenaiKey(localStorage.getItem('openai_api_key') || '');
         setAnthropicKey(localStorage.getItem('anthropic_api_key') || '');
+        setGeminiKey(localStorage.getItem('gemini_api_key') || '');
+        setGroqKey(localStorage.getItem('groq_api_key') || '');
       }
     }
     loadKeys();
@@ -70,16 +79,21 @@ export function SettingsPage() {
   }, [githubToken]);
 
   async function handleSave() {
-    if (githubToken) localStorage.setItem('github_token', githubToken);
-    else localStorage.removeItem('github_token');
-    if (openaiKey) localStorage.setItem('openai_api_key', openaiKey);
-    else localStorage.removeItem('openai_api_key');
-    if (anthropicKey) localStorage.setItem('anthropic_api_key', anthropicKey);
-    else localStorage.removeItem('anthropic_api_key');
+    const keys: Record<string, string> = {
+      github_token: githubToken,
+      openai_api_key: openaiKey,
+      anthropic_api_key: anthropicKey,
+      gemini_api_key: geminiKey,
+      groq_api_key: groqKey,
+    };
+    for (const [k, v] of Object.entries(keys)) {
+      if (v) localStorage.setItem(k, v);
+      else localStorage.removeItem(k);
+    }
     if (isTauri()) {
-      if (githubToken) await saveSetting('github_token', githubToken);
-      if (openaiKey) await saveSetting('openai_api_key', openaiKey);
-      if (anthropicKey) await saveSetting('anthropic_api_key', anthropicKey);
+      for (const [k, v] of Object.entries(keys)) {
+        if (v) await saveSetting(k, v);
+      }
     }
     setSaved(true);
     toast.success('설정이 저장되었습니다');
@@ -157,9 +171,13 @@ export function SettingsPage() {
             <h2 style={sectionTitleStyle}>AI 제공자</h2>
           </div>
           <div style={{ ...cardStyle, display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <SecretField label="OpenAI API 키" value={openaiKey} onChange={setOpenaiKey} show={showOpenai} onToggle={() => setShowOpenai(!showOpenai)} placeholder="sk-..." hint="platform.openai.com/api-keys" />
+            <SecretField label="OpenAI API 키" value={openaiKey} onChange={setOpenaiKey} show={showOpenai} onToggle={() => setShowOpenai(!showOpenai)} placeholder="sk-..." hint="platform.openai.com/api-keys (GPT-4o, GPT-4o-mini)" />
             <div style={{ height: 1, background: 'var(--border)' }} />
-            <SecretField label="Anthropic API 키" value={anthropicKey} onChange={setAnthropicKey} show={showAnthropic} onToggle={() => setShowAnthropic(!showAnthropic)} placeholder="sk-ant-..." hint="console.anthropic.com" />
+            <SecretField label="Anthropic API 키" value={anthropicKey} onChange={setAnthropicKey} show={showAnthropic} onToggle={() => setShowAnthropic(!showAnthropic)} placeholder="sk-ant-..." hint="console.anthropic.com (Claude 4 Sonnet/Opus)" />
+            <div style={{ height: 1, background: 'var(--border)' }} />
+            <SecretField label="Google Gemini API 키" value={geminiKey} onChange={setGeminiKey} show={showGemini} onToggle={() => setShowGemini(!showGemini)} placeholder="AIza..." hint="aistudio.google.com/apikey (Gemini 2.5 Pro/Flash)" />
+            <div style={{ height: 1, background: 'var(--border)' }} />
+            <SecretField label="Groq API 키" value={groqKey} onChange={setGroqKey} show={showGroq} onToggle={() => setShowGroq(!showGroq)} placeholder="gsk_..." hint="console.groq.com (Llama, Mixtral - 무료 빠른 추론)" />
           </div>
           <button
             onClick={handleSave}
@@ -192,30 +210,6 @@ export function SettingsPage() {
                 />
               );
             })}
-          </div>
-        </section>
-
-        {/* Language */}
-        <section style={sectionStyle}>
-          <div style={sectionHeaderStyle}>
-            <Languages size={16} style={{ color: 'var(--text-tertiary)' }} />
-            <h2 style={sectionTitleStyle}>언어</h2>
-          </div>
-          <div style={{ display: 'flex', gap: 8 }}>
-            {LOCALES.map((loc) => (
-              <button
-                key={loc.key}
-                onClick={() => { setLocale(loc.key); window.location.reload(); }}
-                style={{
-                  padding: '8px 18px', fontSize: 13, fontWeight: 500, borderRadius: 10, cursor: 'pointer',
-                  background: getLocale() === loc.key ? 'var(--accent)' : 'transparent',
-                  color: getLocale() === loc.key ? 'white' : 'var(--text-secondary)',
-                  border: getLocale() === loc.key ? 'none' : '1px solid var(--border)',
-                }}
-              >
-                {loc.label}
-              </button>
-            ))}
           </div>
         </section>
 
