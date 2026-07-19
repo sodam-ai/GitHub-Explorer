@@ -130,6 +130,7 @@ async function openaiCompatibleChat(
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
     body: JSON.stringify({ model, messages, max_tokens: maxTokens, temperature: 0.5 }),
+    signal: AbortSignal.timeout(60000),
   });
 
   if (!res.ok) {
@@ -159,6 +160,7 @@ async function anthropicChat(
       'anthropic-dangerous-direct-browser-access': 'true',
     },
     body: JSON.stringify({ model, system: systemPrompt, messages, max_tokens: maxTokens }),
+    signal: AbortSignal.timeout(60000),
   });
 
   if (!res.ok) {
@@ -192,6 +194,7 @@ async function geminiChat(
         systemInstruction: { parts: [{ text: systemPrompt }] },
         generationConfig: { maxOutputTokens: maxTokens, temperature: 0.5 },
       }),
+      signal: AbortSignal.timeout(60000),
     }
   );
 

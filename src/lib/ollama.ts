@@ -48,6 +48,7 @@ export async function generateWithOllama(
       messages,
       stream: false,
     }),
+    signal: AbortSignal.timeout(60000),
   });
 
   if (!res.ok) {
