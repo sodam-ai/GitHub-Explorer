@@ -123,6 +123,7 @@ export function Header() {
 
         <button
           onClick={toggleTheme}
+          aria-label={theme === 'dark' ? '라이트 모드로 전환' : '다크 모드로 전환'}
           style={{
             padding: 8, borderRadius: 8,
             background: 'transparent', border: 'none', cursor: 'pointer',
@@ -144,6 +145,7 @@ export function Header() {
 
         <button
           onClick={() => setCurrentPage('settings')}
+          aria-label="설정"
           style={{
             padding: 8, borderRadius: 8,
             background: 'transparent', border: 'none', cursor: 'pointer',

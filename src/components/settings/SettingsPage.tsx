@@ -128,11 +128,14 @@ export function SettingsPage() {
     label: string; value: string; onChange: (v: string) => void;
     show: boolean; onToggle: () => void; placeholder: string; hint: string;
   }) {
+    const fieldId = `secret-${label.replace(/[^a-zA-Z0-9가-힣]+/g, '-')}`;
     return (
       <div>
-        <label style={labelStyle}>{label}</label>
+        <label htmlFor={fieldId} style={labelStyle}>{label}</label>
         <div style={{ position: 'relative' }}>
           <input
+            id={fieldId}
+            name={fieldId}
             type={show ? 'text' : 'password'}
             value={value}
             onChange={(e) => onChange(e.target.value)}
@@ -142,6 +145,7 @@ export function SettingsPage() {
           <button
             type="button"
             onClick={onToggle}
+            aria-label={show ? `${label} 숨기기` : `${label} 표시`}
             style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-tertiary)' }}
           >
             {show ? <EyeOff size={14} /> : <Eye size={14} />}
@@ -204,8 +208,10 @@ export function SettingsPage() {
             <SecretField label="Groq API 키" value={groqKey} onChange={setGroqKey} show={showGroq} onToggle={() => setShowGroq(!showGroq)} placeholder="gsk_..." hint="console.groq.com (Llama, Mixtral - 무료 빠른 추론)" />
             <div style={{ height: 1, background: 'var(--border)' }} />
             <div>
-              <label style={labelStyle}>검색 요약·코드 Q&A에 사용할 제공자</label>
+              <label htmlFor="ai-provider-select" style={labelStyle}>검색 요약·코드 Q&A에 사용할 제공자</label>
               <select
+                id="ai-provider-select"
+                name="ai-provider"
                 value={aiProvider}
                 onChange={(e) => setAiProvider(e.target.value as LLMProvider)}
                 style={{ ...inputStyle, fontFamily: 'inherit', cursor: 'pointer' }}
@@ -221,8 +227,10 @@ export function SettingsPage() {
             </div>
             {aiProvider === 'ollama' && ollamaModels.length > 0 && (
               <div>
-                <label style={labelStyle}>Ollama 모델</label>
+                <label htmlFor="ollama-model-select" style={labelStyle}>Ollama 모델</label>
                 <select
+                  id="ollama-model-select"
+                  name="ollama-model"
                   value={ollamaModel}
                   onChange={(e) => setOllamaModel(e.target.value)}
                   style={{ ...inputStyle, fontFamily: 'inherit', cursor: 'pointer' }}
@@ -238,8 +246,10 @@ export function SettingsPage() {
             )}
             {aiProvider !== 'ollama' && (
               <div>
-                <label style={labelStyle}>모델명 (선택, 비워두면 기본값)</label>
+                <label htmlFor="ai-model-override" style={labelStyle}>모델명 (선택, 비워두면 기본값)</label>
                 <input
+                  id="ai-model-override"
+                  name="ai-model-override"
                   type="text"
                   value={aiModelOverride}
                   onChange={(e) => setAiModelOverride(e.target.value)}
@@ -268,11 +278,14 @@ export function SettingsPage() {
           <div style={{ display: 'flex', gap: 10 }}>
             {(['blue', 'violet', 'emerald', 'rose', 'amber', 'cyan'] as const).map((color) => {
               const c: Record<string, string> = { blue: '#3b82f6', violet: '#8b5cf6', emerald: '#10b981', rose: '#fb7185', amber: '#f59e0b', cyan: '#22d3ee' };
+              const colorNames: Record<string, string> = { blue: '파랑', violet: '보라', emerald: '초록', rose: '분홍', amber: '주황', cyan: '청록' };
               const isActive = useAppStore.getState().accentColor === color;
               return (
                 <button
                   key={color}
                   onClick={() => useAppStore.getState().setAccentColor(color)}
+                  aria-label={`${colorNames[color]} 테마`}
+                  aria-pressed={isActive}
                   style={{
                     width: 36, height: 36, borderRadius: 10, background: c[color], border: 'none', cursor: 'pointer',
                     outline: isActive ? '3px solid var(--text-primary)' : '3px solid transparent',

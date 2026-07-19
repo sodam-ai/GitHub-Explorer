@@ -119,6 +119,7 @@ export function SearchBar({ onSearch, large = false }: SearchBarProps) {
           </div>
           <input
             type="text"
+            name="search"
             aria-label="검색어 입력"
             value={localQuery}
             onChange={(e) => setLocalQuery(e.target.value)}
