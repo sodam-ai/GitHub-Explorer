@@ -2,6 +2,18 @@ use rusqlite::{Connection, Result};
 use std::path::PathBuf;
 use std::sync::Mutex;
 
+pub const KEYRING_SERVICE: &str = "github-ai-explorer";
+
+/// 과거 버전에서 app_settings 테이블에 평문 저장되던 시크릿 키 목록.
+/// 신규 설치에는 해당 없음 — 기존 사용자의 값을 키체인으로 이관하기 위한 목적.
+const LEGACY_PLAINTEXT_SECRET_KEYS: [&str; 5] = [
+    "github_token",
+    "openai_api_key",
+    "anthropic_api_key",
+    "gemini_api_key",
+    "groq_api_key",
+];
+
 pub struct Database {
     pub conn: Mutex<Connection>,
 }
@@ -15,7 +27,36 @@ impl Database {
             conn: Mutex::new(conn),
         };
         db.init_tables()?;
+        db.migrate_legacy_plaintext_secrets();
         Ok(db)
+    }
+
+    /// app_settings에 남아있는 평문 API 키/토큰을 OS 키체인으로 1회성 이관하고
+    /// 평문 행은 삭제한다. 이관 실패(키체인 접근 불가 등)해도 앱 초기화는 막지 않음 —
+    /// 실패 시 값은 app_settings에 그대로 남아 다음 실행에서 재시도된다.
+    fn migrate_legacy_plaintext_secrets(&self) {
+        let conn = self.conn.lock().unwrap();
+        for key in LEGACY_PLAINTEXT_SECRET_KEYS {
+            let existing: rusqlite::Result<String> = conn.query_row(
+                "SELECT value FROM app_settings WHERE key = ?1",
+                rusqlite::params![key],
+                |row| row.get(0),
+            );
+            let Ok(value) = existing else { continue };
+            if value.is_empty() {
+                let _ = conn.execute("DELETE FROM app_settings WHERE key = ?1", rusqlite::params![key]);
+                continue;
+            }
+            match keyring::Entry::new(KEYRING_SERVICE, key).and_then(|e| e.set_password(&value)) {
+                Ok(()) => {
+                    let _ = conn.execute("DELETE FROM app_settings WHERE key = ?1", rusqlite::params![key]);
+                    log::info!("secret '{}' migrated from plaintext DB to OS keychain", key);
+                }
+                Err(e) => {
+                    log::warn!("failed to migrate secret '{}' to keychain, will retry next launch: {}", key, e);
+                }
+            }
+        }
     }
 
     fn init_tables(&self) -> Result<()> {

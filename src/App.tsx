@@ -11,7 +11,7 @@ import { TrendingPage } from '@/pages/TrendingPage';
 import { StatsPage } from '@/pages/StatsPage';
 import { searchRepositories, searchCode, searchIssues } from '@/lib/github';
 import { generateSearchSummary } from '@/lib/ai';
-import { saveSearchHistory, getSearchHistory, getSetting, isTauri } from '@/lib/tauri-bridge';
+import { saveSearchHistory, getSearchHistory, getSecret, isTauri } from '@/lib/tauri-bridge';
 import { isOnline, getCachedRepositories, cacheRepositories } from '@/lib/offline-cache';
 import { Toaster, toast } from 'sonner';
 import { Onboarding } from '@/components/ui/Onboarding';
@@ -92,13 +92,7 @@ function App() {
 
         if (online) {
           // 온라인: GitHub API 검색
-          let ghToken: string | undefined;
-          if (isTauri()) {
-            ghToken = (await getSetting('github_token')) || undefined;
-          }
-          if (!ghToken) {
-            ghToken = localStorage.getItem('github_token') || undefined;
-          }
+          const ghToken = (await getSecret('github_token')) || undefined;
 
           // 필터를 GitHub API에 전달
           const currentFilters = useAppStore.getState().searchFilters;
@@ -129,13 +123,7 @@ function App() {
           }
 
           // AI 요약 생성
-          let apiKey = '';
-          if (isTauri()) {
-            apiKey = (await getSetting('openai_api_key')) || '';
-          }
-          if (!apiKey) {
-            apiKey = localStorage.getItem('openai_api_key') || '';
-          }
+          const apiKey = (await getSecret('openai_api_key')) || '';
           ai_summary = await generateSearchSummary(query, repositories, apiKey);
         } else {
           // 오프라인: 캐시 검색
@@ -192,9 +180,7 @@ function App() {
     store.setIsLoadingMore(true);
 
     try {
-      let ghToken: string | undefined;
-      if (isTauri()) ghToken = (await getSetting('github_token')) || undefined;
-      if (!ghToken) ghToken = localStorage.getItem('github_token') || undefined;
+      const ghToken = (await getSecret('github_token')) || undefined;
 
       const currentFilters = store.searchFilters;
       const searchOpts = {

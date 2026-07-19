@@ -5,6 +5,7 @@ import {
   Star, GitFork, Eye, Calendar, X, AlertCircle, Tag, GitCommit,
   Scale, Activity, ExternalLink, Clock,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import type { Repository } from '@/types';
 
 interface RepoPreviewProps {
@@ -97,8 +98,14 @@ export function RepoPreview({ repo, onClose }: RepoPreviewProps) {
             html_url: releaseData.html_url,
           });
         }
-      } catch {
-        if (active) setDetail(null);
+      } catch (e) {
+        if (active) {
+          setDetail(null);
+          console.error('Failed to load repo preview detail:', e);
+          toast.error('저장소 상세 정보를 불러오지 못했습니다', {
+            description: '인터넷 연결을 확인하거나 잠시 후 다시 시도해주세요',
+          });
+        }
       } finally {
         if (active) setLoading(false);
       }

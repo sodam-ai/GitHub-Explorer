@@ -2,6 +2,20 @@ import type { Repository, CodeResult, IssueResult } from '@/types';
 
 const GITHUB_API = 'https://api.github.com';
 
+// GitHub REST API 한도(비인증 60회/시간, 인증 5,000회/시간) 보호용 최소 요청 간격
+let lastRequestAt = 0;
+const MIN_REQUEST_INTERVAL_MS = 120;
+
+function throttledFetch(input: string, init?: RequestInit): Promise<Response> {
+  const now = Date.now();
+  const nextSlot = Math.max(now, lastRequestAt + MIN_REQUEST_INTERVAL_MS);
+  const wait = nextSlot - now;
+  lastRequestAt = nextSlot;
+  return wait > 0
+    ? new Promise((resolve) => setTimeout(resolve, wait)).then(() => fetch(input, init))
+    : fetch(input, init);
+}
+
 function getHeaders(token?: string): HeadersInit {
   const headers: HeadersInit = {
     Accept: 'application/vnd.github.v3+json',
@@ -59,7 +73,7 @@ function looksLikeUsername(query: string): boolean {
 // 사용자의 인기 저장소 가져오기
 async function getUserRepos(username: string, token?: string): Promise<Repository[]> {
   try {
-    const res = await fetch(
+    const res = await throttledFetch(
       `${GITHUB_API}/users/${username}/repos?sort=stars&direction=desc&per_page=10`,
       { headers: getHeaders(token) }
     );
@@ -78,7 +92,10 @@ async function getUserRepos(username: string, token?: string): Promise<Repositor
       last_synced: new Date().toISOString(),
       created_at: new Date().toISOString(),
     }));
-  } catch {
+  } catch (e) {
+    // 3단계 병렬 검색 중 보조 전략(사용자 저장소 조회)만 실패한 것 — 메인/user: 검색은 별도로
+    // 계속 진행되므로 사용자에게 토스트로 알리지 않고 개발자 확인용으로만 남긴다
+    console.warn(`사용자 저장소 보조 검색 실패(무시하고 계속 진행): ${username}`, e);
     return [];
   }
 }
@@ -95,7 +112,7 @@ export async function searchRepositories(
   // 전략 1: 일반 검색
   const q = buildQuery(trimmed, opts);
   const sort = getSortParam(opts?.sortBy);
-  const searchPromise = fetch(
+  const searchPromise = throttledFetch(
     `${GITHUB_API}/search/repositories?q=${encodeURIComponent(q)}&sort=${sort}&order=desc&page=${page}&per_page=${perPage}`,
     { headers: getHeaders(token) }
   ).then(async (res) => {
@@ -117,14 +134,18 @@ export async function searchRepositories(
   let userSearchPromise: Promise<Repository[]> = Promise.resolve([]);
   if (page === 1 && !opts?.owner) {
     const userQ = buildQuery(`user:${trimmed.split(' ')[0]}`, opts);
-    userSearchPromise = fetch(
+    userSearchPromise = throttledFetch(
       `${GITHUB_API}/search/repositories?q=${encodeURIComponent(userQ)}&sort=stars&order=desc&per_page=5`,
       { headers: getHeaders(token) }
     ).then(async (res) => {
       if (!res.ok) return [];
       const data = await res.json();
       return (data.items as Array<Record<string, unknown>>).map(mapRepo);
-    }).catch(() => []);
+    }).catch((e) => {
+      // 보조 전략(user: 검색)만 실패 — 메인 검색 결과는 그대로 유지되므로 토스트 없이 로그만
+      console.warn('user: 검색 보조 전략 실패(무시하고 계속 진행)', e);
+      return [];
+    });
   }
 
   const [searchResult, userRepos, userSearchRepos] = await Promise.all([
@@ -187,7 +208,7 @@ export async function searchCode(
   page = 1,
   perPage = 10
 ): Promise<{ items: CodeResult[]; total_count: number }> {
-  const res = await fetch(
+  const res = await throttledFetch(
     `${GITHUB_API}/search/code?q=${encodeURIComponent(query)}&page=${page}&per_page=${perPage}`,
     { headers: getHeaders(token) }
   );
@@ -213,7 +234,7 @@ export async function searchIssues(
   page = 1,
   perPage = 10
 ): Promise<{ items: IssueResult[]; total_count: number }> {
-  const res = await fetch(
+  const res = await throttledFetch(
     `${GITHUB_API}/search/issues?q=${encodeURIComponent(query)}&sort=created&order=desc&page=${page}&per_page=${perPage}`,
     { headers: getHeaders(token) }
   );

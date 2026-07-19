@@ -69,6 +69,9 @@ pub fn run() {
         })
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
+            commands::save_secret,
+            commands::get_secret,
+            commands::delete_secret,
             commands::save_search_history,
             commands::get_search_history,
             commands::clear_search_history,

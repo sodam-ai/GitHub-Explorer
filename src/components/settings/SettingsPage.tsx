@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Check, Eye, EyeOff, Download, Upload, Wifi, WifiOff, ExternalLink, Shield, Cpu, Database, Info, Palette } from 'lucide-react';
 import { useAppStore } from '@/stores/app-store';
-import { saveSetting, getSetting, isTauri } from '@/lib/tauri-bridge';
+import { saveSecret, getSecret, deleteSecret } from '@/lib/tauri-bridge';
 import { checkOllamaStatus, getOllamaModels, type OllamaModel } from '@/lib/ollama';
 import { exportCollections, downloadJson } from '@/lib/export-import';
 import { toast } from 'sonner';
@@ -41,24 +41,18 @@ export function SettingsPage() {
 
   useEffect(() => {
     async function loadKeys() {
-      if (isTauri()) {
-        const gh = await getSetting('github_token');
-        const oai = await getSetting('openai_api_key');
-        const ant = await getSetting('anthropic_api_key');
-        const gem = await getSetting('gemini_api_key');
-        const grq = await getSetting('groq_api_key');
-        if (gh) setGithubToken(gh);
-        if (oai) setOpenaiKey(oai);
-        if (ant) setAnthropicKey(ant);
-        if (gem) setGeminiKey(gem);
-        if (grq) setGroqKey(grq);
-      } else {
-        setGithubToken(localStorage.getItem('github_token') || '');
-        setOpenaiKey(localStorage.getItem('openai_api_key') || '');
-        setAnthropicKey(localStorage.getItem('anthropic_api_key') || '');
-        setGeminiKey(localStorage.getItem('gemini_api_key') || '');
-        setGroqKey(localStorage.getItem('groq_api_key') || '');
-      }
+      const [gh, oai, ant, gem, grq] = await Promise.all([
+        getSecret('github_token'),
+        getSecret('openai_api_key'),
+        getSecret('anthropic_api_key'),
+        getSecret('gemini_api_key'),
+        getSecret('groq_api_key'),
+      ]);
+      if (gh) setGithubToken(gh);
+      if (oai) setOpenaiKey(oai);
+      if (ant) setAnthropicKey(ant);
+      if (gem) setGeminiKey(gem);
+      if (grq) setGroqKey(grq);
     }
     loadKeys();
   }, []);
@@ -87,13 +81,8 @@ export function SettingsPage() {
       groq_api_key: groqKey,
     };
     for (const [k, v] of Object.entries(keys)) {
-      if (v) localStorage.setItem(k, v);
-      else localStorage.removeItem(k);
-    }
-    if (isTauri()) {
-      for (const [k, v] of Object.entries(keys)) {
-        if (v) await saveSetting(k, v);
-      }
+      if (v) await saveSecret(k, v);
+      else await deleteSecret(k);
     }
     setSaved(true);
     toast.success('설정이 저장되었습니다');

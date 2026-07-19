@@ -319,9 +319,11 @@ github-ai-explorer/
 
 | Phase | Features | Status |
 |-------|----------|--------|
-| Phase 1 (MVP) | AI search, AI summary, tabs, search history, shortcuts, dark mode, settings, SQLite, GitHub auth | Complete (11/11) |
-| Phase 2 | Code Q&A, bookmarks, collections, health score, comparison, smart folders, code viewer, advanced filters | Complete (9/9) |
-| Phase 3 | Ollama local AI, offline mode, trending dashboard, export, auto-update, cache strategy, benchmarks | Complete (8/8) |
+| Phase 1 (MVP) | AI search, AI summary, tabs, search history, shortcuts, dark mode, settings, SQLite, GitHub auth | Core features working* |
+| Phase 2 | Code Q&A, bookmarks, collections, health score, comparison, smart folders, code viewer, advanced filters | Mostly working, some partial* |
+| Phase 3 | Ollama local AI, offline mode, trending dashboard, export, auto-update, cache strategy, benchmarks | Core features working, some not yet built* |
+
+\* GitHub auth uses a Personal Access Token, not an OAuth App. Code Q&A works from README + file-tree context, not vector-search RAG. The smart recommendation engine and auto-update are not yet implemented. (Per code audit, 2026-07-20)
 
 ---
 
@@ -329,9 +331,9 @@ github-ai-explorer/
 
 | Concern | How it's handled |
 |---------|------------------|
-| API Key Storage | Encrypted and stored locally in SQLite on your device only |
+| API Key Storage | Stored in your OS keychain (e.g. Windows Credential Manager) -- never in the DB or browser storage |
 | Data Transmission | Keys are sent only to their respective provider's official API endpoint |
-| GitHub Token | Stored locally with the same encryption; used exclusively for GitHub API requests |
+| GitHub Token | Stored the same way, in your OS keychain; used exclusively for GitHub API requests |
 | Telemetry | None. Zero analytics or tracking. All data stays on your machine. |
 | Offline Privacy | Use Ollama for fully offline AI -- no network requests whatsoever |
 | Source Code | Fully open source -- inspect and verify everything yourself |

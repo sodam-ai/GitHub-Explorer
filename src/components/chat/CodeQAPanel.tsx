@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Send, ArrowLeft, Code, User, Bot, X, Sparkles } from 'lucide-react';
 import type { Repository } from '@/types';
 import { askCodeQuestion } from '@/lib/code-qa';
-import { getSetting, isTauri } from '@/lib/tauri-bridge';
+import { getSecret, createConversation, findConversationByRepo, saveMessage, getMessages } from '@/lib/tauri-bridge';
 
 interface Message {
   id: string;
@@ -27,6 +27,7 @@ export function CodeQAPanel({ repo, onClose }: CodeQAPanelProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [conversationId, setConversationId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -38,6 +39,25 @@ export function CodeQAPanel({ repo, onClose }: CodeQAPanelProps) {
     setTimeout(() => inputRef.current?.focus(), 100);
   }, []);
 
+  // 이 저장소에 대한 기존 대화 기록을 불러온다 (Tauri 밖에서는 항상 빈 값)
+  useEffect(() => {
+    async function loadHistory() {
+      const existing = await findConversationByRepo(repo.id);
+      if (!existing) return;
+      setConversationId(existing.id);
+      const saved = await getMessages(existing.id);
+      setMessages(
+        saved.map((m) => ({
+          id: m.id,
+          role: m.role,
+          content: m.content,
+          codeRefs: m.code_refs ? (JSON.parse(m.code_refs) as string[]) : undefined,
+        }))
+      );
+    }
+    loadHistory();
+  }, [repo.id]);
+
   async function handleSend(text?: string) {
     const trimmed = (text || input).trim();
     if (!trimmed || isLoading) return;
@@ -48,17 +68,48 @@ export function CodeQAPanel({ repo, onClose }: CodeQAPanelProps) {
     setIsLoading(true);
 
     try {
-      let apiKey = '';
-      if (isTauri()) apiKey = (await getSetting('openai_api_key')) || '';
-      if (!apiKey) apiKey = localStorage.getItem('openai_api_key') || '';
+      const apiKey = (await getSecret('openai_api_key')) || '';
 
       const history = messages.map((m) => ({ role: m.role, content: m.content }));
       const result = await askCodeQuestion(trimmed, repo, apiKey, history);
 
-      setMessages((prev) => [
-        ...prev,
-        { id: crypto.randomUUID(), role: 'assistant', content: result.answer, codeRefs: result.codeRefs },
-      ]);
+      const assistantMsg: Message = {
+        id: crypto.randomUUID(),
+        role: 'assistant',
+        content: result.answer,
+        codeRefs: result.codeRefs,
+      };
+      setMessages((prev) => [...prev, assistantMsg]);
+
+      // 대화 기록 영구 저장 (첫 메시지면 대화 세션을 새로 만듦)
+      let convId = conversationId;
+      const now = new Date().toISOString();
+      if (!convId) {
+        convId = crypto.randomUUID();
+        setConversationId(convId);
+        await createConversation({
+          id: convId,
+          title: `${repo.full_name} 코드 분석`,
+          repository_id: repo.id,
+          created_at: now,
+        });
+      }
+      await saveMessage({
+        id: userMsg.id,
+        conversation_id: convId,
+        role: 'user',
+        content: userMsg.content,
+        code_refs: null,
+        created_at: now,
+      });
+      await saveMessage({
+        id: assistantMsg.id,
+        conversation_id: convId,
+        role: 'assistant',
+        content: assistantMsg.content,
+        code_refs: assistantMsg.codeRefs?.length ? JSON.stringify(assistantMsg.codeRefs) : null,
+        created_at: new Date().toISOString(),
+      });
     } catch {
       setMessages((prev) => [
         ...prev,

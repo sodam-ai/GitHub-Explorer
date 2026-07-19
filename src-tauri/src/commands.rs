@@ -1,6 +1,33 @@
-use crate::db::Database;
+use crate::db::{Database, KEYRING_SERVICE};
 use serde::{Deserialize, Serialize};
 use tauri::State;
+
+// --- Secrets (OS 키체인 저장 — API 키/토큰 전용, 평문 DB/localStorage 사용 금지) ---
+
+#[tauri::command]
+pub fn save_secret(key: String, value: String) -> Result<(), String> {
+    let entry = keyring::Entry::new(KEYRING_SERVICE, &key).map_err(|e| e.to_string())?;
+    entry.set_password(&value).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub fn get_secret(key: String) -> Result<Option<String>, String> {
+    let entry = keyring::Entry::new(KEYRING_SERVICE, &key).map_err(|e| e.to_string())?;
+    match entry.get_password() {
+        Ok(v) => Ok(Some(v)),
+        Err(keyring::Error::NoEntry) => Ok(None),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+#[tauri::command]
+pub fn delete_secret(key: String) -> Result<(), String> {
+    let entry = keyring::Entry::new(KEYRING_SERVICE, &key).map_err(|e| e.to_string())?;
+    match entry.delete_credential() {
+        Ok(()) | Err(keyring::Error::NoEntry) => Ok(()),
+        Err(e) => Err(e.to_string()),
+    }
+}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SearchHistoryEntry {
