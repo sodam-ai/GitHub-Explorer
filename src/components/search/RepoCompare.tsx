@@ -68,7 +68,7 @@ export function RepoCompare({ repos, onClose }: RepoCompareProps) {
           >
             <Save size={11} /> 기록 저장
           </button>
-          <button onClick={onClose} className="p-1 hover:bg-[var(--bg-secondary)] rounded-lg transition-colors">
+          <button onClick={onClose} className="p-1 hover:bg-[var(--bg-secondary)] rounded-lg transition-colors" aria-label="닫기">
             <X size={18} />
           </button>
         </div>

@@ -314,7 +314,7 @@ function FilterChip({ label, onRemove }: { label: string; onRemove: () => void }
       background: 'var(--accent-muted)', color: 'var(--accent)',
     }}>
       {label}
-      <button onClick={onRemove} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', display: 'flex' }}>
+      <button onClick={onRemove} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', display: 'flex' }} aria-label={`${label} 필터 제거`}>
         <X size={9} />
       </button>
     </span>

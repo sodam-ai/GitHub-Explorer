@@ -134,7 +134,7 @@ export function CodeQAPanel({ repo, onClose }: CodeQAPanelProps) {
       {/* Header */}
       <div className="flex items-center justify-between px-4 h-12 border-b border-[var(--border)] bg-[var(--bg-card)] shrink-0">
         <div className="flex items-center gap-2.5">
-          <button onClick={onClose} className="btn btn-ghost p-1.5">
+          <button onClick={onClose} className="btn btn-ghost p-1.5" aria-label="뒤로">
             <ArrowLeft size={15} />
           </button>
           <div className="divider" />
@@ -146,7 +146,7 @@ export function CodeQAPanel({ repo, onClose }: CodeQAPanelProps) {
             </span>
           </div>
         </div>
-        <button onClick={onClose} className="btn btn-ghost p-1.5">
+        <button onClick={onClose} className="btn btn-ghost p-1.5" aria-label="닫기">
           <X size={15} />
         </button>
       </div>
@@ -226,6 +226,9 @@ export function CodeQAPanel({ repo, onClose }: CodeQAPanelProps) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="flex gap-2.5"
+              role="status"
+              aria-live="polite"
+              aria-label="답변 생성 중"
             >
               <div className="w-6 h-6 rounded-md bg-[var(--accent-muted)] flex items-center justify-center shrink-0">
                 <Bot size={12} className="text-[var(--accent)]" />
@@ -263,6 +266,7 @@ export function CodeQAPanel({ repo, onClose }: CodeQAPanelProps) {
             type="submit"
             disabled={isLoading || !input.trim()}
             className="btn btn-primary px-3"
+            aria-label="전송"
           >
             <Send size={14} />
           </button>

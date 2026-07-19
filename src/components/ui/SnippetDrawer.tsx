@@ -42,7 +42,7 @@ export function SnippetDrawer() {
               </div>
               <div className="flex items-center gap-1">
                 {snippets.length > 0 && (
-                  <button onClick={clearSnippets} className="btn btn-ghost p-1 text-[var(--text-tertiary)] hover:text-red-500">
+                  <button onClick={clearSnippets} className="btn btn-ghost p-1 text-[var(--text-tertiary)] hover:text-red-500" aria-label="스니펫 전체 삭제">
                     <Trash2 size={13} />
                   </button>
                 )}
