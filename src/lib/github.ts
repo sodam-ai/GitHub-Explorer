@@ -6,7 +6,7 @@ const GITHUB_API = 'https://api.github.com';
 let lastRequestAt = 0;
 const MIN_REQUEST_INTERVAL_MS = 120;
 
-function throttledFetch(input: string, init?: RequestInit): Promise<Response> {
+export function throttledFetch(input: string, init?: RequestInit): Promise<Response> {
   const now = Date.now();
   const nextSlot = Math.max(now, lastRequestAt + MIN_REQUEST_INTERVAL_MS);
   const wait = nextSlot - now;

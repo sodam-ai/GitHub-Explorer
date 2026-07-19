@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Plus, Trash2, FolderOpen, Inbox, X, Star, ExternalLink } from 'lucide-react';
 import { useAppStore } from '@/stores/app-store';
 import { toast } from 'sonner';
+import { linkifyText } from '@/lib/linkify';
 import {
   getCollections,
   createCollection,
@@ -305,7 +306,7 @@ export function CollectionPage() {
                             background: 'var(--bg-secondary)', borderRadius: 6,
                             borderLeft: '2px solid var(--accent)',
                           }}>
-                            {item.memo}
+                            {linkifyText(item.memo)}
                           </p>
                         )}
                       </div>

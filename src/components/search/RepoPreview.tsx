@@ -6,6 +6,8 @@ import {
   Scale, Activity, ExternalLink, Clock,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { throttledFetch } from '@/lib/github';
+import { extractReadmeSummary, decodeBase64Utf8 } from '@/lib/summarize';
 import type { Repository } from '@/types';
 
 interface RepoPreviewProps {
@@ -55,6 +57,7 @@ function timeAgo(dateStr: string): string {
 export function RepoPreview({ repo, onClose }: RepoPreviewProps) {
   const [detail, setDetail] = useState<RepoDetail | null>(null);
   const [release, setRelease] = useState<ReleaseDetail | null>(null);
+  const [readmeSummary, setReadmeSummary] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -62,11 +65,16 @@ export function RepoPreview({ repo, onClose }: RepoPreviewProps) {
     async function load() {
       setLoading(true);
       try {
-        const [repoRes, releaseRes] = await Promise.allSettled([
+        const [repoRes, releaseRes, readmeRes] = await Promise.allSettled([
           fetch(`https://api.github.com/repos/${repo.full_name}`).then((r) =>
             r.ok ? r.json() : null
           ),
           fetch(`https://api.github.com/repos/${repo.full_name}/releases/latest`).then((r) =>
+            r.ok ? r.json() : null
+          ),
+          // README는 검색 결과 카드가 아닌 미리보기를 직접 연 경우에만 온디맨드로 1회
+          // 가져온다 — 목록 전체에 걸었다면 P0에서 추가한 rate-limit 방지가 무의미해짐.
+          throttledFetch(`https://api.github.com/repos/${repo.full_name}/readme`).then((r) =>
             r.ok ? r.json() : null
           ),
         ]);
@@ -74,6 +82,18 @@ export function RepoPreview({ repo, onClose }: RepoPreviewProps) {
 
         const repoData = repoRes.status === 'fulfilled' ? repoRes.value : null;
         const releaseData = releaseRes.status === 'fulfilled' ? releaseRes.value : null;
+        const readmeData = readmeRes.status === 'fulfilled' ? readmeRes.value : null;
+
+        if (readmeData?.content) {
+          try {
+            const markdown = decodeBase64Utf8(readmeData.content);
+            setReadmeSummary(extractReadmeSummary(markdown));
+          } catch {
+            setReadmeSummary(null);
+          }
+        } else {
+          setReadmeSummary(null);
+        }
 
         if (repoData) {
           setDetail({
@@ -241,6 +261,16 @@ export function RepoPreview({ repo, onClose }: RepoPreviewProps) {
                 value={loading ? '...' : detail ? formatNumber(detail.subscribers_count) : '—'}
               />
             </div>
+
+            {readmeSummary && (
+              <div style={{
+                padding: '12px 14px', borderRadius: 10,
+                background: 'var(--accent-muted)', marginBottom: 14,
+                fontSize: 12.5, lineHeight: 1.6, color: 'var(--text-secondary)',
+              }}>
+                {readmeSummary}
+              </div>
+            )}
 
             {detail && (
               <div style={{

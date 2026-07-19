@@ -38,6 +38,50 @@ pub struct SearchHistoryEntry {
     pub searched_at: String,
 }
 
+// --- Trending Snapshots (실제 증감치 계산용 — 매번 방문 시 오늘자 스냅샷을 저장하고,
+// 이전 스냅샷과 비교해 진짜 별 증가량을 계산한다. category는 "기간::언어" 형태로
+// 서로 다른 필터 조합의 스냅샷이 섞이지 않게 분리한다) ---
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TrendingSnapshotEntry {
+    pub category: String,
+    pub date: String,
+    pub repositories: String,
+}
+
+#[tauri::command]
+pub fn save_trending_snapshot(db: State<Database>, entry: TrendingSnapshotEntry) -> Result<(), String> {
+    let conn = db.conn.lock().map_err(|e| e.to_string())?;
+    conn.execute(
+        "INSERT INTO trending_snapshot (id, category, date, repositories, created_at)
+         VALUES (?1, ?2, ?3, ?4, ?5)
+         ON CONFLICT(category, date) DO UPDATE SET repositories = excluded.repositories, created_at = excluded.created_at",
+        rusqlite::params![
+            uuid::Uuid::new_v4().to_string(),
+            entry.category,
+            entry.date,
+            entry.repositories,
+            chrono::Utc::now().to_rfc3339(),
+        ],
+    ).map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+#[tauri::command]
+pub fn get_latest_trending_snapshot(db: State<Database>, category: String, before_date: String) -> Result<Option<String>, String> {
+    let conn = db.conn.lock().map_err(|e| e.to_string())?;
+    let result = conn.query_row(
+        "SELECT repositories FROM trending_snapshot WHERE category = ?1 AND date < ?2 ORDER BY date DESC LIMIT 1",
+        rusqlite::params![category, before_date],
+        |row| row.get(0),
+    );
+    match result {
+        Ok(val) => Ok(Some(val)),
+        Err(rusqlite::Error::QueryReturnedNoRows) => Ok(None),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
 // --- Search History ---
 
 #[tauri::command]

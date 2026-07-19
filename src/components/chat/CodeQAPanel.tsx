@@ -4,6 +4,7 @@ import { Send, ArrowLeft, Code, User, Bot, X, Sparkles } from 'lucide-react';
 import type { Repository } from '@/types';
 import { askCodeQuestion } from '@/lib/code-qa';
 import { getSecret, createConversation, findConversationByRepo, saveMessage, getMessages } from '@/lib/tauri-bridge';
+import { linkifyText } from '@/lib/linkify';
 
 interface Message {
   id: string;
@@ -197,7 +198,7 @@ export function CodeQAPanel({ repo, onClose }: CodeQAPanelProps) {
                       : 'bg-[var(--bg-card)] border border-[var(--border)] rounded-bl-sm'
                   }`}
                 >
-                  <p className="whitespace-pre-wrap">{msg.content}</p>
+                  <p className="whitespace-pre-wrap">{linkifyText(msg.content)}</p>
                   {msg.codeRefs && msg.codeRefs.length > 0 && (
                     <div className="mt-2 flex flex-wrap gap-1">
                       {msg.codeRefs.map((ref) => (

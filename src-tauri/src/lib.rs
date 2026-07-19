@@ -69,6 +69,8 @@ pub fn run() {
         })
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
+            commands::save_trending_snapshot,
+            commands::get_latest_trending_snapshot,
             commands::save_secret,
             commands::get_secret,
             commands::delete_secret,

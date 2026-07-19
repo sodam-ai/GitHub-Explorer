@@ -143,6 +143,15 @@ impl Database {
                 created_at TEXT NOT NULL,
                 FOREIGN KEY (conversation_id) REFERENCES conversation(id) ON DELETE CASCADE
             );
+
+            CREATE TABLE IF NOT EXISTS trending_snapshot (
+                id TEXT PRIMARY KEY,
+                category TEXT NOT NULL,
+                date TEXT NOT NULL,
+                repositories TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                UNIQUE(category, date)
+            );
             ",
         )?;
 

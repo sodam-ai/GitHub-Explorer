@@ -124,10 +124,18 @@ export function TrendingPage() {
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-                  <Flame size={14} style={{ color: '#f97316' }} />
-                  <span style={{ fontSize: 14, fontWeight: 600, color: '#f97316', fontVariantNumeric: 'tabular-nums' }}>
-                    +{repo.stars_today}
-                  </span>
+                  {repo.stars_today !== null ? (
+                    <>
+                      <Flame size={14} style={{ color: '#f97316' }} />
+                      <span style={{ fontSize: 14, fontWeight: 600, color: '#f97316', fontVariantNumeric: 'tabular-nums' }}>
+                        +{repo.stars_today}
+                      </span>
+                    </>
+                  ) : (
+                    <span style={{ fontSize: 11, color: 'var(--text-tertiary)', fontStyle: 'italic' }}>
+                      집계 중
+                    </span>
+                  )}
                 </div>
 
                 <ExternalLink size={14} style={{ color: 'var(--text-tertiary)', flexShrink: 0, opacity: 0.4 }} />
