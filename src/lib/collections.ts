@@ -106,6 +106,26 @@ export async function addRepositoryToCollection(
   return item;
 }
 
+/**
+ * 내보내기 파일에 저장된 스냅샷을 그대로 보존하며 컬렉션 항목을 복원.
+ * id/collection_id/added_at만 새로 부여하고 나머지 필드는 원본 그대로 사용.
+ */
+export async function restoreCollectionItem(
+  collectionId: string,
+  item: CollectionItem
+): Promise<CollectionItem> {
+  const restored: CollectionItem = {
+    ...item,
+    id: crypto.randomUUID(),
+    collection_id: collectionId,
+    added_at: new Date().toISOString(),
+  };
+  if (isTauri()) {
+    await invoke('add_to_collection', { item: restored });
+  }
+  return restored;
+}
+
 export async function removeFromCollection(id: string): Promise<void> {
   if (isTauri()) {
     await invoke('remove_from_collection', { id });

@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Check, Eye, EyeOff, Download, Upload, Wifi, WifiOff, ExternalLink, Shield, Cpu, Database, Info, Palette } from 'lucide-react';
 import { useAppStore } from '@/stores/app-store';
 import { saveSecret, getSecret, deleteSecret } from '@/lib/tauri-bridge';
 import { checkOllamaStatus, getOllamaModels, type OllamaModel } from '@/lib/ollama';
 import { DEFAULT_MODELS, type LLMProvider } from '@/lib/llm-providers';
-import { exportCollections, downloadJson } from '@/lib/export-import';
+import { exportCollections, downloadJson, validateImportData, importCollections } from '@/lib/export-import';
 import { toast } from 'sonner';
 
 const sectionStyle: React.CSSProperties = { marginBottom: 36 };
@@ -39,6 +39,7 @@ export function SettingsPage() {
   const [githubUser, setGithubUser] = useState<string | null>(null);
   const [ollamaOnline, setOllamaOnline] = useState(false);
   const [ollamaModels, setOllamaModels] = useState<OllamaModel[]>([]);
+  const importInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     async function loadKeys() {
@@ -93,6 +94,29 @@ export function SettingsPage() {
     setSaved(true);
     toast.success('설정이 저장되었습니다');
     setTimeout(() => setSaved(false), 2000);
+  }
+
+  async function handleImportFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+
+    const text = await file.text();
+    const data = validateImportData(text);
+    if (!data) {
+      toast.error('올바르지 않은 백업 파일입니다');
+      return;
+    }
+
+    const result = await importCollections(data);
+    if (result.collections === 0 && result.items === 0) {
+      toast.error('가져올 데이터가 없습니다');
+      return;
+    }
+    toast.success(
+      `컬렉션 ${result.collections}개, 저장소 ${result.items}개를 가져왔습니다` +
+      (result.skipped > 0 ? ` (손상된 항목 ${result.skipped}개 건너뜀)` : '')
+    );
   }
 
   function SecretField({ label, value, onChange, show, onToggle, placeholder, hint }: {
@@ -308,7 +332,17 @@ export function SettingsPage() {
             >
               <Download size={14} /> 컬렉션 내보내기
             </button>
-            <button style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 18px', fontSize: 13, fontWeight: 500, borderRadius: 10, border: '1px solid var(--border)', background: 'transparent', color: 'var(--text-tertiary)', cursor: 'not-allowed', opacity: 0.4 }}>
+            <input
+              ref={importInputRef}
+              type="file"
+              accept="application/json"
+              onChange={handleImportFile}
+              style={{ display: 'none' }}
+            />
+            <button
+              onClick={() => importInputRef.current?.click()}
+              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 18px', fontSize: 13, fontWeight: 500, borderRadius: 10, border: '1px solid var(--border)', background: 'transparent', color: 'var(--text-secondary)', cursor: 'pointer' }}
+            >
               <Upload size={14} /> 가져오기
             </button>
           </div>
