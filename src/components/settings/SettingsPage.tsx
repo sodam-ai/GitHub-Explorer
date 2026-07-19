@@ -101,22 +101,27 @@ export function SettingsPage() {
     e.target.value = '';
     if (!file) return;
 
-    const text = await file.text();
-    const data = validateImportData(text);
-    if (!data) {
-      toast.error('올바르지 않은 백업 파일입니다');
-      return;
-    }
+    try {
+      const text = await file.text();
+      const data = validateImportData(text);
+      if (!data) {
+        toast.error('올바르지 않은 백업 파일입니다');
+        return;
+      }
 
-    const result = await importCollections(data);
-    if (result.collections === 0 && result.items === 0) {
-      toast.error('가져올 데이터가 없습니다');
-      return;
+      const result = await importCollections(data);
+      if (result.collections === 0 && result.items === 0) {
+        toast.error('가져올 데이터가 없습니다');
+        return;
+      }
+      toast.success(
+        `컬렉션 ${result.collections}개, 저장소 ${result.items}개를 가져왔습니다` +
+        (result.skipped > 0 ? ` (손상된 항목 ${result.skipped}개 건너뜀)` : '')
+      );
+    } catch (error) {
+      console.error('Import failed:', error);
+      toast.error('가져오기 중 오류가 발생했습니다. 파일이 손상되었을 수 있습니다.');
     }
-    toast.success(
-      `컬렉션 ${result.collections}개, 저장소 ${result.items}개를 가져왔습니다` +
-      (result.skipped > 0 ? ` (손상된 항목 ${result.skipped}개 건너뜀)` : '')
-    );
   }
 
   function SecretField({ label, value, onChange, show, onToggle, placeholder, hint }: {
@@ -324,9 +329,14 @@ export function SettingsPage() {
           <div style={{ display: 'flex', gap: 10 }}>
             <button
               onClick={async () => {
-                const json = await exportCollections();
-                downloadJson(json, `github-ai-explorer-backup-${new Date().toISOString().split('T')[0]}.json`);
-                toast.success('컬렉션을 내보냈습니다');
+                try {
+                  const json = await exportCollections();
+                  downloadJson(json, `github-ai-explorer-backup-${new Date().toISOString().split('T')[0]}.json`);
+                  toast.success('컬렉션을 내보냈습니다');
+                } catch (error) {
+                  console.error('Export failed:', error);
+                  toast.error('내보내기 중 오류가 발생했습니다');
+                }
               }}
               style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 18px', fontSize: 13, fontWeight: 500, borderRadius: 10, border: '1px solid var(--border)', background: 'transparent', color: 'var(--text-secondary)', cursor: 'pointer' }}
             >
