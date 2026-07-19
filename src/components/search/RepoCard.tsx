@@ -1,9 +1,7 @@
-import { Star, ExternalLink, Bookmark, MessageCircle, Activity, Eye, Bell } from 'lucide-react';
+import { Star, ExternalLink, Bookmark, MessageCircle, Activity, Eye } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { Repository } from '@/types';
 import { calculateHealthScore, getHealthColor } from '@/lib/health-score';
-import { useWatchStore } from '@/stores/watch-store';
-import { toast } from 'sonner';
 
 interface RepoCardProps {
   repo: Repository;
@@ -16,25 +14,6 @@ interface RepoCardProps {
 
 export function RepoCard({ repo, onBookmark, onCodeQA, onPreview, index = 0, isActive = false }: RepoCardProps) {
   const health = calculateHealthScore(repo);
-  const { watched, addWatch, removeWatch } = useWatchStore();
-  const isWatched = watched.some((w) => w.full_name === repo.full_name);
-
-  function toggleWatch() {
-    if (isWatched) {
-      const w = watched.find((w) => w.full_name === repo.full_name);
-      if (w) removeWatch(w.id);
-      toast.success(`${repo.full_name} 알림 해제`);
-    } else {
-      addWatch({
-        id: crypto.randomUUID(),
-        full_name: repo.full_name,
-        last_checked: new Date().toISOString(),
-        last_release: null,
-        last_stars: repo.stars,
-      });
-      toast.success(`${repo.full_name} 알림 설정`);
-    }
-  }
 
   return (
     <motion.div
@@ -124,10 +103,6 @@ export function RepoCard({ repo, onBookmark, onCodeQA, onPreview, index = 0, isA
         <button onClick={() => onBookmark?.(repo)} className="btn btn-ghost text-[12px]">
           <Bookmark size={12} />
           저장
-        </button>
-        <button onClick={toggleWatch} className="btn btn-ghost text-[12px]" style={{ color: isWatched ? 'var(--accent)' : undefined }}>
-          <Bell size={12} style={isWatched ? { fill: 'var(--accent)' } : undefined} />
-          {isWatched ? '알림중' : '알림'}
         </button>
         <a
           href={repo.url}

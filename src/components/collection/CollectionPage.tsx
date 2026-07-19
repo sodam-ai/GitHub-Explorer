@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Plus, Trash2, FolderOpen, Inbox, X } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, FolderOpen, Inbox, X, Star, ExternalLink } from 'lucide-react';
 import { useAppStore } from '@/stores/app-store';
 import { toast } from 'sonner';
 import {
@@ -8,6 +8,7 @@ import {
   createCollection,
   deleteCollection,
   getCollectionItems,
+  removeFromCollection,
   type Collection,
   type CollectionItem,
 } from '@/lib/collections';
@@ -46,6 +47,23 @@ export function CollectionPage() {
     if (selectedId === id) setSelectedId(null);
     loadCollections();
     toast.success(`"${name}" 삭제됨`);
+  }
+
+  async function handleRemoveItem(itemId: string, label: string) {
+    try {
+      await removeFromCollection(itemId);
+      setItems((prev) => prev.filter((it) => it.id !== itemId));
+      toast.success(`"${label}" 컬렉션에서 제거됨`);
+    } catch (e) {
+      toast.error('제거 실패', {
+        description: e instanceof Error ? e.message : '알 수 없는 오류',
+      });
+    }
+  }
+
+  function formatStars(n?: number | null): string {
+    if (n == null) return '';
+    return n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n);
   }
 
   const selected = collections.find((c) => c.id === selectedId);
@@ -191,27 +209,142 @@ export function CollectionPage() {
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {items.map((item, i) => (
-                  <motion.div
-                    key={item.id}
-                    initial={{ opacity: 0, y: 4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.03 }}
-                    style={{
-                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                      padding: '14px 18px', borderRadius: 12,
-                      border: '1px solid var(--border)', background: 'var(--bg-card)',
-                    }}
-                    className="card-hover"
-                  >
-                    <div style={{ minWidth: 0 }}>
-                      <p style={{ fontSize: 14, fontWeight: 500 }}>{item.repository_id}</p>
-                      {item.memo && (
-                        <p style={{ fontSize: 12, color: 'var(--text-tertiary)', marginTop: 2 }}>{item.memo}</p>
+                {items.map((item, i) => {
+                  const displayName = item.full_name ?? item.repository_id;
+                  return (
+                    <motion.div
+                      key={item.id}
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.03 }}
+                      style={{
+                        display: 'flex', alignItems: 'flex-start', gap: 12,
+                        padding: '14px 18px', borderRadius: 12,
+                        border: '1px solid var(--border)', background: 'var(--bg-card)',
+                      }}
+                      className="card-hover group"
+                    >
+                      {item.owner_avatar ? (
+                        <img
+                          src={item.owner_avatar}
+                          alt=""
+                          style={{
+                            width: 36, height: 36, borderRadius: 8,
+                            border: '1px solid var(--border-subtle, var(--border))',
+                            flexShrink: 0,
+                          }}
+                        />
+                      ) : (
+                        <div
+                          style={{
+                            width: 36, height: 36, borderRadius: 8,
+                            background: 'var(--bg-secondary)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            flexShrink: 0,
+                          }}
+                        >
+                          <FolderOpen size={16} style={{ color: 'var(--text-tertiary)' }} />
+                        </div>
                       )}
-                    </div>
-                  </motion.div>
-                ))}
+
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          {item.url ? (
+                            <a
+                              href={item.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{
+                                fontSize: 14, fontWeight: 600,
+                                color: 'var(--text-primary)',
+                                textDecoration: 'none',
+                                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                              }}
+                              className="hover:text-[var(--accent)]"
+                            >
+                              {displayName}
+                            </a>
+                          ) : (
+                            <span style={{ fontSize: 14, fontWeight: 600 }}>{displayName}</span>
+                          )}
+                        </div>
+
+                        {item.description && (
+                          <p style={{
+                            fontSize: 12.5, color: 'var(--text-secondary)',
+                            marginTop: 4, lineHeight: 1.5,
+                            overflow: 'hidden', textOverflow: 'ellipsis',
+                            display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+                          }}>
+                            {item.description}
+                          </p>
+                        )}
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 6, flexWrap: 'wrap' }}>
+                          {item.stars != null && (
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11.5, color: 'var(--text-secondary)' }}>
+                              <Star size={11} style={{ color: '#f59e0b', fill: '#f59e0b' }} />
+                              {formatStars(item.stars)}
+                            </span>
+                          )}
+                          {item.language && (
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11.5, color: 'var(--text-secondary)' }}>
+                              <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--accent)' }} />
+                              {item.language}
+                            </span>
+                          )}
+                          <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
+                            {new Date(item.added_at).toLocaleDateString('ko-KR')}
+                          </span>
+                        </div>
+
+                        {item.memo && (
+                          <p style={{
+                            fontSize: 12, color: 'var(--text-tertiary)',
+                            marginTop: 8, padding: '6px 10px',
+                            background: 'var(--bg-secondary)', borderRadius: 6,
+                            borderLeft: '2px solid var(--accent)',
+                          }}>
+                            {item.memo}
+                          </p>
+                        )}
+                      </div>
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flexShrink: 0 }}>
+                        {item.url && (
+                          <a
+                            href={item.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              padding: 6, borderRadius: 6,
+                              color: 'var(--text-tertiary)',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              background: 'transparent', border: 'none', cursor: 'pointer',
+                            }}
+                            className="hover:text-[var(--accent)] hover:bg-[var(--bg-secondary)]"
+                            title="GitHub에서 열기"
+                          >
+                            <ExternalLink size={13} />
+                          </a>
+                        )}
+                        <button
+                          onClick={() => handleRemoveItem(item.id, displayName)}
+                          style={{
+                            padding: 6, borderRadius: 6,
+                            color: 'var(--text-tertiary)',
+                            background: 'transparent', border: 'none', cursor: 'pointer',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          }}
+                          className="hover:text-red-500 hover:bg-[var(--bg-secondary)]"
+                          title="컬렉션에서 제거"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                    </motion.div>
+                  );
+                })}
               </div>
             )}
           </div>

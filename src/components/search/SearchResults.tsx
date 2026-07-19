@@ -8,6 +8,7 @@ import { RepoCompare } from './RepoCompare';
 import { RepoPreview } from './RepoPreview';
 import { SearchFilters, type SearchFilterValues } from './SearchFilters';
 import { CodeQAPanel } from '@/components/chat/CodeQAPanel';
+import { BookmarkModal } from '@/components/collection/BookmarkModal';
 import type { SearchTab, Repository } from '@/types';
 
 const TABS: { key: SearchTab; label: string; icon: React.ReactNode }[] = [
@@ -34,6 +35,7 @@ export function SearchResults({ onReSearch }: SearchResultsProps = {}) {
   const [showCompare, setShowCompare] = useState(false);
   const [qaRepo, setQaRepo] = useState<Repository | null>(null);
   const [previewRepo, setPreviewRepo] = useState<Repository | null>(null);
+  const [bookmarkRepo, setBookmarkRepo] = useState<Repository | null>(null);
   const [activeRepoIndex, setActiveRepoIndex] = useState(-1);
 
   const filteredRepos = useMemo(() => {
@@ -193,6 +195,7 @@ export function SearchResults({ onReSearch }: SearchResultsProps = {}) {
                 repo={repo}
                 onCodeQA={(r) => setQaRepo(r)}
                 onPreview={(r) => setPreviewRepo(r)}
+                onBookmark={(r) => setBookmarkRepo(r)}
                 index={i}
                 isActive={i === activeRepoIndex}
               />
@@ -272,6 +275,13 @@ export function SearchResults({ onReSearch }: SearchResultsProps = {}) {
       {qaRepo && (
         <CodeQAPanel repo={qaRepo} onClose={() => setQaRepo(null)} />
       )}
+
+      {/* 북마크 → 컬렉션 저장 모달 */}
+      <AnimatePresence>
+        {bookmarkRepo && (
+          <BookmarkModal repo={bookmarkRepo} onClose={() => setBookmarkRepo(null)} />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

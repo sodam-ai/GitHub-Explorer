@@ -119,6 +119,13 @@ pub struct CollectionItemEntry {
     pub repository_id: String,
     pub memo: Option<String>,
     pub added_at: String,
+    pub full_name: Option<String>,
+    pub description: Option<String>,
+    pub stars: Option<i64>,
+    pub language: Option<String>,
+    pub owner_avatar: Option<String>,
+    pub url: Option<String>,
+    pub topics: Option<String>,
 }
 
 #[tauri::command]
@@ -170,8 +177,21 @@ pub fn delete_collection(db: State<Database>, id: String) -> Result<(), String> 
 pub fn add_to_collection(db: State<Database>, item: CollectionItemEntry) -> Result<(), String> {
     let conn = db.conn.lock().map_err(|e| e.to_string())?;
     conn.execute(
-        "INSERT OR REPLACE INTO collection_item (id, collection_id, repository_id, memo, added_at) VALUES (?1, ?2, ?3, ?4, ?5)",
-        rusqlite::params![item.id, item.collection_id, item.repository_id, item.memo, item.added_at],
+        "INSERT OR REPLACE INTO collection_item (id, collection_id, repository_id, memo, added_at, full_name, description, stars, language, owner_avatar, url, topics) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)",
+        rusqlite::params![
+            item.id,
+            item.collection_id,
+            item.repository_id,
+            item.memo,
+            item.added_at,
+            item.full_name,
+            item.description,
+            item.stars,
+            item.language,
+            item.owner_avatar,
+            item.url,
+            item.topics,
+        ],
     ).map_err(|e| e.to_string())?;
     Ok(())
 }
@@ -188,7 +208,7 @@ pub fn remove_from_collection(db: State<Database>, id: String) -> Result<(), Str
 pub fn get_collection_items(db: State<Database>, collection_id: String) -> Result<Vec<CollectionItemEntry>, String> {
     let conn = db.conn.lock().map_err(|e| e.to_string())?;
     let mut stmt = conn
-        .prepare("SELECT id, collection_id, repository_id, memo, added_at FROM collection_item WHERE collection_id = ?1 ORDER BY added_at DESC")
+        .prepare("SELECT id, collection_id, repository_id, memo, added_at, full_name, description, stars, language, owner_avatar, url, topics FROM collection_item WHERE collection_id = ?1 ORDER BY added_at DESC")
         .map_err(|e| e.to_string())?;
     let rows = stmt
         .query_map(rusqlite::params![collection_id], |row| {
@@ -198,6 +218,13 @@ pub fn get_collection_items(db: State<Database>, collection_id: String) -> Resul
                 repository_id: row.get(2)?,
                 memo: row.get(3)?,
                 added_at: row.get(4)?,
+                full_name: row.get(5)?,
+                description: row.get(6)?,
+                stars: row.get(7)?,
+                language: row.get(8)?,
+                owner_avatar: row.get(9)?,
+                url: row.get(10)?,
+                topics: row.get(11)?,
             })
         })
         .map_err(|e| e.to_string())?;

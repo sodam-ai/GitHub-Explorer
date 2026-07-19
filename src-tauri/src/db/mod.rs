@@ -104,6 +104,40 @@ impl Database {
             );
             ",
         )?;
+
+        // collection_item에 저장 시점 스냅샷 메타 컬럼 점진 추가 (idempotent)
+        Self::add_column_if_missing(&conn, "collection_item", "full_name", "TEXT")?;
+        Self::add_column_if_missing(&conn, "collection_item", "description", "TEXT")?;
+        Self::add_column_if_missing(&conn, "collection_item", "stars", "INTEGER")?;
+        Self::add_column_if_missing(&conn, "collection_item", "language", "TEXT")?;
+        Self::add_column_if_missing(&conn, "collection_item", "owner_avatar", "TEXT")?;
+        Self::add_column_if_missing(&conn, "collection_item", "url", "TEXT")?;
+        Self::add_column_if_missing(&conn, "collection_item", "topics", "TEXT")?;
+
+        Ok(())
+    }
+
+    fn add_column_if_missing(
+        conn: &Connection,
+        table: &str,
+        column: &str,
+        col_type: &str,
+    ) -> Result<()> {
+        let mut stmt = conn.prepare(&format!("PRAGMA table_info({})", table))?;
+        let exists = stmt
+            .query_map([], |row| {
+                let name: String = row.get(1)?;
+                Ok(name)
+            })?
+            .filter_map(|r| r.ok())
+            .any(|name| name == column);
+
+        if !exists {
+            conn.execute(
+                &format!("ALTER TABLE {} ADD COLUMN {} {}", table, column, col_type),
+                [],
+            )?;
+        }
         Ok(())
     }
 }
