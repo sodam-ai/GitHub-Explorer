@@ -3,8 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Send, ArrowLeft, Code, User, Bot, X, Sparkles } from 'lucide-react';
 import type { Repository } from '@/types';
 import { askCodeQuestion } from '@/lib/code-qa';
-import { getSecret, createConversation, findConversationByRepo, saveMessage, getMessages } from '@/lib/tauri-bridge';
+import { createConversation, findConversationByRepo, saveMessage, getMessages } from '@/lib/tauri-bridge';
 import { linkifyText } from '@/lib/linkify';
+import { buildLLMConfig } from '@/lib/llm-providers';
+import { useAppStore } from '@/stores/app-store';
 
 interface Message {
   id: string;
@@ -69,10 +71,11 @@ export function CodeQAPanel({ repo, onClose }: CodeQAPanelProps) {
     setIsLoading(true);
 
     try {
-      const apiKey = (await getSecret('openai_api_key')) || '';
+      const { aiProvider, ollamaModel, aiModelOverride } = useAppStore.getState();
+      const llmConfig = await buildLLMConfig({ aiProvider, ollamaModel, aiModelOverride });
 
       const history = messages.map((m) => ({ role: m.role, content: m.content }));
-      const result = await askCodeQuestion(trimmed, repo, apiKey, history);
+      const result = await askCodeQuestion(trimmed, repo, llmConfig, history);
 
       const assistantMsg: Message = {
         id: crypto.randomUUID(),

@@ -4,6 +4,7 @@ import { ArrowLeft, Check, Eye, EyeOff, Download, Upload, Wifi, WifiOff, Externa
 import { useAppStore } from '@/stores/app-store';
 import { saveSecret, getSecret, deleteSecret } from '@/lib/tauri-bridge';
 import { checkOllamaStatus, getOllamaModels, type OllamaModel } from '@/lib/ollama';
+import { DEFAULT_MODELS, type LLMProvider } from '@/lib/llm-providers';
 import { exportCollections, downloadJson } from '@/lib/export-import';
 import { toast } from 'sonner';
 
@@ -23,7 +24,7 @@ const hintStyle: React.CSSProperties = { fontSize: 11, color: 'var(--text-tertia
 const labelStyle: React.CSSProperties = { display: 'block', fontSize: 12, fontWeight: 500, color: 'var(--text-secondary)', marginBottom: 6 };
 
 export function SettingsPage() {
-  const { setCurrentPage } = useAppStore();
+  const { setCurrentPage, aiProvider, setAiProvider, ollamaModel, setOllamaModel, aiModelOverride, setAiModelOverride } = useAppStore();
   const [githubToken, setGithubToken] = useState('');
   const [openaiKey, setOpenaiKey] = useState('');
   const [anthropicKey, setAnthropicKey] = useState('');
@@ -60,7 +61,12 @@ export function SettingsPage() {
   useEffect(() => {
     checkOllamaStatus().then((ok) => {
       setOllamaOnline(ok);
-      if (ok) getOllamaModels().then(setOllamaModels);
+      if (ok) getOllamaModels().then((models) => {
+        setOllamaModels(models);
+        if (models.length > 0 && !useAppStore.getState().ollamaModel) {
+          useAppStore.getState().setOllamaModel(models[0].name);
+        }
+      });
     });
   }, []);
 
@@ -167,6 +173,53 @@ export function SettingsPage() {
             <SecretField label="Google Gemini API 키" value={geminiKey} onChange={setGeminiKey} show={showGemini} onToggle={() => setShowGemini(!showGemini)} placeholder="AIza..." hint="aistudio.google.com/apikey (Gemini 2.5 Pro/Flash)" />
             <div style={{ height: 1, background: 'var(--border)' }} />
             <SecretField label="Groq API 키" value={groqKey} onChange={setGroqKey} show={showGroq} onToggle={() => setShowGroq(!showGroq)} placeholder="gsk_..." hint="console.groq.com (Llama, Mixtral - 무료 빠른 추론)" />
+            <div style={{ height: 1, background: 'var(--border)' }} />
+            <div>
+              <label style={labelStyle}>검색 요약·코드 Q&A에 사용할 제공자</label>
+              <select
+                value={aiProvider}
+                onChange={(e) => setAiProvider(e.target.value as LLMProvider)}
+                style={{ ...inputStyle, fontFamily: 'inherit', cursor: 'pointer' }}
+              >
+                <option value="openai">OpenAI</option>
+                <option value="anthropic">Anthropic (Claude)</option>
+                <option value="gemini">Google Gemini</option>
+                <option value="groq">Groq</option>
+                <option value="ollama">로컬 - Ollama {ollamaOnline ? '(연결됨)' : '(미감지)'}</option>
+                <option value="lmstudio">로컬 - LM Studio</option>
+              </select>
+              <p style={hintStyle}>위 키를 입력해도 여기서 선택하지 않으면 사용되지 않습니다. 로컬 AI는 키가 필요 없습니다.</p>
+            </div>
+            {aiProvider === 'ollama' && ollamaModels.length > 0 && (
+              <div>
+                <label style={labelStyle}>Ollama 모델</label>
+                <select
+                  value={ollamaModel}
+                  onChange={(e) => setOllamaModel(e.target.value)}
+                  style={{ ...inputStyle, fontFamily: 'inherit', cursor: 'pointer' }}
+                >
+                  {ollamaModels.map((m) => (
+                    <option key={m.name} value={m.name}>{m.name} ({m.size})</option>
+                  ))}
+                </select>
+              </div>
+            )}
+            {aiProvider === 'lmstudio' && (
+              <p style={hintStyle}>LM Studio 앱에서 로컬 서버를 켜두면 http://localhost:1234 에 자동으로 연결을 시도합니다.</p>
+            )}
+            {aiProvider !== 'ollama' && (
+              <div>
+                <label style={labelStyle}>모델명 (선택, 비워두면 기본값)</label>
+                <input
+                  type="text"
+                  value={aiModelOverride}
+                  onChange={(e) => setAiModelOverride(e.target.value)}
+                  placeholder={DEFAULT_MODELS[aiProvider]}
+                  style={inputStyle}
+                />
+                <p style={hintStyle}>기본 모델명이 오래됐거나 다른 모델을 쓰고 싶으면 정확한 모델 ID를 입력하세요.</p>
+              </div>
+            )}
           </div>
           <button
             onClick={handleSave}

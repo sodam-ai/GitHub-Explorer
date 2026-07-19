@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { SearchResult, SearchHistory, SearchTab, Theme } from '@/types';
 import { DEFAULT_FILTERS, type SearchFilterValues } from '@/components/search/SearchFilters';
+import type { LLMProvider } from '@/lib/llm-providers';
 
 type AccentColor = 'blue' | 'violet' | 'emerald' | 'rose' | 'amber' | 'cyan';
 
@@ -65,6 +66,14 @@ interface AppState {
   // Current Page
   currentPage: 'home' | 'search' | 'collections' | 'trending' | 'stats' | 'settings';
   setCurrentPage: (page: 'home' | 'search' | 'collections' | 'trending' | 'stats' | 'settings') => void;
+
+  // AI Provider
+  aiProvider: LLMProvider;
+  setAiProvider: (provider: LLMProvider) => void;
+  ollamaModel: string;
+  setOllamaModel: (model: string) => void;
+  aiModelOverride: string;
+  setAiModelOverride: (model: string) => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -130,4 +139,21 @@ export const useAppStore = create<AppState>((set) => ({
   // Current Page
   currentPage: 'home',
   setCurrentPage: (page) => set({ currentPage: page }),
+
+  // AI Provider
+  aiProvider: (localStorage.getItem('ai_provider') as LLMProvider) || 'openai',
+  setAiProvider: (provider) => {
+    localStorage.setItem('ai_provider', provider);
+    set({ aiProvider: provider });
+  },
+  ollamaModel: localStorage.getItem('ollama_model') || '',
+  setOllamaModel: (model) => {
+    localStorage.setItem('ollama_model', model);
+    set({ ollamaModel: model });
+  },
+  aiModelOverride: localStorage.getItem('ai_model_override') || '',
+  setAiModelOverride: (model) => {
+    localStorage.setItem('ai_model_override', model);
+    set({ aiModelOverride: model });
+  },
 }));

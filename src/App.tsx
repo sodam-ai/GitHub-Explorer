@@ -11,6 +11,7 @@ import { TrendingPage } from '@/pages/TrendingPage';
 import { StatsPage } from '@/pages/StatsPage';
 import { searchRepositories, searchCode, searchIssues } from '@/lib/github';
 import { generateSearchSummary } from '@/lib/ai';
+import { buildLLMConfig } from '@/lib/llm-providers';
 import { saveSearchHistory, getSearchHistory, getSecret, isTauri } from '@/lib/tauri-bridge';
 import { isOnline, getCachedRepositories, cacheRepositories } from '@/lib/offline-cache';
 import { Toaster, toast } from 'sonner';
@@ -123,8 +124,9 @@ function App() {
           }
 
           // AI 요약 생성
-          const apiKey = (await getSecret('openai_api_key')) || '';
-          ai_summary = await generateSearchSummary(query, repositories, apiKey);
+          const { aiProvider, ollamaModel, aiModelOverride } = useAppStore.getState();
+          const llmConfig = await buildLLMConfig({ aiProvider, ollamaModel, aiModelOverride });
+          ai_summary = await generateSearchSummary(query, repositories, llmConfig);
         } else {
           // 오프라인: 캐시 검색
           repositories = await getCachedRepositories(query);

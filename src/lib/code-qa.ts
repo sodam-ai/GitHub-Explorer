@@ -1,4 +1,5 @@
 import type { Repository } from '@/types';
+import { chatComplete, isConfigured, type LLMConfig } from './llm-providers';
 
 interface QAResponse {
   answer: string;
@@ -8,12 +9,12 @@ interface QAResponse {
 export async function askCodeQuestion(
   question: string,
   repo: Repository,
-  apiKey: string,
+  config: LLMConfig,
   conversationHistory: Array<{ role: string; content: string }> = []
 ): Promise<QAResponse> {
-  if (!apiKey) {
+  if (!isConfigured(config)) {
     return {
-      answer: 'AI API 키가 설정되지 않았습니다. 설정에서 OpenAI API 키를 입력하세요.',
+      answer: 'AI가 설정되지 않았습니다. 설정에서 API 키를 입력하거나 로컬 AI(Ollama/LM Studio)를 연결하세요.',
       codeRefs: [],
     };
   }
@@ -68,40 +69,20 @@ ${fileTree ? `파일 구조:\n${fileTree}\n` : ''}
 3. 2~3문단으로 간결하게 답변하세요
 4. 확실하지 않은 내용은 추측이라고 명시하세요`;
 
-  const messages = [
-    { role: 'system', content: systemPrompt },
-    ...conversationHistory.slice(-6),
-    { role: 'user', content: question },
-  ];
-
   try {
-    const res = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages,
-        max_tokens: 800,
-        temperature: 0.3,
-      }),
-    });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => null);
-      throw new Error(err?.error?.message || `API error: ${res.status}`);
-    }
-
-    const data = await res.json();
-    const answer = data.choices[0]?.message?.content || '답변을 생성할 수 없습니다.';
+    const answer = await chatComplete(
+      config,
+      systemPrompt,
+      question,
+      conversationHistory.slice(-6),
+      800
+    );
 
     // 코드 참조 추출 (파일 경로 패턴)
     const codeRefPattern = /(?:src|lib|pkg|packages?|app|components?)\/[\w\-./]+\.\w+/g;
     const codeRefs = [...new Set(answer.match(codeRefPattern) || [])] as string[];
 
-    return { answer, codeRefs };
+    return { answer: answer || '답변을 생성할 수 없습니다.', codeRefs };
   } catch (error) {
     return {
       answer: `오류: ${error instanceof Error ? error.message : '알 수 없는 오류'}`,
