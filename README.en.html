@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitHub AI Explorer — README</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1f2328; --muted: #59636e; --border: #d1d9e0;
+    --code-bg: #f6f8fa; --link: #0969da; --warn-bg: #fff8c5; --warn-border: #d4a72c;
+    --table-stripe: #f6f8fa;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0d1117; --fg: #e6edf3; --muted: #9198a1; --border: #30363d;
+      --code-bg: #161b22; --link: #4493f8; --warn-bg: #3b3000; --warn-border: #9e6a03;
+      --table-stripe: #161b22; }
+  }
+  * { box-sizing: border-box; }
+  body { max-width: 900px; margin: 0 auto; padding: 40px 24px 80px; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.7; }
+  h1 { font-size: 2em; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+  h2 { font-size: 1.5em; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; margin-top: 2em; }
+  h3 { font-size: 1.2em; margin-top: 1.5em; }
+  a { color: var(--link); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  code { background: var(--code-bg); padding: 0.15em 0.4em; border-radius: 6px; font-size: 0.9em;
+    font-family: "SFMono-Regular", Consolas, monospace; }
+  pre { background: var(--code-bg); padding: 16px; border-radius: 8px; overflow-x: auto; border: 1px solid var(--border); }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; overflow-x: auto; display: block; }
+  th, td { border: 1px solid var(--border); padding: 8px 13px; text-align: left; }
+  tr:nth-child(even) { background: var(--table-stripe); }
+  blockquote { border-left: 4px solid var(--border); margin: 1em 0; padding: 0 1em; color: var(--muted); }
+  blockquote.warn { background: var(--warn-bg); border-left-color: var(--warn-border); padding: 12px 16px; border-radius: 6px; }
+  details { border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; margin: 0.6em 0; }
+  summary { cursor: pointer; font-weight: 600; }
+  summary:hover { color: var(--link); }
+  hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
+  sub { color: var(--muted); }
+  .toc li { margin: 0.3em 0; }
+</style>
+</head>
+<body>
+
+<h1>GitHub AI Explorer</h1>
+<blockquote>A personal desktop app for searching GitHub repositories in plain language, asking AI about code, and collecting repositories you like.</blockquote>
+<p><a href="README.html">한국어</a> · <a href="GUIDE.en.html">View the Beginner's Guide</a></p>
+<hr>
+
+<h2>Table of Contents</h2>
+<ol class="toc">
+<li><a href="#s1">What Is This Program</a></li>
+<li><a href="#s2">Prerequisites / Required Programs</a></li>
+<li><a href="#s3">How to Download</a></li>
+<li><a href="#s4">How to Install</a></li>
+<li><a href="#s5">Quick Start</a></li>
+<li><a href="#s6">How to Run</a></li>
+<li><a href="#s7">How to Use</a></li>
+<li><a href="#s8">Command Reference</a></li>
+<li><a href="#s9">Update Summary</a></li>
+<li><a href="#s10">File / Document Locations</a></li>
+<li><a href="#s11">Workflow</a></li>
+<li><a href="#s12">Architecture</a></li>
+<li><a href="#s13">Security and Data Flow</a></li>
+<li><a href="#s14">Troubleshooting</a></li>
+<li><a href="#s15">FAQ</a></li>
+<li><a href="#s16">License / Copyright / Commercial Use</a></li>
+</ol>
+<hr>
+
+<h2 id="s1">1. What Is This Program</h2>
+<p><strong>GitHub AI Explorer</strong> is a <strong>personal desktop program</strong> that lets you search open-source projects on GitHub using everyday language, like "React drag-and-drop library." It is not a website — it's a standalone desktop application (Windows/Mac/Linux) you install on your computer.</p>
+<ul>
+<li><strong>All core features work without AI</strong>: searching repositories, code, issues, bookmarking, and viewing trending repos all work without any AI setup.</li>
+<li><strong>AI is optional</strong>: only search-result summaries and code Q&amp;A ("what does this code do?") use AI. You can choose any AI service you like (OpenAI, Anthropic, Google Gemini, Groq) or a local AI running on your own computer (Ollama, LM Studio).</li>
+<li><strong>Your data stays on your computer</strong>: search history, saved collections, and API keys are all stored locally. There is no account signup and nothing is sent to any server operated by this project.</li>
+</ul>
+
+<h2 id="s2">2. Prerequisites / Required Programs</h2>
+<h3>Just using the app (general users)</h3>
+<table>
+<tr><th>Item</th><th>Required?</th><th>Notes</th></tr>
+<tr><td>Windows 10/11, macOS, or Linux</td><td>Required</td><td>One of these three</td></tr>
+<tr><td>Internet connection</td><td>Required</td><td>Needed for GitHub search and AI calls (fully offline use only works against cached data)</td></tr>
+<tr><td>GitHub account</td><td>Optional</td><td>Not required; a token from your account only increases the search rate limit</td></tr>
+<tr><td>AI service account / API key</td><td>Optional</td><td>Only needed if you use AI summary / code Q&amp;A</td></tr>
+</table>
+<h3>Building from source (developers)</h3>
+<table>
+<tr><th>Item</th><th>Version verified in this project's dev environment</th><th>How to check</th></tr>
+<tr><td><a href="https://nodejs.org">Node.js</a></td><td>Verified with v22.19.0 (an LTS release is recommended)</td><td><code>node --version</code></td></tr>
+<tr><td><a href="https://www.rust-lang.org/tools/install">Rust</a></td><td>Verified with 1.94.1 (requires <code>rust-version = "1.77.2"</code> or later, per <code>src-tauri/Cargo.toml</code>)</td><td><code>rustc --version</code></td></tr>
+<tr><td><a href="https://tauri.app/start/prerequisites/">Tauri CLI prerequisites</a></td><td>VS C++ Build Tools on Windows, Xcode CLT on macOS, webkit2gtk etc. on Linux</td><td>Follow the official docs (platform-specific)</td></tr>
+<tr><td>npm</td><td>Included automatically with Node.js</td><td><code>npm --version</code></td></tr>
+</table>
+<blockquote><strong>Only verified facts stated</strong>: This project's <code>package.json</code> has no <code>engines</code> field enforcing a Node version. The versions above are "verified in the actual dev environment," not "required."</blockquote>
+
+<h2 id="s3">3. How to Download</h2>
+<h3>Option A. Download a pre-built installer</h3>
+<ol>
+<li>Go to: <strong><a href="https://github.com/sodam-ai/GitHub-Explorer">https://github.com/sodam-ai/GitHub-Explorer</a></strong></li>
+<li>Click <strong>Releases</strong> on the right side of the page</li>
+<li>Download the file matching your OS from the latest release
+  <ul><li>Windows: a file ending in <code>.msi</code> or <code>.exe</code></li><li>macOS: a file ending in <code>.dmg</code></li><li>Linux: a file ending in <code>.AppImage</code> or <code>.deb</code></li></ul>
+</li>
+</ol>
+<blockquote class="warn">⚠️ <strong>Needs verification</strong>: Whether release files actually exist for this repository at the time you read this must be checked directly on the Releases page. If none are published, use Option B below to build from source.</blockquote>
+<h3>Option B. Get the source code and build it yourself (developers, continued in section 4)</h3>
+<pre><code>git clone https://github.com/sodam-ai/GitHub-Explorer.git
+cd GitHub-Explorer</code></pre>
+
+<h2 id="s4">4. How to Install</h2>
+<h3>If you used Option A (installer)</h3>
+<ol>
+<li>Double-click the downloaded installer file</li>
+<li>Follow the on-screen wizard, clicking "Next" as prompted</li>
+<li>If Windows shows "Windows protected your PC," this is a standard warning for unsigned independently-distributed apps, not a sign of danger. Click <strong>"More info" → "Run anyway"</strong> to continue</li>
+<li>Once installation finishes, launch "GitHub AI Explorer" from your Start Menu / Applications folder</li>
+</ol>
+<h3>If you used Option B (build from source)</h3>
+<pre><code># 1) Move into the project folder
+cd GitHub-Explorer
+
+# 2) Install frontend dependencies
+npm install
+
+# 3) Build the desktop app (installer appears under src-tauri/target/release/bundle/)
+npm run tauri:build</code></pre>
+<p>The build may take several minutes depending on your machine (it compiles the Rust code from scratch).</p>
+
+<h2 id="s5">5. Quick Start (3 minutes)</h2>
+<ol>
+<li>Launch the app</li>
+<li>On first launch, click "Next" to see a short walkthrough, or "Skip" to go straight in</li>
+<li>Type what you're looking for in plain language into the search box (e.g. "React drag-and-drop library")</li>
+<li>Press Enter or click the Search button</li>
+<li>Click a repository in the results to see details; use the bookmark icon in the top corner to save it</li>
+</ol>
+<p><strong>To also enable AI features</strong>: click the gear icon (Settings) → enter an API key under "AI Provider" → Save → choose which provider to actually use from the dropdown below it.</p>
+
+<h2 id="s6">6. How to Run</h2>
+<table>
+<tr><th>Situation</th><th>How</th></tr>
+<tr><td>Installed via installer</td><td>Launch "GitHub AI Explorer" from Start Menu (Windows) / Launchpad (macOS) / app list (Linux)</td></tr>
+<tr><td>Just want to preview the UI while developing</td><td>See "Web dev mode" below</td></tr>
+<tr><td>Run as an actual desktop app from source</td><td><code>npm run tauri:dev</code> (first run takes a few minutes to compile)</td></tr>
+</table>
+<h3>Web dev mode (developers, quick UI preview in a browser)</h3>
+<pre><code>npm run dev</code></pre>
+<p>Open <code>http://127.0.0.1:7719</code> in a browser. <strong>Note</strong>: this mode is only for quickly previewing the UI. Desktop-only features such as API key storage (OS keychain) and collection storage (SQLite) do not work in browser mode (they fail safely without errors, but nothing is actually persisted).</p>
+
+<h2 id="s7">7. How to Use</h2>
+<h3>7-1. Searching repositories</h3>
+<ul>
+<li>Search in natural language or keywords → view results across the Repositories / Code / Issues tabs</li>
+<li>Use "Filters" to narrow by language, license, minimum stars, recent updates, etc.</li>
+<li>If you're offline, the app automatically switches to offline mode and searches only within previously cached results</li>
+</ul>
+<h3>7-2. Viewing repository details</h3>
+<p>Clicking a repository opens a preview panel with an automatically generated summary based on the README (no AI required), plus star/fork/issue counts and recent releases.</p>
+<h3>7-3. Bookmarking (Collections)</h3>
+<ul>
+<li>Click the bookmark icon on a repository card → create a new collection or add to an existing one, with an optional memo</li>
+<li>View everything you've saved under the "Collections" menu at the top</li>
+<li>Any URL typed into a memo automatically becomes a clickable link</li>
+</ul>
+<h3>7-4. Using AI summary / code Q&amp;A</h3>
+<ol>
+<li>Settings (⚙️) → enter your API key under "AI Provider" and save</li>
+<li>In the same section, choose which provider to actually use from the dropdown (<strong>entering a key alone is not enough — you must also select it here</strong>)</li>
+<li>To use local AI (Ollama, LM Studio), no key is needed — just select it from the dropdown (the corresponding program must be running on your computer)</li>
+<li>Ask freely in "Ask about the code" on a repository's detail screen</li>
+</ol>
+<p>Supported AI providers: <strong>OpenAI, Anthropic (Claude), Google Gemini, Groq</strong> (require an API key) / <strong>Ollama, LM Studio</strong> (run locally, no key needed)</p>
+<h3>7-5. Trending repositories</h3>
+<p>Check today's / this week's / this month's trending repositories under the "Trending" menu. Star growth is calculated from daily snapshots recorded automatically while you use the app, so <strong>on the very first day of use there is no prior data to compare against, and it will show "Aggregating."</strong> This is expected behavior, not an error.</p>
+<h3>7-6. Exporting / Importing collections</h3>
+<ul>
+<li>Settings → Data → "Export Collections": saves all your collections as a JSON file</li>
+<li>Settings → Data → "Import": select a previously exported JSON file to restore your collections. <strong>Imports always create new collections and never overwrite existing ones.</strong> Importing the same file twice creates duplicate collections.</li>
+</ul>
+<h3>7-7. Theme / Accessibility</h3>
+<ul>
+<li>Change dark/light mode and accent color (6 options) in Settings</li>
+<li>If your OS has "Reduce Motion" enabled, animations throughout the app are automatically reduced</li>
+</ul>
+
+<h2 id="s8">8. Command Reference</h2>
+<h3>8-1. In-app keyboard shortcuts</h3>
+<table><tr><th>Shortcut</th><th>Action</th></tr><tr><td><code>Cmd/Ctrl + K</code></td><td>Open the command palette</td></tr></table>
+<h3>8-2. Developer commands (from <code>package.json</code>)</h3>
+<table>
+<tr><th>Command</th><th>Action</th></tr>
+<tr><td><code>npm run dev</code></td><td>Run the browser-based dev server (<code>http://127.0.0.1:7719</code>)</td></tr>
+<tr><td><code>npm run build</code></td><td>Type-check (<code>tsc -b</code>) and build for production (<code>vite build</code>)</td></tr>
+<tr><td><code>npm run lint</code></td><td>Run ESLint (<code>eslint .</code>)</td></tr>
+<tr><td><code>npm run preview</code></td><td>Preview the production build</td></tr>
+<tr><td><code>npm run tauri</code></td><td>Run the Tauri CLI directly</td></tr>
+<tr><td><code>npm run tauri:dev</code></td><td>Run the desktop app in dev mode</td></tr>
+<tr><td><code>npm run tauri:build</code></td><td>Build the desktop app installer</td></tr>
+</table>
+<h3>8-3. Rust backend commands (run inside <code>src-tauri</code>)</h3>
+<table>
+<tr><th>Command</th><th>Action</th></tr>
+<tr><td><code>cargo check</code></td><td>Quickly verify the code compiles</td></tr>
+<tr><td><code>cargo clippy</code></td><td>Rust static analysis</td></tr>
+<tr><td><code>cargo build --release</code></td><td>Optimized release build</td></tr>
+</table>
+<blockquote>This project has <strong>no automated unit tests configured</strong> (verified, not assumed). <code>npm test</code> is not a valid command here.</blockquote>
+
+<h2 id="s9">9. Update Summary</h2>
+<details><summary>Security hardening — API keys moved to the OS keychain</summary>
+<ul><li>API keys/tokens are now moved to a <strong>secure OS-provided store</strong>.</li><li>Existing users are migrated automatically on next launch.</li><li>Added a minimum interval between search API calls.</li></ul></details>
+<details><summary>Multi-provider AI support</summary>
+<ul><li>Now supports <strong>Anthropic (Claude), Google Gemini, Groq, local Ollama, and local LM Studio</strong> — six providers total.</li><li>Defaults to OpenAI if unconfigured, so existing users see no behavior change.</li><li>Added a model-name override field.</li></ul></details>
+<details><summary>Trending data integrity improvement</summary>
+<ul><li>Removed the random-number placeholder, replaced with <strong>real daily snapshots</strong>.</li><li>Shows "Aggregating" honestly instead of a fabricated number when no prior data exists.</li></ul></details>
+<details><summary>Repository core summary (no AI required)</summary>
+<ul><li>Parses the README to extract just the core description paragraph, rule-based, no AI call.</li></ul></details>
+<details><summary>Automatic URL hyperlinking</summary>
+<ul><li>URLs in memos/conversations automatically become clickable links.</li></ul></details>
+<details><summary>Collection import wired up</summary>
+<ul><li>The import button now actually works, with clear error messages on invalid files.</li></ul></details>
+<details><summary>Accessibility improvements</summary>
+<ul><li>OS "Reduce Motion" now applied app-wide.</li><li>Added aria-label to previously unlabeled icon buttons.</li><li>Screen readers informed during AI response generation.</li><li>Fixed Settings inputs whose visual labels weren't actually linked for screen readers.</li></ul></details>
+<details><summary>Reliability improvements — preventing infinite waits and adding error messages</summary>
+<ul><li>Fixed potential infinite hangs when a local AI server stops responding (60s timeout).</li><li>Export/Import failures now show clear error messages instead of failing silently.</li></ul></details>
+
+<h2 id="s10">10. File / Document Locations</h2>
+<table>
+<tr><th>Type</th><th>Location</th></tr>
+<tr><td>Korean README</td><td><code>README.md</code></td></tr>
+<tr><td>English README</td><td><code>README.en.md</code></td></tr>
+<tr><td>Beginner's Guide (Korean)</td><td><code>GUIDE.md</code></td></tr>
+<tr><td>Beginner's Guide (English)</td><td><code>GUIDE.en.md</code></td></tr>
+<tr><td>HTML versions</td><td><code>README.html</code>, <code>README.en.html</code>, <code>GUIDE.html</code>, <code>GUIDE.en.html</code></td></tr>
+<tr><td>Next-step plan / checkpoint</td><td><code>CHECKPOINT.md</code></td></tr>
+<tr><td>Planning documents (PRD)</td><td><code>.PRD/</code> folder — ⚠️ may differ from actual implementation</td></tr>
+<tr><td>Frontend source code</td><td><code>src/</code></td></tr>
+<tr><td>Rust backend source code</td><td><code>src-tauri/src/</code></td></tr>
+<tr><td>App icons</td><td><code>src-tauri/icons/</code></td></tr>
+<tr><td>Tauri configuration</td><td><code>src-tauri/tauri.conf.json</code></td></tr>
+<tr><td>Frontend dependency manifest</td><td><code>package.json</code></td></tr>
+<tr><td>Rust dependency manifest</td><td><code>src-tauri/Cargo.toml</code></td></tr>
+</table>
+
+<h2 id="s11">11. Workflow (how things happen inside the app)</h2>
+<h3>11-1. Search flow</h3>
+<pre><code>User types a search query
+   │
+   ▼
+Check internet connection
+   ├─ Online → search repos/code/issues via GitHub API → cache results
+   │              │
+   │              ▼
+   │        If AI provider configured → generate summary (otherwise show hint)
+   │
+   └─ Offline → search only within cached results</code></pre>
+<h3>11-2. AI call flow</h3>
+<pre><code>User requests AI summary or asks a code question
+   │
+   ▼
+Check the provider selected in Settings
+   │
+   ├─ OpenAI/Anthropic/Gemini/Groq → load key from OS keychain, call that service
+   ├─ Ollama/LM Studio → call the local server on your computer
+   │
+   ▼
+Auto-cancel with an error if no response within 60 seconds</code></pre>
+<h3>11-3. Data storage flow</h3>
+<pre><code>User action (search history / bookmark / settings change, etc.)
+   │
+   ▼
+Only inside the desktop app (Tauri) → Rust command → local SQLite file
+※ Does not run in browser dev mode (fails safely and is skipped)</code></pre>
+
+<h2 id="s12">12. Architecture</h2>
+<h3>12-1. Tech stack</h3>
+<table>
+<tr><th>Layer</th><th>Technology</th></tr>
+<tr><td>Desktop app framework</td><td>Tauri 2.10.3</td></tr>
+<tr><td>Frontend</td><td>React 19.2.4 + TypeScript 5.9.3</td></tr>
+<tr><td>Styling</td><td>Tailwind CSS 4.2.2</td></tr>
+<tr><td>State management</td><td>Zustand 5.0.12</td></tr>
+<tr><td>Animation</td><td>Framer Motion 12.38.0</td></tr>
+<tr><td>Build tool</td><td>Vite 8</td></tr>
+<tr><td>Backend (local)</td><td>Rust + rusqlite 0.32 (bundled SQLite)</td></tr>
+<tr><td>Secure key storage</td><td>Rust <code>keyring</code> crate (Windows Credential Manager / macOS Keychain / Linux Secret Service)</td></tr>
+</table>
+<h3>12-2. Structure overview</h3>
+<pre><code>GitHub-Explorer/
+├── src/                      # Frontend (React)
+│   ├── components/
+│   ├── lib/
+│   ├── stores/
+│   └── App.tsx / main.tsx
+├── src-tauri/                # Backend (Rust)
+│   ├── src/
+│   │   ├── commands.rs       # 20 commands
+│   │   ├── db/mod.rs
+│   │   └── lib.rs
+│   └── tauri.conf.json
+└── .PRD/</code></pre>
+<h3>12-3. Notable design facts (honest gaps vs. planning docs)</h3>
+<ul>
+<li><strong>The frontend calls the GitHub API and AI APIs directly</strong>, deviating from the original "always go through Rust" plan. Keys remain safely in the OS keychain.</li>
+<li><strong>GitHub authentication uses a Personal Access Token (PAT)</strong>, not OAuth as originally planned.</li>
+<li><strong>Auto-update is configured but incomplete</strong> — the signing public key is empty, so it likely does not function.</li>
+</ul>
+
+<h2 id="s13">13. Security and Data Flow</h2>
+<h3>13-1. What is stored, and where</h3>
+<table>
+<tr><th>Data</th><th>Storage location</th><th>Plaintext?</th></tr>
+<tr><td>GitHub token, API keys</td><td>OS keychain</td><td>No — encrypted by the OS</td></tr>
+<tr><td>Search history, collections, conversations, theme</td><td>Local SQLite / localStorage</td><td>Not sensitive, but never leaves your computer</td></tr>
+</table>
+<h3>13-2. Data sent externally</h3>
+<table>
+<tr><th>Destination</th><th>What is sent</th><th>When</th></tr>
+<tr><td>GitHub API</td><td>Search query, (if configured) GitHub token</td><td>Searching / viewing details</td></tr>
+<tr><td>Your chosen AI provider</td><td>Repo info, code questions, (cloud) API key</td><td>Only during AI summary / code Q&amp;A</td></tr>
+</table>
+<p>There is no separate server operated for this app.</p>
+<h3>13-3. Known security-related limitations</h3>
+<ul><li>CSP is disabled (<code>null</code>).</li><li>No automated unit tests — regressions rely on manual verification.</li></ul>
+
+<h2 id="s14">14. Troubleshooting</h2>
+<table>
+<tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr>
+<tr><td>"Windows protected your PC"</td><td>Standard SmartScreen warning</td><td>"More info" → "Run anyway"</td></tr>
+<tr><td>AI summary shows only a hint message</td><td>Key not entered, or provider not selected</td><td>Enter key + select provider in dropdown</td></tr>
+<tr><td>Ollama/LM Studio selected but no response</td><td>Local AI program not running</td><td>Launch it and confirm the server is up</td></tr>
+<tr><td>Trending shows only "Aggregating"</td><td>No prior data yet (not an error)</td><td>Check again after a day+</td></tr>
+<tr><td>Rate-limit messages</td><td>60 req/hour without a token</td><td>Add a GitHub PAT (raises to 5,000/hour)</td></tr>
+<tr><td>"Not a valid backup file"</td><td>Wrong or corrupted file</td><td>Use a file from this app's Export</td></tr>
+<tr><td>Rust build errors</td><td>Toolchain/cache issue</td><td><code>cd src-tauri && cargo clean</code></td></tr>
+<tr><td><code>npm run tauri:dev</code> very slow at first</td><td>First-run full Rust compile</td><td>Expected, wait a few minutes</td></tr>
+</table>
+
+<h2 id="s15">15. FAQ</h2>
+<p><strong>Q. Is this program free?</strong><br>A. The program itself is free; cloud AI providers may charge separately. Local AI is free.</p>
+<p><strong>Q. Can I use it without internet?</strong><br>A. Only within cached results. New searches/AI need internet.</p>
+<p><strong>Q. Is my data sent anywhere?</strong><br>A. Only to GitHub and your chosen AI provider — never to this project's developers.</p>
+<p><strong>Q. Do I need a GitHub account?</strong><br>A. No, it's optional.</p>
+<p><strong>Q. Can I use multiple AI services at once?</strong><br>A. You can store multiple keys, but only one provider is active at a time.</p>
+<p><strong>Q. Does this work on mobile?</strong><br>A. No, desktop only.</p>
+<p><strong>Q. Does it auto-update?</strong><br>A. Configured but likely non-functional (see 12-3). Check Releases directly.</p>
+<p><strong>Q. Can I use this commercially?</strong><br>A. Read Section 16 first.</p>
+
+<h2 id="s16">16. License / Copyright / Commercial Use</h2>
+<blockquote class="warn">⚠️ <strong>Disclaimer</strong>: Not legal advice, no legal guarantee. Consult an attorney for actual decisions.</blockquote>
+<h3>16-1. Verified fact</h3>
+<p><strong>This repository currently has no LICENSE file.</strong> (Verified directly, not a guess.)</p>
+<h3>16-2. What this means</h3>
+<p>Public visibility of code is <strong>entirely separate</strong> from permission to use/copy/modify/distribute/commercialize it. Absent an explicit license, the default under widely recognized copyright principles is <strong>"All rights reserved"</strong> by the original author.</p>
+<h3>16-3. What to check before use</h3>
+<ul>
+<li>Reading for reference differs from taking/redistributing/commercializing the code.</li>
+<li>For commercial use or redistribution, <strong>contact the repository owner (sodam-ai) directly</strong> or check for a future LICENSE file.</li>
+<li>Third-party libraries used by this project each carry their own separate license — check each library's own repository.</li>
+</ul>
+<h3>16-4. Trademark and GitHub-related notice</h3>
+<p>"GitHub" is a trademark of GitHub, Inc. This is an independent third-party tool, not an official GitHub product.</p>
+
+<hr>
+<p><sub>This document was written by directly examining the actual source code and configuration files as of 2026-07-20.</sub></p>
+
+</body>
+</html>

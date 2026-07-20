@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beginner's Guide — GitHub AI Explorer</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1f2328; --muted: #59636e; --border: #d1d9e0;
+    --code-bg: #f6f8fa; --link: #0969da; --warn-bg: #fff8c5; --warn-border: #d4a72c;
+    --table-stripe: #f6f8fa;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0d1117; --fg: #e6edf3; --muted: #9198a1; --border: #30363d;
+      --code-bg: #161b22; --link: #4493f8; --warn-bg: #3b3000; --warn-border: #9e6a03;
+      --table-stripe: #161b22; }
+  }
+  * { box-sizing: border-box; }
+  body { max-width: 900px; margin: 0 auto; padding: 40px 24px 80px; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.8; }
+  h1 { font-size: 2em; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+  h2 { font-size: 1.5em; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; margin-top: 2em; }
+  h3 { font-size: 1.15em; margin-top: 1.4em; }
+  a { color: var(--link); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  code { background: var(--code-bg); padding: 0.15em 0.4em; border-radius: 6px; font-size: 0.9em;
+    font-family: "SFMono-Regular", Consolas, monospace; }
+  pre { background: var(--code-bg); padding: 16px; border-radius: 8px; overflow-x: auto; border: 1px solid var(--border); }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; overflow-x: auto; display: block; }
+  th, td { border: 1px solid var(--border); padding: 8px 13px; text-align: left; }
+  tr:nth-child(even) { background: var(--table-stripe); }
+  blockquote { border-left: 4px solid var(--border); margin: 1em 0; padding: 0 1em; color: var(--muted); }
+  blockquote.warn { background: var(--warn-bg); border-left-color: var(--warn-border); padding: 12px 16px; border-radius: 6px; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
+  sub { color: var(--muted); }
+  .toc li { margin: 0.3em 0; }
+</style>
+</head>
+<body>
+
+<h1>Beginner's Guide — GitHub AI Explorer</h1>
+<blockquote>Written so that even someone who has never used a computer, AI, or a smartphone before can follow along step by step. Whenever a technical term appears, it is explained in plain words right next to it.</blockquote>
+<p><a href="GUIDE.html">한국어 가이드</a> · <a href="README.en.html">Back to the main README</a></p>
+<hr>
+
+<h2>Table of Contents</h2>
+<ol class="toc">
+<li><a href="#g1">What Does This Program Do</a></li>
+<li><a href="#g2">What You Need Before Starting</a></li>
+<li><a href="#g3">How to Download (Step by Step)</a></li>
+<li><a href="#g4">How to Install (Step by Step)</a></li>
+<li><a href="#g5">The First Time You Open It</a></li>
+<li><a href="#g6">Basic Usage — Finding Repositories</a></li>
+<li><a href="#g7">Saving Things You Like (Bookmarks)</a></li>
+<li><a href="#g8">What Is the AI Feature, and How Do I Turn It On</a></li>
+<li><a href="#g9">Confusing Terms Explained</a></li>
+<li><a href="#g10">When Something Goes Wrong</a></li>
+<li><a href="#g11">FAQ</a></li>
+<li><a href="#g12">Am I Allowed to Use This (License)</a></li>
+</ol>
+<hr>
+
+<h2 id="g1">1. What Does This Program Do</h2>
+<p><strong>GitHub</strong> is a huge website where developers all over the world store the source code (think of it like a blueprint) for the programs they build. But there's so much on it — hundreds of millions of items — that it's hard to find what you want.</p>
+<p><strong>GitHub AI Explorer</strong> helps you find things in that huge collection <strong>by typing what you want in plain, everyday language</strong>. For example, typing "React drag-and-drop library" will find things related to that. Think of it like using a search engine (e.g. Google), but focused on GitHub.</p>
+<ul>
+<li><strong>This is a program you install on your computer, not a website</strong> (like KakaoTalk or Chrome — you install it and then use it)</li>
+<li>You can use most of it without AI at first, and turn on AI features later if you want</li>
+<li>This program does not send your personal information anywhere</li>
+</ul>
+
+<h2 id="g2">2. What You Need Before Starting</h2>
+<table>
+<tr><th>What you need</th><th>Is it required?</th><th>Explanation</th></tr>
+<tr><td>A Windows, Mac, or Linux computer</td><td>Yes, required</td><td>This does not work on a phone or tablet</td></tr>
+<tr><td>An internet connection</td><td>Yes, required</td><td>You need Wi-Fi or a cable connected to the internet</td></tr>
+<tr><td>A GitHub account</td><td>No, not required</td><td>You can make one later if you want</td></tr>
+</table>
+<p><strong>"I don't know if my computer is Windows or Mac"</strong> — you can tell by the logo. Windows has a blue window-shaped logo (four squares) usually in the bottom-left of the screen; Mac has an apple-shaped logo usually at the top of the screen.</p>
+
+<h2 id="g3">3. How to Download (Step by Step)</h2>
+<p>"Downloading" means bringing a file from the internet onto your own computer.</p>
+<ol>
+<li>Open your internet browser (Chrome, Edge, Safari — whatever program you use to browse the internet)</li>
+<li>Click the address bar at the top and type in this address, then press Enter: <code>https://github.com/sodam-ai/GitHub-Explorer</code></li>
+<li>Find and click the button that says <strong>"Releases"</strong> — usually on the right side of the page</li>
+<li>Click the item at the very top of the list (the newest version)</li>
+<li>Click the file that matches your computer type to download it
+  <ul><li>If you use Windows → a file ending in <code>.msi</code> or <code>.exe</code></li><li>If you use Mac → a file ending in <code>.dmg</code></li></ul>
+</li>
+<li>Once the download finishes, you can usually find it at the bottom of your browser window, or in your computer's "Downloads" folder</li>
+</ol>
+<blockquote class="warn">⚠️ <strong>Please note</strong>: Whether a downloadable file actually exists on this repository at the time you read this must be checked directly in step 3 above. If nothing appears under "Releases," a finished distributable file may not exist yet — in that case, contact the developer.</blockquote>
+
+<h2 id="g4">4. How to Install (Step by Step)</h2>
+<p>"Installing" means turning the file you downloaded into something you can actually use on your computer.</p>
+<ol>
+<li>Find the file you downloaded and <strong>double-click</strong> it (click your mouse twice quickly)</li>
+<li>An installation wizard window appears. Most of the time, clicking <strong>"Next"</strong>, <strong>"I Agree"</strong>, and <strong>"Install"</strong> in that order is all you need</li>
+<li><strong>If a blue Windows warning screen appears</strong>: you may see "Windows protected your PC." This does not mean something dangerous — it's a standard warning for programs that aren't yet widely recognized. Click <strong>"More info"</strong> and then <strong>"Run anyway"</strong> to continue</li>
+<li>When installation finishes, click "Finish"</li>
+<li>You can now find <strong>"GitHub AI Explorer"</strong> in your list of installed programs
+  <ul><li>Windows: click the Start button (bottom-left) and search for the program name</li><li>Mac: look in Launchpad (the rocket-shaped icon)</li></ul>
+</li>
+</ol>
+
+<h2 id="g5">5. The First Time You Open It</h2>
+<p>The first time you launch the program, a short walkthrough screen appears.</p>
+<ul>
+<li>Clicking <strong>"Next"</strong> shows you example searches one at a time</li>
+<li>Clicking <strong>"Skip"</strong> takes you straight to the main screen</li>
+</ul>
+<p>Either choice is fine. This walkthrough is remembered — it won't automatically appear again after the first time.</p>
+
+<h2 id="g6">6. Basic Usage — Finding Repositories</h2>
+<p>Click the <strong>search box</strong> in the middle of the screen and type what you're looking for as a sentence.</p>
+<p><strong>Example searches</strong>:</p>
+<ul><li><code>React drag-and-drop library</code></li><li><code>Python web crawler tool</code></li><li><code>to-do list app</code></li></ul>
+<p>After typing, press the <strong>Enter key</strong> on your keyboard, or click the <strong>"Search"</strong> button next to it.</p>
+<p>Once results appear:</p>
+<ul>
+<li>There are three tabs at the top: <strong>"Repositories" / "Code" / "Issues."</strong> "Repositories" refers to the individual projects we're looking for.</li>
+<li>Clicking an item shows more detail — a description, the number of "stars" (⭐, a measure of how popular something is), and recent updates.</li>
+</ul>
+<p><strong>What if I don't have internet?</strong> No problem — you can still search within results you looked at before. New searches, however, require an internet connection.</p>
+
+<h2 id="g7">7. Saving Things You Like (Bookmarks)</h2>
+<p>If you want to save a repository to look at again later:</p>
+<ol>
+<li>Click the <strong>bookmark icon</strong> on the repository card (the item shown in the results list)</li>
+<li>If this is your first time, choose "Create new collection" and give it a name (e.g., "Look at later")</li>
+<li>You can optionally add a memo (any web address typed into the memo automatically becomes a clickable link)</li>
+<li>View everything you've saved under the <strong>"Collections"</strong> menu at the top of the screen</li>
+</ol>
+
+<h2 id="g8">8. What Is the AI Feature, and How Do I Turn It On</h2>
+<p>The program's basic search works completely without AI. But things like "summarize these search results for me" or "explain what this code does" need help from AI (artificial intelligence).</p>
+<h3>To use AI, you need a "key" (API key)</h3>
+<p>The AI services referred to here are provided by companies like OpenAI (makers of ChatGPT), Anthropic (makers of Claude), and Google (Gemini). To use these services, you need something called an "API key" — <strong>a long string of characters that works like a secret password.</strong> You get this by signing up on each company's own website; this program does not create one for you.</p>
+<p><strong>A way to skip needing an API key</strong>: if you install a separate program called "Ollama" or "LM Studio" on your own computer, AI runs entirely on your computer (no internet or key needed). However, you need to install these programs yourself, and your computer needs to meet certain hardware requirements.</p>
+<h3>How to set it up</h3>
+<ol>
+<li>Click the <strong>gear-shaped icon</strong> (Settings) in the top-right corner of the program</li>
+<li>Under the section labeled <strong>"AI Provider,"</strong> paste your API key into the box next to the service you want to use</li>
+<li>Click the <strong>"Save"</strong> button</li>
+<li>In the <strong>dropdown (selection box)</strong> below that, choose which service to actually use — <strong>skipping this step means the key won't actually be used, even if you entered it</strong></li>
+</ol>
+
+<h2 id="g9">9. Confusing Terms Explained</h2>
+<table>
+<tr><th>Term</th><th>Plain explanation</th></tr>
+<tr><td>Repository ("repo")</td><td>A single folder containing a program's source code</td></tr>
+<tr><td>API key</td><td>A "secret pass" string needed to use a certain service</td></tr>
+<tr><td>Download</td><td>Bringing a file from the internet onto your computer</td></tr>
+<tr><td>Install</td><td>Turning a downloaded program into something you can actually run</td></tr>
+<tr><td>Cache</td><td>Content briefly saved on your computer for offline viewing</td></tr>
+<tr><td>Offline</td><td>Not connected to the internet</td></tr>
+<tr><td>UI</td><td>The buttons, text, and other elements you see and click on screen</td></tr>
+<tr><td>Local</td><td>"Inside my own computer" — "Local AI" runs on your computer, not a server</td></tr>
+<tr><td>Commit / version</td><td>Developer terms you don't need to know to use this program</td></tr>
+</table>
+
+<h2 id="g10">10. When Something Goes Wrong</h2>
+<p><strong>"It won't launch"</strong><br>→ Check that installation completed correctly. Try Section 4 again.</p>
+<p><strong>"I searched but got no results"</strong><br>→ Check your internet connection. Make sure Wi-Fi is on and other websites load fine.</p>
+<p><strong>"I don't see an AI summary"</strong><br>→ Refer to Section 8 — make sure you entered an API key AND selected which service to use in the dropdown.</p>
+<p><strong>"Strange English error messages keep appearing"</strong><br>→ Take a screenshot and keep a record — it helps with diagnosing the cause. Most of these are related to internet connectivity or the AI service itself.</p>
+<p><strong>Still not resolved?</strong><br>→ You can report the issue via the "Issues" menu on this program's GitHub page (<code>https://github.com/sodam-ai/GitHub-Explorer</code>).</p>
+
+<h2 id="g11">11. FAQ</h2>
+<p><strong>Q. Do I have to pay?</strong><br>A. The program itself is free. However, if you use a paid AI service like OpenAI, that company may charge you separately. Local AI (Ollama, etc.) is free.</p>
+<p><strong>Q. Does my information leak out anywhere?</strong><br>A. There's no path for your information to reach the person who made this program. Searches go only to GitHub, and AI questions go only to the AI company you personally chose.</p>
+<p><strong>Q. Does it work on a smartphone?</strong><br>A. No. It's for computers only (Windows/Mac/Linux).</p>
+<p><strong>Q. What happens if I accidentally delete something?</strong><br>A. Everything you've saved lives on your own computer, so it may still be there even if you reinstall the program. To be safe, it's recommended to make a backup file ahead of time via "Settings → Data → Export Collections."</p>
+
+<h2 id="g12">12. Am I Allowed to Use This (License)</h2>
+<blockquote class="warn">This section is not legal advice. Consult an attorney for an accurate determination.</blockquote>
+<p><strong>Taking this program's source code (its blueprint) to use elsewhere, or using it to make money (commercial use), is not clearly permitted as of when this document was written.</strong> This is because the repository does not yet have a usage-permission document (a license).</p>
+<p><strong>Simply downloading and using the program for personal use</strong> is fine regardless of this issue. What becomes an issue is something like "taking the source code and using it to build a different program." If you want to do something like that, ask the person who created the repository first.</p>
+
+<hr>
+<p><sub>This document was written as of 2026-07-20.</sub></p>
+
+</body>
+</html>

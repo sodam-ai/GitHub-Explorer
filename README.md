@@ -1,402 +1,476 @@
-<p align="center">
-  <img src="src-tauri/icons/128x128.png" alt="GitHub AI Explorer" width="80" />
-</p>
+# GitHub AI Explorer
 
-<h1 align="center">GitHub AI Explorer</h1>
+> 일상 언어로 GitHub 저장소를 검색하고, AI로 코드에 대해 질문하고, 마음에 드는 저장소를 모아두는 개인용 데스크톱 앱입니다.
 
-<p align="center">
-  <strong>Search GitHub repositories, code, and issues using AI-powered natural language -- right from your desktop.</strong>
-</p>
-
-<p align="center">
-  <a href="https://github.com/sodam-ai/github-ai-explorer/releases">
-    <img src="https://img.shields.io/badge/version-0.3.0-blue.svg" alt="Version" />
-  </a>
-  <a href="LICENSE">
-    <img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License" />
-  </a>
-  <img src="https://img.shields.io/badge/platform-Windows-0078D6.svg" alt="Platform" />
-  <img src="https://img.shields.io/badge/Tauri-2.0-FFC131.svg" alt="Tauri" />
-  <img src="https://img.shields.io/badge/React-19-61DAFB.svg" alt="React" />
-  <img src="https://img.shields.io/badge/installer-4.7MB-purple.svg" alt="Size" />
-</p>
-
-<p align="center">
-  <a href="README.ko.md">한국어</a> &middot;
-  <a href="README.ja.md">日本語</a> &middot;
-  <a href="README.zh.md">中文</a>
-</p>
+[English](./README.en.md) · [왕초보 가이드 보기](./GUIDE.md)
 
 ---
 
-## What is GitHub AI Explorer?
+## 목차
 
-**GitHub AI Explorer** is a lightweight desktop application that lets you search and explore GitHub using plain, everyday language instead of complex search syntax.
-
-Instead of typing `react drag drop library stars:>1000 language:typescript`, just type:
-
-> "React drag and drop library with lots of stars and TypeScript support"
-
-The AI understands what you mean and finds the best matching repositories, code, and issues -- then summarizes the results so you can decide quickly.
-
-### Who is this for?
-
-- **Developers** looking for libraries, tools, or code examples
-- **Students** exploring open-source projects for learning
-- **Researchers** discovering relevant repositories in their field
-- **Anyone** curious about what exists on GitHub
-
----
-
-## Feature Overview (50+)
-
-### Search & Discovery
-
-| # | Feature | Description |
-|---|---------|-------------|
-| 1 | AI Semantic Search | 3-stage parallel search: general + user repositories + `user:` query for comprehensive results |
-| 2 | Search Result AI Summary | AI generates a concise summary at the top of every search |
-| 3 | Natural Language Code Q&A | Ask questions about any repo's code -- AI answers using RAG (README + file tree context) |
-| 4 | Code Snippet Viewer | Syntax-highlighted code viewer supporting 12+ languages via Prism.js |
-| 5 | Advanced Filters (8 types) | Author, language, license, stars, forks, date range, sort order, archive status |
-| 6 | Filter Presets | 3 built-in quick presets + visual filter chip display |
-| 7 | Search Autocomplete | Suggestions from your search history and popular GitHub topics |
-| 8 | Empty Query Filter Search | Search using only filters -- no search text required |
-| 9 | Infinite Scroll | Results load automatically as you scroll down |
-
-### Analysis & Comparison
-
-| # | Feature | Description |
-|---|---------|-------------|
-| 10 | Repository Comparison | Side-by-side comparison table for 2-3 similar repositories |
-| 11 | Health Score Analysis | Score + letter grade (A-F) based on activity, documentation, and community |
-| 12 | Comparison History | Save past comparisons and revisit them anytime |
-| 13 | AI Model Benchmark | Test and compare response quality across different AI providers |
-
-### Organization & Management
-
-| # | Feature | Description |
-|---|---------|-------------|
-| 14 | Bookmarks & Collections | Save repos with personal notes, organize into named collections |
-| 15 | Smart Folders | Auto-classify repos into collections based on custom rules |
-| 16 | Code Snippet Storage | Save interesting code snippets in a persistent drawer UI |
-| 17 | Collection Export | Export collections as JSON for backup or sharing |
-| 18 | Search History | Every search is permanently saved in local SQLite |
-| 19 | Repository Preview | Modal with README, stats, topics, and language breakdown |
-
-### Dashboard & Monitoring
-
-| # | Feature | Description |
-|---|---------|-------------|
-| 20 | Trending Dashboard | Discover trending repos: today / this week / this month |
-| 21 | Usage Statistics | Visualize search patterns, top keywords, and activity graph |
-| 22 | Repository Alerts | Subscribe to repo changes and receive notifications |
-
-### User Experience
-
-| # | Feature | Description |
-|---|---------|-------------|
-| 23 | Dark / Light Mode | Toggle themes + 6 custom accent colors |
-| 24 | Keyboard Shortcuts | Full keyboard navigation with command palette (`Ctrl+K`) |
-| 25 | Onboarding Guide | 3-step interactive tutorial for first-time users |
-| 26 | System Tray | Minimize to tray, always accessible with a double-click |
-| 27 | Auto Update | Automatic updates via GitHub Releases + Tauri updater |
-| 28 | Accessibility | ARIA labels, keyboard navigation, screen reader support |
-| 29 | Offline Mode | Browse cached data and search without internet |
-| 30 | Ollama Local AI | Run AI completely offline with local models (no API key needed) |
+1. [이 프로그램은 무엇인가요](#1-이-프로그램은-무엇인가요)
+2. [사전 준비물 / 필요 프로그램](#2-사전-준비물--필요-프로그램)
+3. [다운로드 방법](#3-다운로드-방법)
+4. [설치 방법](#4-설치-방법)
+5. [빠른 시작](#5-빠른-시작-3분)
+6. [실행 방법](#6-실행-방법)
+7. [사용 방법](#7-사용-방법)
+8. [명령어 모음](#8-명령어-모음)
+9. [업데이트 내용 요약](#9-업데이트-내용-요약)
+10. [파일/문서 위치](#10-파일문서-위치)
+11. [워크플로우](#11-워크플로우-앱-안에서-일이-진행되는-순서)
+12. [아키텍처](#12-아키텍처)
+13. [보안 및 데이터 흐름](#13-보안-및-데이터-흐름)
+14. [문제 해결](#14-문제-해결-트러블슈팅)
+15. [FAQ](#15-faq-자주-묻는-질문)
+16. [라이선스 / 저작권 / 상업적 용도](#16-라이선스--저작권--상업적-용도)
 
 ---
 
-## Keyboard Shortcuts
+## 1. 이 프로그램은 무엇인가요
 
-| Shortcut | Action |
-|----------|--------|
-| `Ctrl + K` | Open Command Palette (quick search from anywhere) |
-| `Ctrl + F` | Focus search bar |
-| `Ctrl + ,` | Open Settings |
-| `Ctrl + B` | Toggle bookmark for selected repository |
-| `j` / `k` | Navigate search results (down / up) |
-| `Enter` | Open / preview selected repository |
-| `Escape` | Close current modal or panel |
+**GitHub AI Explorer**는 GitHub에 있는 오픈소스 프로젝트를 "React 드래그앤드롭 라이브러리" 같은 일상 언어로 찾아주는 **개인용 데스크톱 프로그램**입니다. 인터넷 브라우저가 아니라 컴퓨터에 설치해서 쓰는 독립 실행형 프로그램(Windows/Mac/Linux)입니다.
+
+- **AI 없이도 핵심 기능 전부 사용 가능**: 저장소 검색, 코드 검색, 이슈 검색, 북마크, 트렌딩 확인은 AI 설정 없이 바로 됩니다.
+- **AI는 선택 사항**: 검색 결과 요약과 "이 코드가 뭐 하는 거야?" 같은 질문(코드 Q&A) 기능만 AI를 씁니다. 원하는 AI 서비스(OpenAI, Anthropic, Google Gemini, Groq)나 내 컴퓨터에 설치한 로컬 AI(Ollama, LM Studio)를 골라 쓸 수 있습니다.
+- **개인 정보는 내 컴퓨터에만**: 검색 기록, 저장한 컬렉션, API 키 전부 내 컴퓨터 안에만 저장됩니다. 회원가입도, 별도 서버 전송도 없습니다.
 
 ---
 
-## Installation
+## 2. 사전 준비물 / 필요 프로그램
 
-### Option 1: Download Installer (Recommended)
+### 그냥 쓰기만 할 경우 (일반 사용자)
 
-The easiest way to get started -- no programming knowledge required.
+| 항목 | 필요 여부 | 설명 |
+|---|---|---|
+| Windows 10/11, macOS, Linux | 필수 | 셋 중 하나의 컴퓨터 |
+| 인터넷 연결 | 필수 | GitHub 검색·AI 호출 시 필요 (완전 오프라인 사용은 캐시된 데이터만 검색 가능) |
+| GitHub 계정 | 선택 | 없어도 씀. 계정에서 발급한 토큰을 넣으면 검색 한도가 늘어남 |
+| AI 서비스 계정/API 키 | 선택 | AI 요약·코드 Q&A를 쓸 때만 필요 |
 
-1. Go to the [Releases](https://github.com/sodam-ai/github-ai-explorer/releases) page
-2. Download the latest version:
+### 소스 코드로 직접 빌드할 경우 (개발자)
 
-| File | Size | Description |
-|------|------|-------------|
-| `GitHub AI Explorer_x64_en-US.msi` | 4.7 MB | Standard Windows installer (recommended). Includes uninstall support via Control Panel. |
-| `GitHub AI Explorer_x64-setup.exe` | 3.3 MB | NSIS portable installer. |
+| 항목 | 확인된 버전(이 프로젝트 개발 환경 기준) | 확인 방법 |
+|---|---|---|
+| [Node.js](https://nodejs.org) | v22.19.0에서 개발/검증됨 (LTS 계열 권장) | `node --version` |
+| [Rust](https://www.rust-lang.org/tools/install) | 1.94.1에서 개발/검증됨 (`rust-version = "1.77.2"` 이상 필요, `src-tauri/Cargo.toml` 명시) | `rustc --version` |
+| [Tauri CLI 사전 요구사항](https://tauri.app/start/prerequisites/) | Windows는 Visual Studio C++ 빌드 도구, macOS는 Xcode Command Line Tools, Linux는 webkit2gtk 등 | 공식 문서 참고 (플랫폼마다 다름 — 본 프로젝트가 직접 명시하지 않으므로 Tauri 공식 문서를 따르는 것이 정확함) |
+| npm (Node.js에 포함) | Node.js 설치 시 자동 포함 | `npm --version` |
 
-3. Run the downloaded file and follow the on-screen instructions
-4. Launch **GitHub AI Explorer** from the Start menu or desktop shortcut
+> **확인된 사실만 표기**: 이 프로젝트의 `package.json`에는 Node 버전을 강제하는 `engines` 필드가 없습니다. 위 표의 버전은 "반드시 이 버전이어야 함"이 아니라 "실제 개발 환경에서 검증된 버전"입니다.
 
-> **Note:** Windows may show a SmartScreen warning for unsigned apps. Click "More info" then "Run anyway" to proceed.
+---
 
-### Option 2: Build from Source
+## 3. 다운로드 방법
 
-For developers who want to modify or contribute to the project.
+### 방법 A. 완성된 프로그램 파일(설치 파일) 받기
 
-#### Prerequisites
+1. 저장소 페이지 접속: **https://github.com/sodam-ai/GitHub-Explorer**
+2. 오른쪽의 **Releases**(릴리스) 메뉴 클릭
+3. 최신 버전에서 내 운영체제에 맞는 파일 다운로드
+   - Windows: `.msi` 또는 `.exe`
+   - macOS: `.dmg`
+   - Linux: `.AppImage` 또는 `.deb`
 
-| Tool | Version | Purpose | Install |
-|------|---------|---------|---------|
-| Node.js | 18+ | JavaScript runtime | [nodejs.org](https://nodejs.org/) |
-| Rust | 1.77+ | Backend compilation | [rustup.rs](https://rustup.rs/) |
-| Visual Studio Build Tools | 2022 | C++ compiler (Windows) | [visualstudio.microsoft.com](https://visualstudio.microsoft.com/visual-cpp-build-tools/) |
-| Git | Latest | Source code management | [git-scm.com](https://git-scm.com/) |
+> ⚠️ **확인 필요 항목**: 이 문서를 작성하는 시점 기준으로 이 저장소에 실제로 릴리스 파일이 게시되어 있는지는 GitHub Releases 페이지에서 직접 확인해야 합니다. 게시된 설치 파일이 없다면 아래 "방법 B"로 소스 코드를 직접 빌드해야 합니다.
 
-#### Step-by-Step Build
+### 방법 B. 소스 코드 받아서 직접 빌드하기 (개발자용, 4번 항목에서 이어서 설명)
 
 ```bash
-# 1. Clone the repository
-git clone https://github.com/sodam-ai/github-ai-explorer.git
-cd github-ai-explorer
+git clone https://github.com/sodam-ai/GitHub-Explorer.git
+cd GitHub-Explorer
+```
 
-# 2. Install frontend dependencies
+---
+
+## 4. 설치 방법
+
+### 방법 A로 받은 경우 (설치 파일)
+
+1. 다운로드한 설치 파일을 더블클릭
+2. 화면 안내에 따라 "다음"을 눌러 진행
+3. Windows에서 "Windows에서 PC를 보호했습니다" 같은 경고가 뜨면 **추가 정보 → 실행**을 눌러 진행 (서명되지 않은 개인 배포 앱에서 흔히 뜨는 표준 경고입니다)
+4. 설치 완료 후 시작 메뉴/응용 프로그램 목록에서 "GitHub AI Explorer" 실행
+
+### 방법 B로 받은 경우 (소스 코드 직접 빌드)
+
+```bash
+# 1) 프로젝트 폴더로 이동 (3번 항목에서 이미 clone 했다면 생략)
+cd GitHub-Explorer
+
+# 2) 프론트엔드 의존성 설치
 npm install
 
-# 3. Run in development mode
-#    First run takes 5-10 minutes (Rust compilation). Subsequent runs start in seconds.
-#    Opens at http://127.0.0.1:7719
-npm run tauri:dev
-
-# 4. Build production installer (.msi + .exe)
+# 3) 데스크톱 앱으로 빌드 (완성된 설치 파일이 src-tauri/target/release/bundle/ 에 생성됨)
 npm run tauri:build
 ```
 
-After building, installers are located at:
-
-```
-src-tauri/target/release/bundle/msi/GitHub AI Explorer_0.3.0_x64_en-US.msi
-src-tauri/target/release/bundle/nsis/GitHub AI Explorer_0.3.0_x64-setup.exe
-```
+빌드에는 컴퓨터 사양에 따라 수 분이 걸릴 수 있습니다(Rust 코드를 처음부터 컴파일하기 때문).
 
 ---
 
-## Getting Started
+## 5. 빠른 시작 (3분)
 
-### Step 1: Choose an AI Provider
+1. 프로그램 실행
+2. 처음 실행하면 뜨는 안내 화면에서 "다음"을 눌러 예시를 확인하거나 "건너뛰기"로 바로 시작
+3. 화면 가운데 검색창에 원하는 걸 자연어로 입력 (예: "React 드래그앤드롭 라이브러리")
+4. Enter 또는 검색 버튼 클릭
+5. 결과 목록에서 저장소를 클릭하면 상세 정보 확인, 우측 상단 북마크 아이콘으로 저장 가능
 
-On first launch, the onboarding guide walks you through setup. Open **Settings** (`Ctrl + ,`) and configure at least one AI provider:
-
-| Provider | Get API Key | Models | Free Tier |
-|----------|-------------|--------|-----------|
-| OpenAI | [platform.openai.com](https://platform.openai.com/api-keys) | GPT-4o, GPT-4o-mini | No |
-| Anthropic | [console.anthropic.com](https://console.anthropic.com/) | Claude 4, Claude 4 Sonnet | No |
-| Google Gemini | [aistudio.google.com](https://aistudio.google.com/apikey) | Gemini 2.5 Pro, Gemini 2.5 Flash | Yes |
-| Groq | [console.groq.com](https://console.groq.com/keys) | LLaMA, Mixtral | Yes |
-| Ollama | [ollama.com](https://ollama.com/) | LLaMA, Mistral, Phi, etc. | Yes (local, no key needed) |
-
-### Step 2: Add a GitHub Token (Optional but Recommended)
-
-A GitHub personal access token increases your API rate limit from **60 to 5,000 requests per hour**.
-
-1. Visit [github.com/settings/tokens](https://github.com/settings/tokens)
-2. Click **"Generate new token (classic)"**
-3. Select the `public_repo` scope
-4. Copy the token and paste it in **Settings > GitHub Token**
-
-### Step 3: Start Searching
-
-Type a natural language query in the search bar and press Enter:
-
-- "React state management library with TypeScript support"
-- "Python machine learning projects for beginners"
-- "Rust web framework with good performance benchmarks"
-- "Open source calendar component with drag and drop"
-
-Use the **Advanced Filters** panel to narrow results by language, stars, license, and more.
+**AI 기능까지 쓰고 싶다면**: 우측 상단 톱니바퀴(설정) 클릭 → "AI 제공자"에서 원하는 서비스의 API 키 입력 → 저장 → 아래 드롭다운에서 사용할 제공자 선택.
 
 ---
 
-## Supported AI Providers
+## 6. 실행 방법
 
-| Provider | Models | Offline | Free Tier | Best For |
-|----------|--------|---------|-----------|----------|
-| OpenAI | GPT-4o, GPT-4o-mini | No | No | Highest quality responses |
-| Anthropic | Claude 4, Claude 4 Sonnet | No | No | Detailed code analysis |
-| Google Gemini | Gemini 2.5 Pro, Flash | No | Yes | Free usage with good quality |
-| Groq | LLaMA, Mixtral | No | Yes | Fastest response times |
-| Ollama | LLaMA, Mistral, Phi, etc. | **Yes** | **Yes** | Privacy-first, fully offline |
+| 상황 | 방법 |
+|---|---|
+| 설치 파일로 설치한 경우 | 시작 메뉴(Windows) / 런치패드(macOS) / 앱 목록(Linux)에서 "GitHub AI Explorer" 클릭 |
+| 소스 코드로 개발 중 확인만 하고 싶은 경우 | 아래 "웹 개발 모드" 참고 |
+| 소스 코드로 데스크톱 앱 형태로 실행 | `npm run tauri:dev` (Rust까지 포함해 실제 데스크톱 창으로 뜸, 최초 실행 시 컴파일로 수 분 소요) |
 
----
+### 웹 개발 모드 (개발자용, 브라우저에서 화면만 빠르게 확인)
 
-## Tech Stack
-
-| Layer | Technology | Version |
-|-------|------------|---------|
-| Desktop Framework | [Tauri](https://tauri.app/) | 2.0 |
-| Frontend | [React](https://react.dev/) | 19 |
-| Language | [TypeScript](https://www.typescriptlang.org/) | 5.9 |
-| Styling | [Tailwind CSS](https://tailwindcss.com/) | 4.2 |
-| Backend | [Rust](https://www.rust-lang.org/) | 1.77+ |
-| Database | [SQLite](https://www.sqlite.org/) via rusqlite | 0.32 |
-| State Management | [Zustand](https://zustand.docs.pmnd.rs/) | 5.0 |
-| Animation | [Framer Motion](https://www.framer.com/motion/) | 12 |
-| Syntax Highlighting | [Prism.js](https://prismjs.com/) | 1.30 |
-| Icons | [Lucide React](https://lucide.dev/) | 0.577 |
-| Routing | [React Router](https://reactrouter.com/) | 7.13 |
-| Toast Notifications | [Sonner](https://sonner.emilkowal.dev/) | 2.0 |
-| Build Tool | [Vite](https://vite.dev/) | 8.0 |
-
----
-
-## Project Structure
-
-```
-github-ai-explorer/
-├── src/                        # React frontend
-│   ├── components/
-│   │   ├── chat/               # Code Q&A panel (RAG-based)
-│   │   ├── collection/         # Bookmarks & collections management
-│   │   ├── search/             # Search bar, filters, results, comparison, code viewer
-│   │   ├── settings/           # Settings page (API keys, theme, language)
-│   │   └── ui/                 # Header, onboarding, tooltips, snippet drawer
-│   ├── hooks/                  # Custom React hooks (infinite scroll, etc.)
-│   ├── lib/                    # Core logic
-│   │   ├── ai.ts               # AI provider integration
-│   │   ├── github.ts           # GitHub API client
-│   │   ├── ollama.ts           # Ollama local AI integration
-│   │   ├── code-qa.ts          # RAG-based code Q&A
-│   │   ├── health-score.ts     # Repository health scoring
-│   │   ├── trending.ts         # Trending dashboard data
-│   │   ├── collections.ts      # Collection management
-│   │   ├── offline-cache.ts    # Offline mode caching
-│   │   ├── ai-benchmark.ts     # AI model benchmarking
-│   │   ├── export-import.ts    # JSON export/import
-│   │   ├── tauri-bridge.ts     # Tauri IPC bridge
-│   │   └── i18n.ts             # Internationalization
-│   ├── pages/                  # Route pages
-│   │   ├── HomePage.tsx        # Landing page with onboarding
-│   │   ├── SearchPage.tsx      # Main search interface
-│   │   ├── StatsPage.tsx       # Usage statistics dashboard
-│   │   └── TrendingPage.tsx    # Trending repositories
-│   ├── stores/                 # Zustand state stores
-│   │   ├── app-store.ts        # Main application state
-│   │   ├── compare-store.ts    # Repository comparison state
-│   │   ├── snippet-store.ts    # Code snippet storage
-│   │   └── watch-store.ts      # Repository watch/alert state
-│   └── types/                  # TypeScript type definitions
-├── src-tauri/                  # Rust backend
-│   ├── src/                    # Tauri commands, SQLite operations
-│   ├── capabilities/           # Tauri permission capabilities
-│   ├── icons/                  # Application icons (ico, icns, png)
-│   ├── tauri.conf.json         # Tauri configuration
-│   ├── Cargo.toml              # Rust dependencies
-│   └── Cargo.lock              # Rust dependency lock file
-├── public/                     # Static assets
-├── PRD/                        # Product requirement documents
-├── package.json                # Node.js dependencies & scripts
-├── vite.config.ts              # Vite build configuration (port 7719)
-├── tsconfig.json               # TypeScript configuration
-└── LICENSE                     # MIT License
+```bash
+npm run dev
 ```
 
----
-
-## Development
-
-### Available Scripts
-
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start Vite dev server only (frontend at `http://127.0.0.1:7719`) |
-| `npm run build` | Build frontend for production |
-| `npm run tauri:dev` | Launch full Tauri app in development mode |
-| `npm run tauri:build` | Build production installer (.msi + .exe) |
-| `npm run lint` | Run ESLint code checks |
-| `npm run preview` | Preview production build locally |
-
-### Development Phases
-
-| Phase | Features | Status |
-|-------|----------|--------|
-| Phase 1 (MVP) | AI search, AI summary, tabs, search history, shortcuts, dark mode, settings, SQLite, GitHub auth | Core features working* |
-| Phase 2 | Code Q&A, bookmarks, collections, health score, comparison, smart folders, code viewer, advanced filters | Mostly working, some partial* |
-| Phase 3 | Ollama local AI, offline mode, trending dashboard, export, auto-update, cache strategy, benchmarks | Core features working, some not yet built* |
-
-\* GitHub auth uses a Personal Access Token, not an OAuth App. Code Q&A works from README + file-tree context, not vector-search RAG. The smart recommendation engine and auto-update are not yet implemented. (Per code audit, 2026-07-20)
+브라우저에서 `http://127.0.0.1:7719` 접속. **주의**: 이 모드는 화면 UI만 빠르게 확인하는 용도입니다. API 키 저장(OS 키체인), 컬렉션 저장(SQLite) 등 데스크톱 전용 기능은 브라우저 모드에서 동작하지 않습니다(안전하게 무시되도록 설계되어 있어 오류는 나지 않지만, 실제로 저장되지는 않습니다).
 
 ---
 
-## Security
+## 7. 사용 방법
 
-| Concern | How it's handled |
-|---------|------------------|
-| API Key Storage | Stored in your OS keychain (e.g. Windows Credential Manager) -- never in the DB or browser storage |
-| Data Transmission | Keys are sent only to their respective provider's official API endpoint |
-| GitHub Token | Stored the same way, in your OS keychain; used exclusively for GitHub API requests |
-| Telemetry | None. Zero analytics or tracking. All data stays on your machine. |
-| Offline Privacy | Use Ollama for fully offline AI -- no network requests whatsoever |
-| Source Code | Fully open source -- inspect and verify everything yourself |
+### 7-1. 저장소 검색
+
+- 검색창에 자연어(또는 키워드)로 검색 → 저장소 / 코드 / 이슈 3개 탭으로 결과 확인
+- "필터 설정"에서 언어, 라이선스, 최소 스타 수, 최근 업데이트 여부 등으로 좁히기
+- 인터넷이 없으면 자동으로 "오프라인 모드"로 전환되어 이전에 검색했던 결과 중에서만 찾아줍니다
+
+### 7-2. 저장소 상세 보기
+
+검색 결과의 저장소를 클릭하면 미리보기 창이 뜹니다. README 기반 핵심 요약(AI 없이 자동 생성), 스타/포크/이슈 수, 최근 릴리스 등을 확인할 수 있습니다.
+
+### 7-3. 북마크(컬렉션)
+
+- 저장소 카드의 북마크 아이콘 클릭 → 새 컬렉션을 만들거나 기존 컬렉션에 추가, 메모 작성 가능
+- 상단 "컬렉션" 메뉴에서 모아둔 저장소를 폴더별로 확인
+- 메모에 URL을 입력하면 자동으로 클릭 가능한 링크로 바뀝니다
+
+### 7-4. AI 검색 요약 / 코드 Q&A 사용하기
+
+1. 설정(⚙️) → "AI 제공자" 섹션에서 사용할 서비스의 API 키 입력 후 저장
+2. 같은 섹션의 "검색 요약·코드 Q&A에 사용할 제공자" 드롭다운에서 실제로 쓸 서비스 선택 (**키를 넣는 것과 별개로, 여기서 선택해야 실제로 사용됩니다**)
+3. 로컬 AI(Ollama, LM Studio)를 쓰려면 키 없이 이 드롭다운에서 선택만 하면 됩니다 (내 컴퓨터에서 해당 프로그램이 실행 중이어야 함)
+4. 저장소 상세 화면의 "코드에 대해 질문하기"에서 자유롭게 질문
+
+지원 AI: **OpenAI, Anthropic(Claude), Google Gemini, Groq**(이상 API 키 필요) / **Ollama, LM Studio**(로컬 실행, 키 불필요)
+
+### 7-5. 트렌딩(인기 저장소)
+
+상단 "트렌딩" 메뉴에서 오늘/이번 주/이번 달 인기 저장소 확인. 별 증가량은 이 프로그램을 실제로 사용하면서 매일 자동으로 기록된 값을 바탕으로 계산되므로, **처음 사용을 시작한 날에는 비교할 과거 기록이 없어 "집계 중"으로 표시됩니다.** 이는 오류가 아니라 정상 동작이며, 데이터가 하루 이상 쌓이면 실제 증가량이 표시됩니다.
+
+### 7-6. 컬렉션 내보내기 / 가져오기
+
+- 설정 → 데이터 → "컬렉션 내보내기": 모아둔 컬렉션 전체를 JSON 파일로 저장(백업, 다른 컴퓨터로 이전 등에 사용)
+- 설정 → 데이터 → "가져오기": 내보냈던 JSON 파일을 선택하면 컬렉션이 복원됩니다. **항상 새 컬렉션으로 추가되며, 기존 컬렉션을 덮어쓰지 않습니다.** 같은 파일을 두 번 가져오면 컬렉션이 중복 생성됩니다.
+
+### 7-7. 테마 / 접근성
+
+- 설정에서 다크/라이트 모드, 강조 색상(6종) 변경 가능
+- Windows/macOS의 "동작 줄이기(모션 감소)" 설정을 켜두면 앱 전체 애니메이션이 자동으로 줄어듭니다
 
 ---
 
-## Troubleshooting
+## 8. 명령어 모음
 
-| Problem | Solution |
-|---------|----------|
-| App won't start | Ensure WebView2 is installed (pre-installed on Windows 10 1803+ and Windows 11) |
-| Search returns no results | Check internet connection; verify GitHub token in Settings if rate-limited |
-| AI features not working | Verify your API key is correct in Settings; check the selected AI provider |
-| Ollama not connecting | Ensure Ollama is running locally (`ollama serve`) and the model is downloaded |
-| Build fails on Windows | Install Visual Studio Build Tools 2022 with the "Desktop development with C++" workload |
-| First build is very slow | Normal -- Rust compilation takes 5-10 minutes on first run; subsequent builds are fast |
-| SmartScreen warning | Click "More info" then "Run anyway" (app is unsigned during development) |
+### 8-1. 앱 안에서 쓰는 단축키
+
+| 단축키 | 동작 |
+|---|---|
+| `Cmd/Ctrl + K` | 커맨드 팔레트 열기 (빠른 이동, 검색, 테마 전환 등) |
+
+### 8-2. 개발자용 명령어 (`package.json` 기준, 실제 존재하는 스크립트만 기재)
+
+| 명령어 | 동작 |
+|---|---|
+| `npm run dev` | 브라우저 기반 개발 서버 실행 (`http://127.0.0.1:7719`) |
+| `npm run build` | 타입체크(`tsc -b`) + 프론트엔드 프로덕션 빌드(`vite build`) |
+| `npm run lint` | ESLint 코드 검사 (`eslint .`) |
+| `npm run preview` | 빌드 결과 미리보기 |
+| `npm run tauri` | Tauri CLI 직접 실행 |
+| `npm run tauri:dev` | 데스크톱 앱 개발 모드 실행 (Rust 포함) |
+| `npm run tauri:build` | 데스크톱 앱 설치 파일 빌드 |
+
+### 8-3. Rust 백엔드 명령어 (`src-tauri` 폴더 안에서 실행)
+
+| 명령어 | 동작 |
+|---|---|
+| `cargo check` | 컴파일 가능 여부만 빠르게 확인 |
+| `cargo clippy` | Rust 정적 분석(코드 품질 검사) |
+| `cargo build --release` | 릴리스용 최적화 빌드 |
+
+> 이 프로젝트에는 **자동화된 유닛 테스트가 설정되어 있지 않습니다** (`package.json`에 `test` 스크립트 없음, 테스트 프레임워크 미설치, `*.test.ts`/`*.spec.ts` 파일 없음 — 실제 확인된 사실). `npm test`는 존재하지 않는 명령입니다.
 
 ---
 
-## Contributing
+## 9. 업데이트 내용 요약
 
-Contributions are welcome! Here's how to get started:
+<details>
+<summary><b>보안 강화 — API 키를 OS 키체인으로 이관</b></summary>
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes and test thoroughly
-4. Commit your changes (`git commit -m 'Add amazing feature'`)
-5. Push to your branch (`git push origin feature/amazing-feature`)
-6. Open a Pull Request
+- 이전에는 앱 설정 안에 평문으로 저장될 수 있었던 API 키/토큰을, Windows Credential Manager 등 **운영체제가 제공하는 안전한 저장소**로 이관했습니다.
+- 기존에 이미 키를 입력해둔 사용자도 다음 실행 시 자동으로 이전됩니다.
+- 검색 API 호출에 최소 요청 간격을 두어 과도한 연속 호출을 방지했습니다.
+</details>
 
-Please ensure your code follows the existing code style and includes appropriate type definitions.
+<details>
+<summary><b>멀티 프로바이더 AI 지원</b></summary>
+
+- 검색 요약과 코드 Q&A 기능이 OpenAI 한 곳에만 묶여있던 것을, **Anthropic(Claude), Google Gemini, Groq, 로컬 Ollama, 로컬 LM Studio**까지 총 6개 제공자 중 선택할 수 있도록 확장했습니다.
+- 설정에서 제공자를 선택하지 않으면 기존과 동일하게 OpenAI를 기본으로 사용하므로, 기존 사용자의 동작은 그대로 유지됩니다.
+- 기본 모델명이 맞지 않을 경우를 대비해 모델명을 직접 입력할 수 있는 칸을 추가했습니다.
+</details>
+
+<details>
+<summary><b>트렌딩 데이터 진위성 개선</b></summary>
+
+- 기존에는 임의의 난수로 "오늘 증가한 스타 수"를 표시했으나, 이를 제거하고 **실제 사용 기록을 하루 단위로 저장해 비교하는 방식**으로 바꿨습니다.
+- 비교할 과거 기록이 없는 경우 거짓 숫자 대신 "집계 중"으로 정직하게 표시합니다.
+</details>
+
+<details>
+<summary><b>저장소 핵심 요약 (AI 불필요)</b></summary>
+
+- README 파일을 분석해 헤더/배지/이미지/표 등을 제거하고 핵심 설명 문단만 추출해 보여주는 기능을 추가했습니다. AI 호출 없이 규칙 기반으로 동작합니다.
+</details>
+
+<details>
+<summary><b>URL 자동 하이퍼링크</b></summary>
+
+- 컬렉션 메모나 코드 Q&A 대화 내용에 URL을 입력하면 자동으로 클릭 가능한 링크로 표시됩니다.
+</details>
+
+<details>
+<summary><b>컬렉션 가져오기 기능 연결</b></summary>
+
+- 내보내기 기능은 있었지만 가져오기 버튼이 동작하지 않던 것을 실제로 연결했습니다. 손상된 백업 파일이나 형식이 다른 파일을 선택해도 명확한 오류 안내가 뜨도록 처리했습니다.
+</details>
+
+<details>
+<summary><b>접근성(Accessibility) 개선</b></summary>
+
+- 운영체제의 "동작 줄이기" 설정을 앱 전체 애니메이션에 자동 반영
+- 아이콘만 있고 설명이 없던 버튼들에 스크린리더용 이름표(aria-label) 추가
+- AI가 답변을 생성하는 동안 스크린리더가 상태를 안내하도록 개선
+- 설정 화면의 입력창들이 화면에는 이름표가 보이지만 실제로는 연결되지 않아 스크린리더가 읽지 못하던 문제 수정
+</details>
+
+<details>
+<summary><b>안정성 개선 — 무한 대기 방지 및 오류 안내</b></summary>
+
+- 로컬 AI(Ollama 등) 서버가 응답하지 않을 때 화면이 무한정 로딩 상태로 멈출 수 있었던 문제를 해결(60초 제한 시간 추가)
+- 내보내기/가져오기 실패 시 아무 반응 없이 조용히 실패하던 것을, 사용자에게 명확한 오류 메시지가 뜨도록 개선
+</details>
 
 ---
 
-## License
+## 10. 파일/문서 위치
+
+| 종류 | 위치 |
+|---|---|
+| 이 문서(한국어 README) | `README.md` (프로젝트 최상위) |
+| 영문 README | `README.en.md` |
+| 왕초보 가이드(한국어) | `GUIDE.md` |
+| 왕초보 가이드(영문) | `GUIDE.en.md` |
+| 이 문서들의 HTML 버전 | `README.html`, `README.en.html`, `GUIDE.html`, `GUIDE.en.html` |
+| 다음 작업 계획/체크포인트 | `CHECKPOINT.md` |
+| 기획 문서(PRD) | `.PRD/` 폴더 (`01_PRD.md`, `02_DATA_MODEL.md`, `03_PHASES.md`, `04_PROJECT_SPEC.md`, `05_WIREFRAMES.md`) — ⚠️ 초기 기획 당시 문서로, 실제 구현과 세부적으로 다른 부분이 있을 수 있습니다. 실제 동작 기준은 이 README와 코드입니다. |
+| 프론트엔드 소스 코드 | `src/` |
+| Rust 백엔드 소스 코드 | `src-tauri/src/` |
+| 앱 아이콘 | `src-tauri/icons/` |
+| Tauri 설정 | `src-tauri/tauri.conf.json` |
+| 프론트엔드 의존성 정의 | `package.json` |
+| Rust 의존성 정의 | `src-tauri/Cargo.toml` |
+
+---
+
+## 11. 워크플로우 (앱 안에서 일이 진행되는 순서)
+
+### 11-1. 검색 흐름
 
 ```
-MIT License
-
-Copyright (c) 2026 SoDam AI Studio
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+사용자가 검색어 입력
+   │
+   ▼
+인터넷 연결 확인
+   ├─ 연결됨 → GitHub API로 저장소/코드/이슈 동시 검색 → 결과 캐시에 저장
+   │              │
+   │              ▼
+   │        AI 제공자가 설정되어 있으면 → 검색 결과 요약 생성 (없으면 안내 문구만 표시)
+   │
+   └─ 끊김 → 이전에 캐시된 결과 중에서만 검색 (오프라인 모드 안내 표시)
 ```
 
-See the full [LICENSE](LICENSE) file for details.
+### 11-2. AI 호출 흐름
+
+```
+사용자가 AI 요약/코드 질문 요청
+   │
+   ▼
+설정에서 선택된 제공자 확인
+   │
+   ├─ OpenAI/Anthropic/Gemini/Groq → 저장된 API 키를 OS 키체인에서 불러와 해당 서비스에 요청
+   ├─ Ollama/LM Studio → 내 컴퓨터의 로컬 서버(예: localhost:11434)에 요청
+   │
+   ▼
+60초 안에 응답 없으면 자동 중단 + 오류 안내
+성공하면 결과 표시
+```
+
+### 11-3. 데이터 저장 흐름
+
+```
+사용자 행동(검색 기록/북마크/설정 변경 등)
+   │
+   ▼
+데스크톱 앱(Tauri) 안에서만 → Rust 백엔드 명령 호출 → 컴퓨터 내 SQLite 파일에 저장
+※ 브라우저 개발 모드에서는 이 저장 단계가 동작하지 않음(안전하게 무시됨)
+```
 
 ---
 
-## Support
+## 12. 아키텍처
 
-If you encounter issues or have questions, please open an issue on [GitHub Issues](https://github.com/sodam-ai/github-ai-explorer/issues).
+### 12-1. 기술 스택
+
+| 영역 | 기술 |
+|---|---|
+| 데스크톱 앱 프레임워크 | Tauri 2.10.3 |
+| 프론트엔드 | React 19.2.4 + TypeScript 5.9.3 |
+| 스타일링 | Tailwind CSS 4.2.2 |
+| 상태 관리 | Zustand 5.0.12 |
+| 애니메이션 | Framer Motion 12.38.0 |
+| 빌드 도구 | Vite 8 |
+| 백엔드(로컬) | Rust + rusqlite 0.32 (SQLite, 앱에 내장되어 별도 설치 불필요) |
+| 안전한 키 저장 | Rust `keyring` 크레이트 (Windows Credential Manager / macOS Keychain / Linux Secret Service) |
+
+### 12-2. 구조 개요
+
+```
+GitHub-Explorer/
+├── src/                      # 프론트엔드 (React)
+│   ├── components/           # 화면별 컴포넌트
+│   ├── lib/                  # API 호출, AI 어댑터, 유틸리티
+│   ├── stores/                # Zustand 전역 상태
+│   └── App.tsx / main.tsx    # 진입점
+├── src-tauri/                # 백엔드 (Rust)
+│   ├── src/
+│   │   ├── commands.rs       # 프론트엔드가 호출하는 명령 20개
+│   │   ├── db/mod.rs         # SQLite 스키마 및 초기화
+│   │   └── lib.rs            # 앱 진입점, 트레이 아이콘, 명령 등록
+│   └── tauri.conf.json       # 앱 설정(이름/버전/창 크기 등)
+└── .PRD/                     # 기획 문서
+```
+
+### 12-3. 중요한 설계상 특징 (기획 문서와 실제 구현의 차이 — 정직하게 명시)
+
+- **GitHub API·AI API는 프론트엔드가 직접 호출**합니다. 초기 기획 문서(`.PRD/04_PROJECT_SPEC.md`)에는 "프론트엔드에서 외부 API 직접 호출 금지, 반드시 Rust 명령을 거칠 것"이라는 원칙이 있었으나, 실제 구현은 이를 따르지 않고 프론트엔드에서 직접 `fetch`합니다. API 키 자체는 Rust 명령을 통해 OS 키체인에 안전하게 저장되므로 키가 코드에 노출되지는 않지만, 이 설계 차이는 사실 그대로 밝힙니다.
+- **GitHub 인증은 개인 접근 토큰(PAT) 방식**입니다. 초기 기획의 OAuth App 방식이 아니라, 사용자가 GitHub 웹사이트에서 직접 발급한 토큰을 붙여넣는 방식으로 구현되어 있습니다.
+- **자동 업데이트 기능은 설정만 되어 있고 미완성 상태**입니다. `tauri.conf.json`에 업데이트 서버 주소는 있지만, 업데이트 파일 서명에 필요한 공개키(`pubkey`)가 비어 있어 실제로는 작동하지 않을 가능성이 높습니다.
 
 ---
 
-<p align="center">
-  Made with care by <a href="https://github.com/sodam-ai">SoDam AI Studio</a>
-</p>
+## 13. 보안 및 데이터 흐름
+
+### 13-1. 무엇이, 어디에 저장되는가
+
+| 데이터 | 저장 위치 | 평문 저장 여부 |
+|---|---|---|
+| GitHub 토큰, OpenAI/Anthropic/Gemini/Groq API 키 | OS 키체인(Windows Credential Manager 등) | 아니오 — OS가 암호화 관리 |
+| 검색 기록, 컬렉션, 대화 내역, 테마 설정 | 내 컴퓨터의 SQLite 파일 / 브라우저 localStorage(테마 등 비민감 설정만) | 해당 데이터는 민감정보가 아니므로 평문이나, 컴퓨터 밖으로 전송되지 않음 |
+
+### 13-2. 외부로 나가는 데이터
+
+| 목적지 | 전송되는 내용 | 시점 |
+|---|---|---|
+| GitHub API (`api.github.com`) | 검색어, (설정 시) GitHub 토큰 | 검색·저장소 상세 조회 시 |
+| 선택한 AI 제공자(OpenAI/Anthropic/Gemini/Groq 서버, 또는 내 컴퓨터의 Ollama/LM Studio) | 검색 결과 요약 대상 저장소 정보, 코드 질문 내용, (클라우드 제공자의 경우) API 키 | AI 요약/코드 Q&A 사용 시에만 |
+
+이 프로그램 자체를 위한 별도 서버는 없습니다. 즉, 사용자의 검색어나 대화 내용을 이 프로그램의 개발자가 수집하는 경로는 존재하지 않습니다(단, 사용자가 선택한 AI 제공자·GitHub의 자체 개인정보처리방침은 각 서비스 정책을 따릅니다).
+
+### 13-3. 알려진 보안 관련 한계 (정직하게 명시)
+
+- 데스크톱 앱의 콘텐츠 보안 정책(CSP)이 비활성화(`null`)되어 있어, 다양한 외부 API 호출은 자유롭지만 웹 표준의 CSP 방어선은 적용되지 않습니다.
+- 자동 유닛 테스트가 없어 보안 관련 회귀는 수동 검증에 의존합니다.
+
+---
+
+## 14. 문제 해결 (트러블슈팅)
+
+| 증상 | 원인 | 대처 방법 |
+|---|---|---|
+| "Windows에서 PC를 보호했습니다" 경고가 뜸 | 서명되지 않은 배포 파일이라 Windows Defender SmartScreen이 기본 경고를 표시 | "추가 정보" → "실행" 클릭 |
+| AI 요약이 "AI 요약을 사용하려면 설정에서 API 키를 입력하세요"로만 나옴 | API 키 미입력 또는 제공자 미선택 | 설정 → AI 제공자에서 키 입력 저장 **+ 드롭다운에서 실제 사용할 제공자 선택** (키만 넣고 선택을 안 하면 적용되지 않음) |
+| Ollama/LM Studio를 선택했는데 응답이 안 옴 | 로컬 AI 프로그램이 실행 중이 아님 | 해당 프로그램을 먼저 실행하고 서버가 켜진 상태인지 확인(기본 주소 Ollama: `localhost:11434`, LM Studio: `localhost:1234`) |
+| 트렌딩 화면에 숫자 대신 "집계 중"만 보임 | 비교할 과거 데이터가 아직 없음(오류 아님) | 하루 이상 사용 후 다시 확인 |
+| 검색이 너무 적게 됨 / 자주 한도 초과 메시지 | GitHub API 요청 한도(토큰 미입력 시 시간당 60회) | 설정에서 GitHub 개인 접근 토큰 입력(시간당 5,000회로 증가) |
+| 가져오기 시 "올바르지 않은 백업 파일입니다" | 파일이 이 앱에서 내보낸 형식이 아니거나 손상됨 | 이 앱의 "컬렉션 내보내기"로 만든 `.json` 파일인지 확인 |
+| 빌드 중 Rust 오류 | Rust 도구 체인 문제 또는 캐시 손상 | `cd src-tauri && cargo clean` 후 재시도 |
+| `npm run tauri:dev` 실행이 아주 느림 | 최초 실행 시 Rust 전체 컴파일 | 정상 현상, 수 분 대기(두 번째 실행부터는 빨라짐) |
+
+---
+
+## 15. FAQ (자주 묻는 질문)
+
+**Q. 이 프로그램은 무료인가요?**
+A. 프로그램 자체 사용에 요금은 없습니다. 다만 클라우드 AI 제공자(OpenAI 등)의 API 키를 사용하면 해당 서비스의 별도 요금 정책이 적용됩니다. 로컬 AI(Ollama, LM Studio)는 요금이 발생하지 않습니다.
+
+**Q. 인터넷 없이도 쓸 수 있나요?**
+A. 이전에 검색해서 캐시에 저장된 결과 안에서는 오프라인 검색이 가능합니다. 새로운 검색이나 AI 기능은 인터넷이 필요합니다.
+
+**Q. 제 검색 기록이나 API 키가 어딘가로 전송되나요?**
+A. 이 프로그램을 만든 곳으로 전송되는 경로는 없습니다. GitHub 검색은 GitHub 서버로, AI 기능은 사용자가 직접 선택한 AI 제공자 서버로만 전송됩니다(13장 참고).
+
+**Q. GitHub 계정이 꼭 있어야 하나요?**
+A. 아니요. 계정 없이도 검색·북마크·트렌딩을 쓸 수 있습니다. 계정에서 발급한 토큰을 넣으면 검색 한도만 늘어납니다.
+
+**Q. 여러 AI 서비스를 동시에 쓸 수 있나요?**
+A. 키는 여러 개를 동시에 저장해둘 수 있지만, 실제로 검색 요약/코드 Q&A에 쓰이는 것은 설정에서 선택한 제공자 **1개**입니다.
+
+**Q. 모바일(스마트폰/태블릿)에서도 쓸 수 있나요?**
+A. 아니요. 이 프로그램은 Windows/macOS/Linux용 데스크톱 프로그램입니다. 모바일 버전은 없습니다(확인된 사실).
+
+**Q. 자동 업데이트가 되나요?**
+A. 현재는 설정만 있고 실제로 작동하지 않을 가능성이 높은 미완성 상태입니다(12-3 참고). 최신 버전은 GitHub Releases 페이지에서 직접 확인하시는 것을 권장합니다.
+
+**Q. 이 프로그램을 상업적으로 써도 되나요?**
+A. 16장(라이선스)을 반드시 먼저 확인하세요.
+
+---
+
+## 16. 라이선스 / 저작권 / 상업적 용도
+
+> ⚠️ **면책 고지**: 이 항목은 법률 자문이 아니며 법적 효력을 보장하지 않습니다. 실제 사업적/법적 판단이 필요한 경우 반드시 변호사 등 전문가와 상담하시기 바랍니다. 아래 내용은 확인된 사실을 기반으로 한 안내입니다.
+
+### 16-1. 확인된 사실
+
+**이 저장소에는 현재 별도의 LICENSE 파일이 존재하지 않습니다.** (이 문서 작성 시점에 프로젝트 최상위 폴더를 직접 확인한 결과이며, 추측이 아닙니다.)
+
+### 16-2. 이것이 의미하는 것 (일반적인 저작권법 원칙)
+
+라이선스가 명시되지 않은 소프트웨어는, 저장소가 공개(public)되어 있어 코드를 볼 수 있다는 것과 **그 코드를 사용/복사/수정/배포/상업적으로 이용해도 된다는 것은 전혀 별개**입니다. 국제적으로 통용되는 저작권법의 기본 원칙상, 명시적인 라이선스가 없으면 **원저작자가 모든 권리를 보유("All rights reserved")한 것으로 취급되는 것이 원칙**이며, 제3자의 사용·복제·수정·배포·상업적 이용은 원저작자의 별도 허락 없이는 제한될 수 있습니다.
+
+### 16-3. 사용 전 확인해야 할 것
+
+- 이 프로젝트를 개인적으로 참고하거나 학습 목적으로 코드를 읽는 것과, 실제로 코드를 가져다 쓰거나 재배포·상업적으로 이용하는 것은 다른 문제입니다.
+- 상업적 이용, 재배포, 파생 저작물 제작을 고려하신다면 **저장소 소유자(sodam-ai)에게 직접 문의하여 명시적인 허락 또는 향후 추가될 수 있는 LICENSE 파일의 내용을 확인**하시기 바랍니다.
+- 이 프로젝트는 다음과 같은 서드파티 오픈소스 라이브러리를 사용합니다(React, Tauri, Rust `keyring` 크레이트 등 다수, `package.json`/`src-tauri/Cargo.toml`에 전체 목록 명시). 각 라이브러리는 이 프로젝트와 별개로 **자체 라이선스**를 가지고 있으며, 그 라이선스 조건은 각 라이브러리 저장소에서 확인해야 합니다.
+
+### 16-4. 상표 및 GitHub 관련 고지
+
+"GitHub"는 GitHub, Inc.의 상표입니다. 이 프로젝트는 GitHub의 공식 제품이 아니며, GitHub의 공개 API를 이용하는 독립적인 서드파티 도구입니다.
+
+---
+
+<sub>이 문서는 2026-07-20 기준 실제 소스 코드와 설정 파일을 직접 확인하여 작성되었습니다. 프로젝트가 업데이트되면 이 문서와 실제 동작이 달라질 수 있습니다.</sub>
