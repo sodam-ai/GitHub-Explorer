@@ -2,7 +2,7 @@
 
 > A personal desktop app for searching GitHub repositories in plain language, asking AI about code, and collecting repositories you like.
 
-[한국어](./README.md) · [View the Beginner's Guide](./GUIDE.en.md)
+[한국어](./README.md)
 
 ---
 
@@ -281,9 +281,7 @@ Check today's / this week's / this month's trending repositories under the "Tren
 |---|---|
 | This document (Korean README) | `README.md` (project root) |
 | English README | `README.en.md` |
-| Beginner's Guide (Korean) | `GUIDE.md` |
-| Beginner's Guide (English) | `GUIDE.en.md` |
-| HTML versions of the above | `README.html`, `README.en.html`, `GUIDE.html`, `GUIDE.en.html` |
+| HTML versions of the above | `README.html`, `README.en.html` |
 | Next-step plan / checkpoint | `CHECKPOINT.md` |
 | Planning documents (PRD) | `.PRD/` folder (`01_PRD.md`, `02_DATA_MODEL.md`, `03_PHASES.md`, `04_PROJECT_SPEC.md`, `05_WIREFRAMES.md`) — ⚠️ these are early planning documents and may differ from the actual implementation in places. This README and the source code are the source of truth for actual behavior. |
 | Frontend source code | `src/` |

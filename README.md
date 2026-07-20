@@ -2,7 +2,7 @@
 
 > 일상 언어로 GitHub 저장소를 검색하고, AI로 코드에 대해 질문하고, 마음에 드는 저장소를 모아두는 개인용 데스크톱 앱입니다.
 
-[English](./README.en.md) · [왕초보 가이드 보기](./GUIDE.md)
+[English](./README.en.md)
 
 ---
 
@@ -281,9 +281,7 @@ npm run dev
 |---|---|
 | 이 문서(한국어 README) | `README.md` (프로젝트 최상위) |
 | 영문 README | `README.en.md` |
-| 왕초보 가이드(한국어) | `GUIDE.md` |
-| 왕초보 가이드(영문) | `GUIDE.en.md` |
-| 이 문서들의 HTML 버전 | `README.html`, `README.en.html`, `GUIDE.html`, `GUIDE.en.html` |
+| 이 문서들의 HTML 버전 | `README.html`, `README.en.html` |
 | 다음 작업 계획/체크포인트 | `CHECKPOINT.md` |
 | 기획 문서(PRD) | `.PRD/` 폴더 (`01_PRD.md`, `02_DATA_MODEL.md`, `03_PHASES.md`, `04_PROJECT_SPEC.md`, `05_WIREFRAMES.md`) — ⚠️ 초기 기획 당시 문서로, 실제 구현과 세부적으로 다른 부분이 있을 수 있습니다. 실제 동작 기준은 이 README와 코드입니다. |
 | 프론트엔드 소스 코드 | `src/` |
