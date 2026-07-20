@@ -26,3 +26,6 @@ desktop.ini
 # Logs
 *.log
 npm-debug.log*
+
+# Local-only work notes (not for public repo)
+CHECKPOINT.md
